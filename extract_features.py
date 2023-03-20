@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 import clip
+import torch.nn.functional as F
+
 
 def CIFAR100_EXTRACT_FEATURE_CLIP():
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device)
 
@@ -18,7 +19,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
     record = [[] for _ in range(100)]
 
-    batch_size = 10
+    batch_size = 256
     print('Data Loader')
     data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -30,21 +31,50 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
             extracted_feature = model.encode_image(data)
         for i in range(extracted_feature.shape[0]):
             record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': index[i]})
-    return record
 
 
-x = CIFAR100_EXTRACT_FEATURE_CLIP()
-print(x)
+    total_len = sum([len(a) for a in record])
+    origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
+    origin_label = torch.zeros(total_len).long()
+    index_rec = np.zeros(total_len, dtype=int)
+    cnt, lb = 0, 0
+    for item in record:
+        for i in item:
+            # if i['index'] not in sel_noisy:
+            origin_trans[cnt] = i['feature']
+            origin_label[cnt] = lb
+            index_rec[cnt] = i['index']
+            cnt += 1
+            # print(cnt)
+        lb += 1
+    data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
+
+    KINDS = 100
+    all_point_cnt = data_set['feature'].shape[0]
+
+    sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
+    # final_feat, noisy_label = get_feat_clusters(data_set, sample)
+    final_feat = data_set['feature'][sample]
+    sel_idx = data_set['index'][sample]
+    Dist = cosDistance(final_feat)
+    # min_similarity = 0.0
+    values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
+
+    return indices, sel_idx
+
+
+def cosDistance(features):
+    # features: N*M matrix. N features, each features is M-dimension.
+    features = F.normalize(features, dim=1)  # each feature's l2-norm should be 1
+    similarity_matrix = torch.matmul(features, features.T)
+    distance_matrix = 1.0 - similarity_matrix
+    return distance_matrix
 
     # extracted_feature = model.encode_image(data)
     # features.append(extracted_feature.cpu().numpy())
     # data = Variable(data)
     # labels.append(labels.cpu().numpy())
     # indices.extend(index)
-
-
-
-
 
 # Install necessary packages
 # !pip install torch torchvision openai-clip
