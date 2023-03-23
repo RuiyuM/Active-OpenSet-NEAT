@@ -524,7 +524,7 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
 
     # queryIndex 存放known class的地方
     queryIndex = []
-
+    queryIndex_unknown = []
     index_knn = {}
     for i in range(len(sel_idx)):
         if sel_idx[i] not in index_knn:
@@ -567,10 +567,11 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                         count_known += 1
                     else:
                         count_unknown += 1
-            if count_unknown < 4:
-                queryIndex.append([key, value[0]])
+            if count_unknown >= 4:
+                queryIndex_unknown.append([key, value[0]])
 
     queryIndex = sorted(queryIndex, key=lambda x: x[1][1], reverse=True)
+    queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
 
     # 取前1500个index
     # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
@@ -584,8 +585,27 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
             final_chosen_index.append(num)
         elif num3 >= args.known_class:
             invalid_index.append(num)
+    if len(queryIndex_unknown)> 1000:
+        for item in queryIndex_unknown[:1000]:
+            num = item[0]
+            num3 = item[1][2]
 
-    precision = len(final_chosen_index) / 1000
+            if num3 < args.known_class:
+                final_chosen_index.append(num)
+            elif num3 >= args.known_class:
+                invalid_index.append(num)
+    else:
+        for item in queryIndex_unknown:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                final_chosen_index.append(num)
+            elif num3 >= args.known_class:
+                invalid_index.append(num)
+
+    precision = len(final_chosen_index) / 2000
+    print(len(queryIndex_unknown))
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
             len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
     return final_chosen_index, invalid_index, precision, recall
