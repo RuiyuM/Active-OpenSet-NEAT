@@ -25,7 +25,7 @@ import torchvision.models as torch_models
 import pickle
 from utils import AverageMeter, Logger
 from center_loss import CenterLoss
-from sklearn.mixture import GaussianMixture
+
 
 
 from extract_features import CIFAR100_EXTRACT_FEATURE_CLIP

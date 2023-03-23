@@ -27,16 +27,33 @@ import csv
 # tsne = TSNE(n_components=2).fit_transform(csv_data)
 # # print(tsne)
 import numpy as np
+# class CustomCIFAR100Dataset(Dataset):
+#     def __init__(self, root="./data/cifar100", train=True, download=True, transform=None):
+#         self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+#
+#     def __getitem__(self, index):
+#         data_point, label = self.cifar100_dataset[index]
+#         return index, (data_point, label)
+#
+#     def __len__(self):
+#         return len(self.cifar100_dataset)
 class CustomCIFAR100Dataset(Dataset):
-    def __init__(self, root="./data/cifar100", train=True, download=True, transform=None):
-        self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+    cifar100_dataset = None
+
+    @classmethod
+    def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+        cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+
+    def __init__(self):
+        if CustomCIFAR100Dataset.cifar100_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
 
     def __getitem__(self, index):
-        data_point, label = self.cifar100_dataset[index]
+        data_point, label = CustomCIFAR100Dataset.cifar100_dataset[index]
         return index, (data_point, label)
 
     def __len__(self):
-        return len(self.cifar100_dataset)
+        return len(CustomCIFAR100Dataset.cifar100_dataset)
 # Load CSV file
 # csv_data = np.loadtxt('C:\\Users\\maoda\\OneDrive\\Desktop\\OSA\\LfOSA\\A_features_epoch99_query_9.csv', delimiter=',')
 #
@@ -52,7 +69,9 @@ crop = transforms.RandomCrop(32, padding=4)
 normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
 
 preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
-custom_cifar100_dataset = CustomCIFAR100Dataset(train=True, download=True, transform=preprocess_rand)
+CustomCIFAR100Dataset.load_dataset(transform=preprocess_rand)
+custom_cifar100_dataset = CustomCIFAR100Dataset()
+# custom_cifar100_dataset = CustomCIFAR100Dataset(transform=preprocess_rand)
 # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
 record = [[] for _ in range(100)]
 

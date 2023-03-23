@@ -2,22 +2,30 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
-from torch.autograd import Variable
+
 import clip
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
 
-class CustomCIFAR100Dataset(Dataset):
-    def __init__(self, root="./data/cifar100", train=True, download=True, transform=None):
-        self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+class CustomCIFAR100Dataset_train(Dataset):
+    cifar100_dataset = None
+    targets = None
+
+    @classmethod
+    def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+        cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+        cls.targets = cls.cifar100_dataset.targets
+    def __init__(self):
+        if CustomCIFAR100Dataset_train.cifar100_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
 
     def __getitem__(self, index):
-        data_point, label = self.cifar100_dataset[index]
+        data_point, label = CustomCIFAR100Dataset_train.cifar100_dataset[index]
         return index, (data_point, label)
 
     def __len__(self):
-        return len(self.cifar100_dataset)
+        return len(CustomCIFAR100Dataset_train.cifar100_dataset)
 
 
 
@@ -31,7 +39,8 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
 
     # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
-    train_data = CustomCIFAR100Dataset(train=True, download=True, transform=preprocess_rand)
+    CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
+    train_data = CustomCIFAR100Dataset_train()
     record = [[] for _ in range(100)]
 
     batch_size = 256
@@ -45,7 +54,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
         with torch.no_grad():
             extracted_feature = model.encode_image(data)
         for i in range(extracted_feature.shape[0]):
-            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': index[i]})
+            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
 
 
     total_len = sum([len(a) for a in record])

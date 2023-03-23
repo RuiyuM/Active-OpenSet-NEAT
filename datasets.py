@@ -1,21 +1,59 @@
+import numpy as np
 import torch
 import torchvision
+from torch.utils.data import DataLoader
 from torch.utils.data import SubsetRandomSampler
-from torch.utils.data import Dataset, DataLoader
-from torchvision import datasets, transforms
 from simclr.modules.transformations import TransformsSimCLR
+from torch.utils.data import Dataset
+from torchvision import datasets
 import random
 import transforms
 
+known_class = -1
+init_percent = -1
 
 
-SEED = 1
-random.seed(SEED)
+class CustomCIFAR100Dataset_train(Dataset):
+    cifar100_dataset = None
+    targets = None
+
+    @classmethod
+    def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+        cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+        cls.targets = cls.cifar100_dataset.targets
+    def __init__(self):
+        if CustomCIFAR100Dataset_train.cifar100_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+    def __getitem__(self, index):
+        data_point, label = CustomCIFAR100Dataset_train.cifar100_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(CustomCIFAR100Dataset_train.cifar100_dataset)
+
+class CustomCIFAR100Dataset_test(Dataset):
+    cifar100_dataset = None
+    targets = None
+    @classmethod
+    def load_dataset(cls, root="./data/cifar100", train=False, download=True, transform=None):
+        cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+        cls.targets = cls.cifar100_dataset.targets
+
+    def __init__(self):
+        if CustomCIFAR100Dataset_test.cifar100_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+    def __getitem__(self, index):
+        data_point, label = CustomCIFAR100Dataset_test.cifar100_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(CustomCIFAR100Dataset_test.cifar100_dataset)
+
 class MNIST(object):
-    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED, unlabeled_ind_train=None, labeled_ind_train=None):
-        torch.manual_seed(SEED)
-        random.seed(SEED)
-
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
+                 labeled_ind_train=None):
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
@@ -25,7 +63,7 @@ class MNIST(object):
 
         trainset = torchvision.datasets.MNIST(root='./data/mnist', train=True, download=True, transform=transform)
         ## 初始化
-        if unlabeled_ind_train==None and labeled_ind_train == None:
+        if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
                 labeled_ind_train, unlabeled_ind_train = self.filter_known_unknown_10percent(trainset)
                 self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train
@@ -52,7 +90,7 @@ class MNIST(object):
                 trainset, batch_size=batch_size, shuffle=True,
                 num_workers=num_workers, pin_memory=pin_memory,
             )
-        
+
         testset = torchvision.datasets.MNIST(root='./data/mnist', train=False, download=True, transform=transform)
         filter_ind_test = self.filter_known_unknown(testset)
         self.filter_ind_test = filter_ind_test
@@ -100,18 +138,13 @@ class MNIST(object):
 
 
 class CIFAR100(object):
-    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED, unlabeled_ind_train=None,
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
                  labeled_ind_train=None):
-        torch.manual_seed(SEED)
-        random.seed(SEED)
-        # the following tech called data augmentation
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(15),
             transforms.ToTensor(),
-            # This results in an image tensor with values centered
-            # around zero and scaled to a range of approximately -1 to 1.
             transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
         ])
 
@@ -121,9 +154,10 @@ class CIFAR100(object):
         ])
 
         pin_memory = True if use_gpu else False
-
-        # trainset = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True, transform=transform_train)
-        trainset = CustomCIFAR100Dataset(train=True, download=True, transform=transform_train)
+        CustomCIFAR100Dataset_train.load_dataset(transform=transform_train)
+        # trainset = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True,
+        #                                          transform=transform_train)
+        trainset = CustomCIFAR100Dataset_train()
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
@@ -154,7 +188,9 @@ class CIFAR100(object):
             )
 
         # testset = torchvision.datasets.CIFAR100("./data/cifar100", train=False, download=True, transform=transform_test)
-        testset = CustomCIFAR100Dataset(train=True, download=True, transform=transform_test)
+        CustomCIFAR100Dataset_test.load_dataset(transform=transform_test)
+        testset = CustomCIFAR100Dataset_test()
+
         filter_ind_test = self.filter_known_unknown(testset)
         self.filter_ind_test = filter_ind_test
 
@@ -201,10 +237,8 @@ class CIFAR100(object):
 
 
 class CIFAR10(object):
-    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED, unlabeled_ind_train=None,
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
                  labeled_ind_train=None):
-        torch.manual_seed(SEED)
-        random.seed(SEED)
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
@@ -295,16 +329,6 @@ class CIFAR10(object):
         unlabeled_ind = unlabeled_ind + filter_ind[len(filter_ind) * init_percent // 100:]
         return labeled_ind, unlabeled_ind
 
-class CustomCIFAR100Dataset(Dataset):
-    def __init__(self, root="./data/cifar100", train=True, download=True, transform=None):
-        self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
-
-    def __getitem__(self, index):
-        data_point, label = self.cifar100_dataset[index]
-        return index, (data_point, label)
-
-    def __len__(self):
-        return len(self.cifar100_dataset)
 
 __factory = {
     'mnist': MNIST,
@@ -312,11 +336,15 @@ __factory = {
     'cifar10': CIFAR10,
 }
 
-def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED,unlabeled_ind_train=None, labeled_ind_train=None):
+
+def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED,
+           unlabeled_ind_train=None, labeled_ind_train=None):
     global known_class, init_percent
+    torch.manual_seed(SEED)
+    np.random.seed(SEED)
+    random.seed(SEED)
     known_class = known_class_
-    #  8% examples as initialization labeled set o
     init_percent = init_percent_
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
-    return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, SEED, unlabeled_ind_train, labeled_ind_train)
+    return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train)
