@@ -1,7 +1,8 @@
 ﻿# Active Learning for Open-set Annotation
 
 The parameters I used for experiment: 
---gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
+
+python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
 
 ## 1. Requirements
 ### Environments
