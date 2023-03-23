@@ -440,6 +440,16 @@ def plot_features(features, labels, num_classes, epoch, prefix):
     plt.savefig(save_name, bbox_inches='tight')
     plt.close()
 
+# class CustomCIFAR100Dataset(Dataset):
+#     def __init__(self, root='./data/', train=True, download=True, transform=None):
+#         self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+#
+#     def __getitem__(self, index):
+#         data_point, label = self.cifar100_dataset[index]
+#         return index, (data_point, label)
+#
+#     def __len__(self):
+#         return len(self.cifar100_dataset)
 
 if __name__ == '__main__':
     main()

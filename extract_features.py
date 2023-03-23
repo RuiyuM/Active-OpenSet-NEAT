@@ -5,6 +5,20 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 import clip
 import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+
+
+class CustomCIFAR100Dataset(Dataset):
+    def __init__(self, root="./data/cifar100", train=True, download=True, transform=None):
+        self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+
+    def __getitem__(self, index):
+        data_point, label = self.cifar100_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(self.cifar100_dataset)
+
 
 
 def CIFAR100_EXTRACT_FEATURE_CLIP():
@@ -16,7 +30,8 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
 
     preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
 
-    train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
+    # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
+    train_data = CustomCIFAR100Dataset(train=True, download=True, transform=preprocess_rand)
     record = [[] for _ in range(100)]
 
     batch_size = 256
