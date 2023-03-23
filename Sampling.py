@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.mixture import GaussianMixture
 import torch
-import torch.nn as nn
+
 import torch.nn.functional as F
 
-from better_vae import kl_divergence
+
 
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
@@ -24,7 +24,7 @@ def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu
     queryLabelArr = tmp_data[1][:args.query_batch]
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-                len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -482,7 +482,8 @@ def My_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
-def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList, indices, sel_idx):
+def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList,
+                      indices, sel_idx):
     model.eval()
     queryIndex = []
     labelArr = []
@@ -504,7 +505,7 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
         v_ij, predicted = outputs.max(1)
         for i in range(len(predicted.data)):
             tmp_class = np.array(predicted.data.cpu())[i]
-            tmp_index = index[i]
+            tmp_index = index[i].item()
             tmp_label = np.array(labels.data.cpu())[i]
             tmp_value = np.array(v_ij.data.cpu())[i]
             if tmp_index not in S_ij:
@@ -513,7 +514,6 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
     # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
 
     # my_sampling
-
 
     # Resnet : 预测出unknown，附近的10个点中的6个及以上都是unknown就铁定是unkown
     # 				Else：known
@@ -585,7 +585,7 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
             final_chosen_index.append(num)
         elif num3 >= args.known_class:
             invalid_index.append(num)
-    if len(queryIndex_unknown)> 1000:
+    if len(queryIndex_unknown) > 1000:
         for item in queryIndex_unknown[:1000]:
             num = item[0]
             num3 = item[1][2]
