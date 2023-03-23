@@ -3,7 +3,6 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 from torch.utils.data import SubsetRandomSampler
-from simclr.modules.transformations import TransformsSimCLR
 from torch.utils.data import Dataset
 from torchvision import datasets
 import random
