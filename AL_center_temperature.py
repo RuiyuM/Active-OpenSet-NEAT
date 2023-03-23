@@ -77,7 +77,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    # indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
+    indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
 
     if args.use_cpu: use_gpu = False
 
@@ -214,10 +214,10 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.Max_AV_sampling(args, unlabeledloader,
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu)
-        # elif args.query_strategy == "My_Query_Strategy":
-        #     queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
-        #                                                                                          len(labeled_ind_train),
-        #                                                                                          model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+        elif args.query_strategy == "My_Query_Strategy":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
 
 
