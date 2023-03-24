@@ -28,7 +28,6 @@ class CustomCIFAR100Dataset_train(Dataset):
         return len(CustomCIFAR100Dataset_train.cifar100_dataset)
 
 
-
 def CIFAR100_EXTRACT_FEATURE_CLIP():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device)
@@ -43,7 +42,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     train_data = CustomCIFAR100Dataset_train()
     record = [[] for _ in range(100)]
 
-    batch_size = 256
+    batch_size = 1024
     print('Data Loader')
     data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
     device = "cuda" if torch.cuda.is_available() else "cpu"

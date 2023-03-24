@@ -91,6 +91,8 @@ def main():
         print("Currently using CPU")
 
     print("Creating dataset: {}".format(args.dataset))
+
+
     dataset = datasets.create(
         name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
         batch_size=args.batch_size, use_gpu=use_gpu,
@@ -142,6 +144,7 @@ def main():
             model_A = nn.DataParallel(model_A).cuda()
             model_B = nn.DataParallel(model_B).cuda()
 
+
         criterion_xent = nn.CrossEntropyLoss()
         criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
         optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
@@ -152,8 +155,10 @@ def main():
             scheduler_A = lr_scheduler.StepLR(optimizer_model_A, step_size=args.stepsize, gamma=args.gamma)
             scheduler_B = lr_scheduler.StepLR(optimizer_model_B, step_size=args.stepsize, gamma=args.gamma)
 
+
         # Model training
         for epoch in tqdm(range(args.max_epoch)):
+
             # Train model A for detecting unknown classes
             train_A(model_A, criterion_xent, criterion_cent,
                     optimizer_model_A, optimizer_centloss,
@@ -221,7 +226,6 @@ def main():
 
 
 
-
         # Update labeled, unlabeled and invalid set
         unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
         labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
@@ -231,13 +235,15 @@ def main():
             args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
             Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
             len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
+        
         dataset = datasets.create(
             name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
             batch_size=args.batch_size, use_gpu=use_gpu,
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
-            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train + invalidList,
+            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train, invalidList = invalidList,
         )
-        trainloader_A, testloader, unlabeledloader = dataset.trainloader, dataset.testloader, dataset.unlabeledloader
+        
+        trainloader_A, testloader = dataset.trainloader, dataset.testloader
         # labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
         B_dataset = datasets.create(
             name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
@@ -245,7 +251,7 @@ def main():
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
             unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
         )
-        trainloader_B = B_dataset.trainloader
+        trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
     ## Save results
     with open(
@@ -289,15 +295,21 @@ def train_A(model, criterion_xent, criterion_cent,
     unknown_T = args.unknown_T
     invalid_class = args.known_class
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
+        
         # Reduce temperature
         T = torch.tensor([known_T] * labels.shape[0], dtype=float)
+        
+        '''
         for i in range(len(labels)):
             # Annotate "unknown"
             if index[i] in invalidList:
                 labels[i] = invalid_class
                 T[i] = unknown_T
+        '''
+
         if use_gpu:
             data, labels, T = data.cuda(), labels.cuda(), T.cuda()
+
         features, outputs = model(data)
         outputs = outputs / T.unsqueeze(1)
         loss_xent = criterion_xent(outputs, labels)

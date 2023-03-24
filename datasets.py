@@ -13,23 +13,33 @@ init_percent = -1
 
 
 class CustomCIFAR100Dataset_train(Dataset):
-    cifar100_dataset = None
-    targets = None
+    #cifar100_dataset = None
+    #targets = None
 
-    @classmethod
-    def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
-        cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
-        cls.targets = cls.cifar100_dataset.targets
-    def __init__(self):
-        if CustomCIFAR100Dataset_train.cifar100_dataset is None:
-            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+    #@classmethod
+    #def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+    #    cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+    #    cls.targets = cls.cifar100_dataset.targets
+    
+    def __init__(self, root="./data/cifar100", train=True, download=True, transform=None, invalidList=None):
+        #if CustomCIFAR100Dataset_train.cifar100_dataset is None:
+        #    raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+        self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+        self.targets = self.cifar100_dataset.targets
+
+        if invalidList is not None:
+
+            targets = np.array(self.cifar100_dataset.targets)
+            targets[targets >= known_class] = known_class
+            self.cifar100_dataset.targets = targets.tolist()
 
     def __getitem__(self, index):
-        data_point, label = CustomCIFAR100Dataset_train.cifar100_dataset[index]
+        data_point, label = self.cifar100_dataset[index]
         return index, (data_point, label)
 
     def __len__(self):
-        return len(CustomCIFAR100Dataset_train.cifar100_dataset)
+        return len(self.cifar100_dataset)
 
 class CustomCIFAR100Dataset_test(Dataset):
     cifar100_dataset = None
@@ -138,7 +148,7 @@ class MNIST(object):
 
 class CIFAR100(object):
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
-                 labeled_ind_train=None):
+                 labeled_ind_train=None, invalidList=None):
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
@@ -153,10 +163,16 @@ class CIFAR100(object):
         ])
 
         pin_memory = True if use_gpu else False
-        CustomCIFAR100Dataset_train.load_dataset(transform=transform_train)
+
+        if invalidList is not None:
+            labeled_ind_train = labeled_ind_train + invalidList
+
+        #CustomCIFAR100Dataset_train.load_dataset(transform=transform_train)
         # trainset = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True,
         #                                          transform=transform_train)
-        trainset = CustomCIFAR100Dataset_train()
+
+        trainset = CustomCIFAR100Dataset_train(transform=transform_train, invalidList=invalidList)
+
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
@@ -166,15 +182,20 @@ class CIFAR100(object):
                 labeled_ind_train = self.filter_known_unknown(trainset)
                 self.labeled_ind_train = labeled_ind_train
         else:
+
             self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train
 
         if is_filter:
             print("openset here!")
+            
+
             trainloader = torch.utils.data.DataLoader(
                 trainset, batch_size=batch_size, shuffle=False,
                 num_workers=num_workers, pin_memory=pin_memory,
                 sampler=SubsetRandomSampler(labeled_ind_train),
             )
+
+
             unlabeledloader = torch.utils.data.DataLoader(
                 trainset, batch_size=batch_size, shuffle=False,
                 num_workers=num_workers, pin_memory=pin_memory,
@@ -337,13 +358,14 @@ __factory = {
 
 
 def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED,
-           unlabeled_ind_train=None, labeled_ind_train=None):
+           unlabeled_ind_train=None, labeled_ind_train=None, invalidList=None):
     global known_class, init_percent
     torch.manual_seed(SEED)
     np.random.seed(SEED)
     random.seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
+    
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
-    return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train)
+    return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train, invalidList)
