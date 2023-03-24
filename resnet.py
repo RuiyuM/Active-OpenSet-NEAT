@@ -121,7 +121,9 @@ class ResNet(nn.Module):
         output = self.conv3_x(output)
         output = self.conv4_x(output)
         output = self.conv5_x(output)
+
         output = self.avg_pool(output)
+        features_for_TSNE = torch.flatten(output, 1)
         output = output.view(output.size(0), -1)
         feature = self.fc1(output)
         output = self.fc2(feature)

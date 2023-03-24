@@ -65,6 +65,7 @@ def main():
     torch.manual_seed(args.seed)
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
+    # print(use_gpu)
     if args.use_cpu: use_gpu = False
 
     sys.stdout = Logger(osp.join(args.save_dir, 'log_' + args.dataset + '.txt'))
