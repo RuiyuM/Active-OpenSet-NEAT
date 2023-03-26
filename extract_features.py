@@ -6,7 +6,8 @@ from torchvision import datasets, transforms
 import clip
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 class CustomCIFAR100Dataset_train(Dataset):
     cifar100_dataset = None
@@ -30,7 +31,9 @@ class CustomCIFAR100Dataset_train(Dataset):
 
 def CIFAR100_EXTRACT_FEATURE_CLIP():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device)
+    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+
+    model.eval()
 
     crop = transforms.RandomCrop(32, padding=4)
     normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
@@ -58,6 +61,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
 
     total_len = sum([len(a) for a in record])
     origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
+
     origin_label = torch.zeros(total_len).long()
     index_rec = np.zeros(total_len, dtype=int)
     cnt, lb = 0, 0
@@ -70,6 +74,8 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
             cnt += 1
             # print(cnt)
         lb += 1
+
+
     data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
 
     KINDS = 100
@@ -82,6 +88,15 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     Dist = cosDistance(final_feat)
     # min_similarity = 0.0
     values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
+
+
+    '''
+    X_train, X_test, y_train, y_test = train_test_split(origin_trans, origin_label, test_size=0.33, random_state=42)
+
+    neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
+    neigh.fit(X_train, y_train)
+    print (neigh.score(X_test, y_test))
+    '''
 
     return indices, sel_idx
 
@@ -98,6 +113,9 @@ def cosDistance(features):
     # data = Variable(data)
     # labels.append(labels.cpu().numpy())
     # indices.extend(index)
+
+CIFAR100_EXTRACT_FEATURE_CLIP()
+
 
 # Install necessary packages
 # !pip install torch torchvision openai-clip

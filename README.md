@@ -2,7 +2,16 @@
 
 The parameters I used for experiment: 
 
-CUDA_VISIBLE_DEVICES=2 python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
+CUDA_VISIBLE_DEVICES=2,3 nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 > ./log_AL/cifar100.txt &
+
+
+CUDA_VISIBLE_DEVICES=2 python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy test_query --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 
+
+
+CUDA_VISIBLE_DEVICES=2,3 python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 
+
+
+wormhole send 
 
 
 

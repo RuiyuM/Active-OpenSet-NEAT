@@ -4,36 +4,3 @@ Files already downloaded and verified
 openset here!
 Files already downloaded and verified
 Creating model: resnet18
-==> Test
-Model_A | Accuracy (%): 22.900001525878906	 Error rate (%): 77.0999984741211
-Model_B | Accuracy (%): 17.200000762939453	 Error rate (%): 82.80000305175781
-0
-Query Strategy: My_Query_Strategy | Query Batch: 1500 | Valid Query Nums: 250 | Query Precision: 0.125 | Query Recall: 0.021 | Training Nums: 1050 | Unalebled Nums: 48950
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-==> Test
-Model_A | Accuracy (%): 15.950000762939453	 Error rate (%): 84.05000305175781
-Model_B | Accuracy (%): 19.80000114440918	 Error rate (%): 80.19999694824219
-1566
-Query Strategy: My_Query_Strategy | Query Batch: 1500 | Valid Query Nums: 438 | Query Precision: 0.219 | Query Recall: 0.02976 | Training Nums: 1488 | Unalebled Nums: 48512
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-==> Test
-Model_A | Accuracy (%): 17.5	 Error rate (%): 82.5
-Model_B | Accuracy (%): 22.350000381469727	 Error rate (%): 77.6500015258789
-20625
-Query Strategy: My_Query_Strategy | Query Batch: 1500 | Valid Query Nums: 512 | Query Precision: 0.256 | Query Recall: 0.04 | Training Nums: 2000 | Unalebled Nums: 48000
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified

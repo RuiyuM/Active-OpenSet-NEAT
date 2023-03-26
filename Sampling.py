@@ -368,9 +368,11 @@ def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model,
 
     tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
     tmp_data = tmp_data.T
+    
     # 取前1500个index
     queryIndex = tmp_data[2][-args.query_batch:].astype(int)
     labelArr = tmp_data[3].astype(int)
+    
     queryLabelArr = tmp_data[3][-args.query_batch:]
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
@@ -476,8 +478,10 @@ def My_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     labelArr = tmp_data[3].astype(int)
     queryLabelArr = tmp_data[3][-args.query_batch:]
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -539,6 +543,8 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
         count_known = 0
         count_unknown = 0
         index_Neighbor = index_knn[key]
+
+
         # known 的情况
         if value[0][0] < 20:
             for i in range(len(index_Neighbor[0])):
@@ -552,8 +558,11 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                         count_known += 1
                     else:
                         count_unknown += 1
-            if count_known >= 4:
+            
+            if count_known >= 6:
                 queryIndex.append([key, value[0]])
+        
+
         # 假设20个known class 那么第21位就是unknown
         if value[0][0] == 20:
             for i in range(len(index_Neighbor[0])):
@@ -567,17 +576,21 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                         count_known += 1
                     else:
                         count_unknown += 1
+            
             if count_unknown >= 4:
                 queryIndex_unknown.append([key, value[0]])
+    
 
     queryIndex = sorted(queryIndex, key=lambda x: x[1][1], reverse=True)
     queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
 
+
+    print("queryIndex: ", len(queryIndex))
     # 取前1500个index
     # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
     final_chosen_index = []
     invalid_index = []
-    for item in queryIndex[:1000]:
+    for item in queryIndex[:1500]:
         num = item[0]
         num3 = item[1][2]
 
@@ -585,6 +598,8 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
             final_chosen_index.append(num)
         elif num3 >= args.known_class:
             invalid_index.append(num)
+
+    '''
     if len(queryIndex_unknown) > 1000:
         for item in queryIndex_unknown[:1000]:
             num = item[0]
@@ -603,9 +618,196 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                 final_chosen_index.append(num)
             elif num3 >= args.known_class:
                 invalid_index.append(num)
+    '''
 
-    precision = len(final_chosen_index) / 2000
+    precision = len(final_chosen_index) / 1500
     print(len(queryIndex_unknown))
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
-            len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
     return final_chosen_index, invalid_index, precision, recall
+
+
+
+# unlabeledloader is int 800
+def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList,
+                      indices, sel_idx):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertaintyArr = []
+
+    S_per_class = {}
+    S_index = {}
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        _, outputs = model(data)
+        # 当前的index 128 个 进入queryIndex array
+        queryIndex += index
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+
+        #proba_out = torch.nn.functional.softmax(outputs, dim=1)
+
+        #proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))        
+
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i].item()
+
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
+            
+            if tmp_class not in S_per_class:
+                S_per_class[tmp_class] = []
+
+            S_per_class[tmp_class].append([tmp_value, tmp_class, tmp_index, tmp_label])
+
+            if tmp_index not in S_index:
+                S_index[tmp_index] = []
+            
+            S_index[tmp_index].append([tmp_value, tmp_class, tmp_label])
+
+
+    # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
+
+    # queryIndex 存放known class的地方
+    queryIndex = []
+    queryIndex_unknown = []
+    index_knn = {}
+    for i in range(len(sel_idx)):
+        if sel_idx[i] not in index_knn:
+            index_knn[sel_idx[i]] = []
+        index_knn[sel_idx[i]].append(indices[i])
+
+
+    for tmp_class in S_per_class:
+
+        if tmp_class == args.known_class:
+            continue
+
+        S_per_class[tmp_class] = np.array(S_per_class[tmp_class])
+
+        for i in range(S_per_class[tmp_class].shape[0]):
+
+            current_index = S_per_class[tmp_class][i][2]
+
+            current_predict = S_per_class[tmp_class][i][1]
+
+            current_value   = S_per_class[tmp_class][i][0]
+
+
+            count_known = 0.0
+            count_unknown = 0.0
+            index_Neighbor = index_knn[current_index] 
+
+            # known 的情况
+            if tmp_class < 20:
+                
+                for k in range(len(index_Neighbor[0])):
+                    n_index = (index_Neighbor[0][k]).item()
+                    
+                    if n_index in labeled_ind_train:
+                        count_known += 1
+                    
+                    elif n_index in invalidList:
+                        count_unknown += 1
+                    
+                    '''
+                    else:
+                    
+                        if S_index[n_index][0][1] < 20:
+                            count_known += S_index[n_index][0][0]
+                        else:
+                            count_unknown += S_index[n_index][0][0]
+                    '''
+
+                #if count_known > count_unknown:
+                queryIndex.append([current_index, S_per_class[tmp_class][i]])               
+
+
+    queryIndex = sorted(queryIndex, key=lambda x: x[1][0], reverse=True)
+    #queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
+
+    print (queryIndex[:10])
+    print ("\n\n")
+    print("queryIndex: ", len(queryIndex))
+    # 取前1500个index
+    # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
+    final_chosen_index = []
+    invalid_index = []
+
+    for item in queryIndex[:args.query_batch]:
+        num = item[0]
+        num3 = item[1][-1]
+
+        if num3 < args.known_class:
+            final_chosen_index.append(int(num))
+        
+        elif num3 >= args.known_class:
+            invalid_index.append(int(num))
+
+
+
+    precision = len(final_chosen_index) / args.query_batch
+    #print(len(queryIndex_unknown))
+    
+    #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+    #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+    
+    print ("len final_chosen_index: ", len(final_chosen_index))
+
+    recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return final_chosen_index, invalid_index, precision, recall
+
+
+    '''
+    # fit a two-component GMM for each class
+    tmp_data = []
+    for tmp_class in S_ij:
+        S_ij[tmp_class] = np.array(S_ij[tmp_class])
+        activation_value = S_ij[tmp_class][:, 0]
+        if len(activation_value) < 2:
+            continue
+        gmm = GaussianMixture(n_components=2, max_iter=10, tol=1e-2, reg_covar=5e-4)
+        gmm.fit(np.array(activation_value).reshape(-1, 1))
+        prob = gmm.predict_proba(np.array(activation_value).reshape(-1, 1))
+        # 得到为known类别的概率
+        prob = prob[:, gmm.means_.argmax()]
+        # 如果为unknown类别直接为0
+        if tmp_class == args.known_class:
+            prob = [0] * len(prob)
+            prob = np.array(prob)
+
+        if len(tmp_data) == 0:
+            # np.hstack 就是说把stack水平堆起来
+            tmp_data = np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))
+        else:
+            # np。vstack 就是把stack竖直堆起来
+            tmp_data = np.vstack((tmp_data, np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))))
+
+    tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
+    tmp_data = tmp_data.T
+    # 取前1500个index
+    queryIndex = tmp_data[2][-args.query_batch:].astype(int)
+    labelArr = tmp_data[3].astype(int)
+    queryLabelArr = tmp_data[3][-args.query_batch:]
+    
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+    '''
+
+

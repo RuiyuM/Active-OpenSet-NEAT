@@ -45,7 +45,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query'])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -81,7 +81,7 @@ def main():
 
     if args.use_cpu: use_gpu = False
 
-    sys.stdout = Logger(osp.join(args.save_dir, 'log_' + args.dataset + '.txt'))
+    sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
 
     if use_gpu:
         print("Currently using GPU: {}".format(args.gpu))
@@ -224,6 +224,14 @@ def main():
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
+
+
+        elif args.query_strategy == "test_query":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query(args,
+                                                                                         unlabeledloader,
+                                                                                         len(labeled_ind_train),
+                                                                                         model_A,
+                                                                                         use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
 
         # Update labeled, unlabeled and invalid set
