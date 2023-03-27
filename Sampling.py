@@ -520,10 +520,10 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
     # my_sampling
 
     # Resnet : 预测出unknown，附近的10个点中的6个及以上都是unknown就铁定是unkown
-    # 				Else：known
+    #               Else：known
     #
     # Resnet: 预测出known，附件的10个点中的5个及其以上都是known就是认为是known
-    # 			else：unknown
+    #           else：unknown
     # 创建一个dict，key是index，value是十个长度的邻居point。
 
     # queryIndex 存放known class的地方
@@ -682,10 +682,19 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
     queryIndex = []
     queryIndex_unknown = []
     index_knn = {}
+
     for i in range(len(sel_idx)):
+        
         if sel_idx[i] not in index_knn:
             index_knn[sel_idx[i]] = []
+
         index_knn[sel_idx[i]].append(indices[i])
+
+
+
+    neighbor_unknown = {}
+
+    detected_unknown = 0.0
 
 
     for tmp_class in S_per_class:
@@ -695,50 +704,63 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
 
         S_per_class[tmp_class] = np.array(S_per_class[tmp_class])
 
+
         for i in range(S_per_class[tmp_class].shape[0]):
 
-            current_index = S_per_class[tmp_class][i][2]
+            current_index   = S_per_class[tmp_class][i][2]
 
             current_predict = S_per_class[tmp_class][i][1]
 
             current_value   = S_per_class[tmp_class][i][0]
 
-
+            #true_label      = S_per_class[tmp_class][i][3]
+            
             count_known = 0.0
             count_unknown = 0.0
             index_Neighbor = index_knn[current_index] 
 
             # known 的情况
             if tmp_class < 20:
-                
+
                 for k in range(len(index_Neighbor[0])):
+
                     n_index = (index_Neighbor[0][k]).item()
-                    
+                
                     if n_index in labeled_ind_train:
                         count_known += 1
-                    
+                
                     elif n_index in invalidList:
                         count_unknown += 1
-                    
-                    '''
+                
                     else:
-                    
+                
                         if S_index[n_index][0][1] < 20:
-                            count_known += S_index[n_index][0][0]
+                            count_known += 1
                         else:
-                            count_unknown += S_index[n_index][0][0]
-                    '''
+                            count_unknown += 1
+                
+                #if true_label not in neighbor_unknown:
+                #    neighbor_unknown[true_label] = []
 
-                #if count_known > count_unknown:
+            #neighbor_unknown[true_label].append(count_unknown)
+
+            if count_unknown < 5:
+
                 queryIndex.append([current_index, S_per_class[tmp_class][i]])               
+
+            else:
+                detected_unknown += 1
+
+    print ("detected_unknown: ", detected_unknown)
+    print ("\n")
+    #for key, value in neighbor_unknown.items():
+    #    print (key, sum(value)/len(value))
 
 
     queryIndex = sorted(queryIndex, key=lambda x: x[1][0], reverse=True)
     #queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
 
-    print (queryIndex[:10])
-    print ("\n\n")
-    print("queryIndex: ", len(queryIndex))
+
     # 取前1500个index
     # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
     final_chosen_index = []
@@ -762,8 +784,6 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
     #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
     
-    print ("len final_chosen_index: ", len(final_chosen_index))
-
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 

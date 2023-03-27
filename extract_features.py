@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
+from collections import Counter
 
 class CustomCIFAR100Dataset_train(Dataset):
     cifar100_dataset = None
@@ -33,6 +34,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
 
+
     model.eval()
 
     crop = transforms.RandomCrop(32, padding=4)
@@ -45,16 +47,19 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     train_data = CustomCIFAR100Dataset_train()
     record = [[] for _ in range(100)]
 
-    batch_size = 1024
+    batch_size = 2048
     print('Data Loader')
     data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
     for batch_idx, (index, (data, labels)) in enumerate(data_loader):
         data = data.to(device)
         labels = labels.to(device)
+        
         with torch.no_grad():
             extracted_feature = model.encode_image(data)
+        
         for i in range(extracted_feature.shape[0]):
             record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
 
@@ -65,40 +70,60 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     origin_label = torch.zeros(total_len).long()
     index_rec = np.zeros(total_len, dtype=int)
     cnt, lb = 0, 0
+
     for item in record:
         for i in item:
-            # if i['index'] not in sel_noisy:
             origin_trans[cnt] = i['feature']
             origin_label[cnt] = lb
             index_rec[cnt] = i['index']
             cnt += 1
-            # print(cnt)
+
         lb += 1
 
 
     data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
 
+
+    order_to_index = {}
+
+    index_to_order = {}
+    for i in range(data_set['index'].shape[0]):
+
+        order_to_index[i] = data_set['index'][i]
+
+        index_to_order[data_set['index'][i]] = i
+
+
     KINDS = 100
     all_point_cnt = data_set['feature'].shape[0]
 
-    sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
+    #sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
     # final_feat, noisy_label = get_feat_clusters(data_set, sample)
-    final_feat = data_set['feature'][sample]
-    sel_idx = data_set['index'][sample]
+    final_feat = data_set['feature']#[sample]
+    sel_idx = data_set['index']#[sample]
+    labels = data_set['label']#[sample]
+
+
     Dist = cosDistance(final_feat)
+
     # min_similarity = 0.0
     values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
 
+    for k in range(indices.size()[0]):
+        
+        for j in range(indices.size()[1]):
 
-    '''
-    X_train, X_test, y_train, y_test = train_test_split(origin_trans, origin_label, test_size=0.33, random_state=42)
+            indices[k][j] = order_to_index[indices[k][j].item()]
 
-    neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
-    neigh.fit(X_train, y_train)
-    print (neigh.score(X_test, y_test))
-    '''
 
-    return indices, sel_idx
+    #X_train, X_test, y_train, y_test = train_test_split(final_feat, labels, test_size=0.33, random_state=42)
+
+    #neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
+    #neigh.fit(X_train, y_train)
+    #print (neigh.score(X_test, y_test))
+
+
+    return indices, sel_idx#, labels, index_to_order
 
 
 def cosDistance(features):
@@ -114,7 +139,74 @@ def cosDistance(features):
     # labels.append(labels.cpu().numpy())
     # indices.extend(index)
 
-CIFAR100_EXTRACT_FEATURE_CLIP()
+
+if __name__ == "__main__":
+
+    indices, sel_idx, labels, index_to_order =  CIFAR100_EXTRACT_FEATURE_CLIP()
+
+
+    index_knn = {}
+    for i in range(len(sel_idx)):
+        
+        if sel_idx[i] not in index_knn:
+            index_knn[sel_idx[i]] = []
+            
+        index_knn[sel_idx[i]].append(indices[i])
+
+
+    print (index_knn)
+
+    neighbor_unknown = {}
+
+    correct = 0.0
+    cnt = 0.0
+
+    for i, (key, value) in enumerate(index_knn.items()):
+
+        cnt += 1
+
+
+        value = value[0].numpy()
+
+        key_label = labels[i].item()
+
+        #if key_label not in neighbor_unknown:
+        #    neighbor_unknown[key_label] = []
+        neighbor_labels = []
+
+        for k in range(len(value)):
+
+            neighbor_label = labels[index_to_order[value[k]]].item()
+
+            neighbor_labels.append(neighbor_label)
+
+
+        #print (neighbor_labels)
+
+        x = Counter(neighbor_labels)
+
+        #print (x)
+        top_1 = x.most_common(1)[0][0]
+
+        #print (top_1)
+        #print ("\n")
+        if key_label == top_1:
+            correct += 1
+
+        '''
+        if neighbor_label >= 20:
+            neighbor_label = 20
+
+        if neighbor_label >= 20:
+
+            c_uk += 1
+            '''
+        #neighbor_unknown[key_label].append(c_uk)
+
+    print (correct / cnt)
+
+    #for key, value in neighbor_unknown.items():
+    #    print (key, sum(value)/len(value))
 
 
 # Install necessary packages
