@@ -67,6 +67,10 @@ parser.add_argument('--unknown-T', type=float, default=2)
 parser.add_argument('--modelB-T', type=float, default=1)
 parser.add_argument('--init-percent', type=int, default=16)
 
+# active learning
+
+parser.add_argument('--active', action='store_true', help="whether to use active learning")
+
 args = parser.parse_args()
 
 

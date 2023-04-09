@@ -122,7 +122,6 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     #neigh.fit(X_train, y_train)
     #print (neigh.score(X_test, y_test))
 
-
     return indices, sel_idx#, labels, index_to_order
 
 

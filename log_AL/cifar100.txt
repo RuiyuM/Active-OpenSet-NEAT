@@ -1,12 +1,0 @@
-Files already downloaded and verified
-Data Loader
-Files already downloaded and verified
-Data Loader
-Currently using GPU: 0
-Creating dataset: cifar100
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Creating model: resnet18
-  0%|          | 0/10 [00:00<?, ?it/s]
-  0%|          | 0/100 [00:00<?, ?it/s][A

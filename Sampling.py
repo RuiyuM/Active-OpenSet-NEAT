@@ -3,7 +3,7 @@ from sklearn.mixture import GaussianMixture
 import torch
 
 import torch.nn.functional as F
-
+from collections import Counter
 
 
 
@@ -628,6 +628,61 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
 
 
 
+def knn_prediction(k_neighbors, S_index):
+
+    neighbor_labels = []
+
+    for k in k_neighbors:
+
+        label = S_index[k][1][2]
+
+        neighbor_labels.append(label)
+
+
+    x = Counter(neighbor_labels)
+    #print (x)
+    top_1 = x.most_common(1)[0][0]
+
+    return top_1
+
+def active_learning(index_knn, queryIndex, S_index):
+
+    print ("active learning")
+    #S_index[n_index][0][1]
+
+    for i in range(len(queryIndex)):
+
+        neighbors_prediction = []
+
+        # all the indices for neighbors
+        neighbors = index_knn[queryIndex[i][0]]
+
+        change = 0.0
+        cur_predict = None
+
+        for j in range(1, len(neighbors)):
+
+            # current knn prediction
+            k_predict = knn_prediction(neighbors[:j], S_index)
+
+            if not cur_predict:
+                cur_predict = k_predict
+
+            else:
+                if cur_predict != k_predict:
+                    change += 1
+
+                cur_predict = k_predict
+
+        # how many changes
+        score = change / len(neighbors)
+
+        queryIndex[i][1] = np.append(queryIndex[i][1], score)
+
+
+    return queryIndex
+
+
 # unlabeledloader is int 800
 def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList,
                       indices, sel_idx):
@@ -635,6 +690,8 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
     queryIndex = []
     labelArr = []
     uncertaintyArr = []
+
+    #################################################################
 
     S_per_class = {}
     S_index = {}
@@ -654,10 +711,6 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
         # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
         v_ij, predicted = outputs.max(1)
 
-        #proba_out = torch.nn.functional.softmax(outputs, dim=1)
-
-        #proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))        
-
         for i in range(len(predicted.data)):
             tmp_class = np.array(predicted.data.cpu())[i]
             tmp_index = index[i].item()
@@ -675,6 +728,7 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
             
             S_index[tmp_index].append([tmp_value, tmp_class, tmp_label])
 
+    #################################################################
 
     # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
 
@@ -691,10 +745,10 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
         index_knn[sel_idx[i]].append(indices[i])
 
 
-
     neighbor_unknown = {}
 
     detected_unknown = 0.0
+    detected_known = 0.0
 
 
     for tmp_class in S_per_class:
@@ -712,69 +766,87 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
             current_predict = S_per_class[tmp_class][i][1]
 
             current_value   = S_per_class[tmp_class][i][0]
-
-            #true_label      = S_per_class[tmp_class][i][3]
             
             count_known = 0.0
             count_unknown = 0.0
+
             index_Neighbor = index_knn[current_index] 
+
+            for k in range(len(index_Neighbor[0])):
+
+                n_index = (index_Neighbor[0][k]).item()
+                
+
+                if n_index in labeled_ind_train:
+                    count_known += 1
+            
+                elif n_index in invalidList:
+                    count_unknown += 1
+                
+                '''
+                else:
+                    if S_index[n_index][0][1] < 20:
+                        count_known += 1
+                    else:
+                        count_unknown += 1
+                '''
 
             # known 的情况
             if tmp_class < 20:
 
-                for k in range(len(index_Neighbor[0])):
+                if count_unknown < count_known:
 
-                    n_index = (index_Neighbor[0][k]).item()
-                
-                    if n_index in labeled_ind_train:
-                        count_known += 1
-                
-                    elif n_index in invalidList:
-                        count_unknown += 1
-                
-                    else:
-                
-                        if S_index[n_index][0][1] < 20:
-                            count_known += 1
-                        else:
-                            count_unknown += 1
-                
-                #if true_label not in neighbor_unknown:
-                #    neighbor_unknown[true_label] = []
+                    queryIndex.append([current_index, S_per_class[tmp_class][i]])               
 
-            #neighbor_unknown[true_label].append(count_unknown)
+                else:
+                    detected_unknown += 1         
 
-            if count_unknown < 5:
-
-                queryIndex.append([current_index, S_per_class[tmp_class][i]])               
-
-            else:
-                detected_unknown += 1
 
     print ("detected_unknown: ", detected_unknown)
     print ("\n")
     #for key, value in neighbor_unknown.items():
     #    print (key, sum(value)/len(value))
 
-
     queryIndex = sorted(queryIndex, key=lambda x: x[1][0], reverse=True)
-    #queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
 
+    #################################################################
+    if args.active:
+
+        queryIndex = queryIndex[:2*args.query_batch]
+
+        #################################################################
+        queryIndex = active_learning(index_knn, queryIndex, S_index)
+
+        queryIndex = sorted(queryIndex, key=lambda x: x[1][-1], reverse=True)
+    
+
+    #################################################################
 
     # 取前1500个index
     # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
+    
+
     final_chosen_index = []
     invalid_index = []
 
     for item in queryIndex[:args.query_batch]:
         num = item[0]
-        num3 = item[1][-1]
+
+        if args.active:
+
+            num3 = item[1][-2]
+
+        else:
+
+            num3 = item[1][-1]
+
 
         if num3 < args.known_class:
             final_chosen_index.append(int(num))
         
         elif num3 >= args.known_class:
             invalid_index.append(int(num))
+
 
 
 
@@ -788,46 +860,3 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
-
-
-    '''
-    # fit a two-component GMM for each class
-    tmp_data = []
-    for tmp_class in S_ij:
-        S_ij[tmp_class] = np.array(S_ij[tmp_class])
-        activation_value = S_ij[tmp_class][:, 0]
-        if len(activation_value) < 2:
-            continue
-        gmm = GaussianMixture(n_components=2, max_iter=10, tol=1e-2, reg_covar=5e-4)
-        gmm.fit(np.array(activation_value).reshape(-1, 1))
-        prob = gmm.predict_proba(np.array(activation_value).reshape(-1, 1))
-        # 得到为known类别的概率
-        prob = prob[:, gmm.means_.argmax()]
-        # 如果为unknown类别直接为0
-        if tmp_class == args.known_class:
-            prob = [0] * len(prob)
-            prob = np.array(prob)
-
-        if len(tmp_data) == 0:
-            # np.hstack 就是说把stack水平堆起来
-            tmp_data = np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))
-        else:
-            # np。vstack 就是把stack竖直堆起来
-            tmp_data = np.vstack((tmp_data, np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))))
-
-    tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
-    tmp_data = tmp_data.T
-    # 取前1500个index
-    queryIndex = tmp_data[2][-args.query_batch:].astype(int)
-    labelArr = tmp_data[3].astype(int)
-    queryLabelArr = tmp_data[3][-args.query_batch:]
-    
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
-    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
-    
-    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
-        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
-    '''
-
-
