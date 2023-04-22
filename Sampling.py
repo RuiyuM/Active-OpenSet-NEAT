@@ -6,6 +6,9 @@ import torch.nn.functional as F
 from collections import Counter
 
 
+from extract_features import CIFAR100_EXTRACT_FEATURE_CLIP_new
+
+from torch.distributions import Categorical
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
@@ -628,22 +631,6 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
 
 
 
-def knn_prediction(k_neighbors, S_index):
-
-    neighbor_labels = []
-
-    for k in k_neighbors:
-
-        label = S_index[k][1][2]
-
-        neighbor_labels.append(label)
-
-
-    x = Counter(neighbor_labels)
-    #print (x)
-    top_1 = x.most_common(1)[0][0]
-
-    return top_1
 
 def active_learning(index_knn, queryIndex, S_index):
 
@@ -683,50 +670,123 @@ def active_learning(index_knn, queryIndex, S_index):
     return queryIndex
 
 
+def knn_prediction(k_neighbors, S_index):
+
+    neighbor_labels = []
+
+    for k in k_neighbors:
+
+        label = S_index[k][1][2]
+
+        neighbor_labels.append(label)
+
+
+    x = Counter(neighbor_labels)
+    #print (x)
+    top_1 = x.most_common(1)[0][0]
+
+    return top_1
+
+
+
+
+def active_learning_3(args, index_knn, queryIndex, S_index, labeled_index_to_label):
+
+    print ("active learning")
+    #S_index[n_index][0][1]
+
+    for i in range(len(queryIndex)):
+
+        #neighbor_labels = []
+
+        # all the indices for neighbors
+        neighbors, values = index_knn[queryIndex[i][0]]
+
+        knn_labels_cnt = torch.zeros(args.known_class)
+
+        for idx, neighbor in enumerate(neighbors):
+
+            neighbor_labels = labeled_index_to_label[neighbor]
+
+            test_variable_1 = 1.0 - values[idx]
+
+            knn_labels_cnt[neighbor_labels] += test_variable_1
+
+
+        knn_labels_prob = F.normalize(knn_labels_cnt, p=2.0, dim=0)
+
+        score = Categorical(probs = knn_labels_prob).entropy()
+
+        queryIndex[i].append(score.item())
+
+
+    return queryIndex
+
+
+def active_learning_2(args, index_knn, queryIndex, S_index, labeled_index_to_label):
+
+    print ("active learning")
+    #S_index[n_index][0][1]
+
+    for i in range(len(queryIndex)):
+
+        neighbor_labels = []
+
+        # all the indices for neighbors
+        neighbors = index_knn[queryIndex[i][0]][0]
+
+        for neighbor in neighbors:
+
+            neighbor_labels.append(labeled_index_to_label[neighbor])
+
+        x = Counter(neighbor_labels)
+
+
+        top = x.most_common(2)
+
+        if len(top) == 2:
+
+            top_1 = x.most_common(2)[0][1]
+            top_2 = x.most_common(2)[1][1]
+
+            # how many changes
+            score = - (top_1 + 0.0) / (top_2 + 0.0)
+
+        else:
+
+            score = -10
+
+        queryIndex[i].append(score)
+
+
+    return queryIndex
+
+
 # unlabeledloader is int 800
-def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList,
-                      indices, sel_idx):
-    model.eval()
-    queryIndex = []
+def test_query(args, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train+invalidList, unlabeled_ind_train, args, ordered_feature, ordered_label)
+
     labelArr = []
     uncertaintyArr = []
 
     #################################################################
-
-    S_per_class = {}
     S_index = {}
 
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
-        _, outputs = model(data)
-        # 当前的index 128 个 进入queryIndex array
-        queryIndex += index
-        # my_test_for_outputs = outputs.cpu().data.numpy()
-        # print(my_test_for_outputs)
-        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
-        labelArr += list(np.array(labels.cpu().data))
-        # activation value based
-        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
-        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
-        v_ij, predicted = outputs.max(1)
 
-        for i in range(len(predicted.data)):
-            tmp_class = np.array(predicted.data.cpu())[i]
+        labelArr += list(np.array(labels.cpu().data))
+
+        for i in range(len(data.data)):
+
             tmp_index = index[i].item()
 
-            tmp_label = np.array(labels.data.cpu())[i]
-            tmp_value = np.array(v_ij.data.cpu())[i]
+            true_label = np.array(labels.data.cpu())[i]
             
-            if tmp_class not in S_per_class:
-                S_per_class[tmp_class] = []
-
-            S_per_class[tmp_class].append([tmp_value, tmp_class, tmp_index, tmp_label])
-
-            if tmp_index not in S_index:
-                S_index[tmp_index] = []
-            
-            S_index[tmp_index].append([tmp_value, tmp_class, tmp_label])
+            S_index[tmp_index] = true_label
 
     #################################################################
 
@@ -734,15 +794,6 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
 
     # queryIndex 存放known class的地方
     queryIndex = []
-    queryIndex_unknown = []
-    index_knn = {}
-
-    for i in range(len(sel_idx)):
-        
-        if sel_idx[i] not in index_knn:
-            index_knn[sel_idx[i]] = []
-
-        index_knn[sel_idx[i]].append(indices[i])
 
 
     neighbor_unknown = {}
@@ -751,63 +802,42 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
     detected_known = 0.0
 
 
-    for tmp_class in S_per_class:
-
-        if tmp_class == args.known_class:
-            continue
-
-        S_per_class[tmp_class] = np.array(S_per_class[tmp_class])
+    for current_index in S_index:
 
 
-        for i in range(S_per_class[tmp_class].shape[0]):
+        index_Neighbor, values = index_knn[current_index] 
 
-            current_index   = S_per_class[tmp_class][i][2]
+        true_label = S_index[current_index]
 
-            current_predict = S_per_class[tmp_class][i][1]
+        count_known = 0.0
+        count_unknown = 0.0
 
-            current_value   = S_per_class[tmp_class][i][0]
+        for k in range(len(index_Neighbor)):
+
+            n_index = index_Neighbor[k]
             
-            count_known = 0.0
-            count_unknown = 0.0
 
-            index_Neighbor = index_knn[current_index] 
-
-            for k in range(len(index_Neighbor[0])):
-
-                n_index = (index_Neighbor[0][k]).item()
-                
-
-                if n_index in labeled_ind_train:
-                    count_known += 1
+            if n_index in set(labeled_ind_train):
+                count_known += 1
+        
+            elif n_index in set(invalidList):
+                count_unknown += 1
             
-                elif n_index in invalidList:
-                    count_unknown += 1
-                
-                '''
-                else:
-                    if S_index[n_index][0][1] < 20:
-                        count_known += 1
-                    else:
-                        count_unknown += 1
-                '''
 
-            # known 的情况
-            if tmp_class < 20:
 
-                if count_unknown < count_known:
+            if count_unknown < count_known:
 
-                    queryIndex.append([current_index, S_per_class[tmp_class][i]])               
+                queryIndex.append([current_index, count_known, true_label])               
 
-                else:
-                    detected_unknown += 1         
+            else:
+                detected_unknown += 1         
 
 
     print ("detected_unknown: ", detected_unknown)
     print ("\n")
-    #for key, value in neighbor_unknown.items():
-    #    print (key, sum(value)/len(value))
 
-    queryIndex = sorted(queryIndex, key=lambda x: x[1][0], reverse=True)
+
+    queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
 
     #################################################################
     if args.active:
@@ -815,16 +845,14 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
         queryIndex = queryIndex[:2*args.query_batch]
 
         #################################################################
-        queryIndex = active_learning(index_knn, queryIndex, S_index)
+        queryIndex = active_learning_2(args, index_knn, queryIndex, S_index, labeled_index_to_label)
 
-        queryIndex = sorted(queryIndex, key=lambda x: x[1][-1], reverse=True)
+        queryIndex = sorted(queryIndex, key=lambda x: x[-1], reverse=True)
     
 
     #################################################################
 
-    # 取前1500个index
-    # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
-    
+    print (queryIndex[:20])
 
     final_chosen_index = []
     invalid_index = []
@@ -834,29 +862,29 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
 
         if args.active:
 
-            num3 = item[1][-2]
+            num3 = item[-2]
 
         else:
 
-            num3 = item[1][-1]
+            num3 = item[-1]
 
 
         if num3 < args.known_class:
+
             final_chosen_index.append(int(num))
         
         elif num3 >= args.known_class:
+
             invalid_index.append(int(num))
 
 
-
-
     precision = len(final_chosen_index) / args.query_batch
-    #print(len(queryIndex_unknown))
     
     #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
     
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall

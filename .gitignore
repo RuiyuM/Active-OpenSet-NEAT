@@ -1,6 +1,7 @@
 # Custom
 data/
 log/
+features/
 
 # OS files
 .DS_Store

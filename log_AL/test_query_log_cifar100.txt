@@ -1,0 +1,580 @@
+Currently using GPU: 9
+Creating dataset: cifar100
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet18
+==> Test
+Model_B | Accuracy (%): 22.350000381469727	 Error rate (%): 77.6500015258789
+detected_unknown:  0.0
+
+
+[[32549, 10.0, 44], [10672, 10.0, 98], [47942, 10.0, 25], [28920, 10.0, 84], [29218, 10.0, 1], [34213, 10.0, 91], [31307, 10.0, 7], [6387, 10.0, 73], [41667, 10.0, 43], [28056, 10.0, 85], [38615, 10.0, 43], [42837, 10.0, 70], [14168, 10.0, 67], [34768, 10.0, 6], [42141, 10.0, 27], [31986, 10.0, 63], [45801, 10.0, 72], [31180, 10.0, 81], [17960, 10.0, 90], [31362, 10.0, 99]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 281 | Query Precision: 0.18733333333333332 | Query Recall: 0.1081 | Training Nums: 1081 | Unalebled Nums: 48919
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 26.500001907348633	 Error rate (%): 73.5
+detected_unknown:  363975.0
+
+
+[[5494, 10.0, 19], [39825, 10.0, 2], [17684, 10.0, 14], [37913, 10.0, 2], [2264, 10.0, 0], [31943, 10.0, 25], [1052, 10.0, 19], [40169, 10.0, 14], [4327, 10.0, 9], [11229, 10.0, 8], [5922, 10.0, 19], [6679, 10.0, 7], [26483, 10.0, 2], [9261, 10.0, 16], [19071, 10.0, 19], [25390, 10.0, 35], [31712, 10.0, 19], [46122, 10.0, 11], [36309, 10.0, 16], [9054, 10.0, 14]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1441 | Query Precision: 0.9606666666666667 | Query Recall: 0.2522 | Training Nums: 2522 | Unalebled Nums: 47478
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 38.25	 Error rate (%): 61.75
+detected_unknown:  351928.0
+
+
+[[9657, 10.0, 8], [47363, 10.0, 0], [29805, 10.0, 57], [13162, 10.0, 7], [15600, 10.0, 8], [37024, 10.0, 8], [38925, 10.0, 11], [39154, 10.0, 16], [25027, 10.0, 6], [36166, 10.0, 5], [40610, 10.0, 9], [9783, 10.0, 15], [10360, 10.0, 19], [30111, 10.0, 17], [44602, 10.0, 12], [4686, 10.0, 15], [1396, 10.0, 1], [37607, 10.0, 9], [34039, 10.0, 48], [24723, 10.0, 8]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1372 | Query Precision: 0.9146666666666666 | Query Recall: 0.3894 | Training Nums: 3894 | Unalebled Nums: 46106
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 45.650001525878906	 Error rate (%): 54.349998474121094
+detected_unknown:  343497.0
+
+
+[[34996, 10.0, 13], [40401, 10.0, 6], [40971, 10.0, 11], [5154, 10.0, 11], [27197, 10.0, 9], [23173, 10.0, 11], [9964, 10.0, 2], [4611, 10.0, 12], [36562, 10.0, 0], [31033, 10.0, 16], [12666, 10.0, 34], [41561, 10.0, 12], [38207, 10.0, 12], [11899, 10.0, 62], [17492, 10.0, 79], [42921, 10.0, 15], [28618, 10.0, 17], [34950, 10.0, 6], [44877, 10.0, 77], [36323, 10.0, 0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1204 | Query Precision: 0.8026666666666666 | Query Recall: 0.5098 | Training Nums: 5098 | Unalebled Nums: 45044
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 50.750003814697266	 Error rate (%): 49.249996185302734
+detected_unknown:  340093.0
+
+
+[[47439, 10.0, 15], [22702, 10.0, 3], [740, 10.0, 98], [43219, 10.0, 0], [24956, 10.0, 75], [11622, 10.0, 1], [11286, 10.0, 17], [14919, 10.0, 17], [4590, 10.0, 17], [33048, 10.0, 13], [35087, 10.0, 5], [14998, 10.0, 13], [45496, 10.0, 0], [4853, 10.0, 6], [28134, 10.0, 12], [5763, 10.0, 13], [30523, 10.0, 1], [181, 10.0, 11], [41697, 10.0, 53], [48450, 10.0, 1]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1003 | Query Precision: 0.6686666666666666 | Query Recall: 0.6015578781305463 | Training Nums: 6101 | Unalebled Nums: 44258
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 53.650001525878906	 Error rate (%): 46.349998474121094
+detected_unknown:  347202.0
+
+
+[[10010, 10.0, 1], [5493, 10.0, 4], [3906, 10.0, 14], [3811, 10.0, 12], [29328, 10.0, 10], [22808, 10.0, 14], [48578, 10.0, 77], [7992, 10.0, 12], [45374, 10.0, 76], [17877, 10.0, 17], [4743, 10.0, 17], [6419, 10.0, 17], [20671, 10.0, 13], [22121, 10.0, 2], [40608, 10.0, 11], [26138, 10.0, 12], [20720, 10.0, 18], [12952, 10.0, 17], [16338, 10.0, 55], [15133, 10.0, 11]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 872 | Query Precision: 0.5813333333333334 | Query Recall: 0.6731344724394247 | Training Nums: 6973 | Unalebled Nums: 43643
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 55.900001525878906	 Error rate (%): 44.099998474121094
+detected_unknown:  349636.0
+
+
+[[28368, 10.0, 48], [55, 10.0, 6], [868, 10.0, 37], [38293, 10.0, 10], [4637, 10.0, 11], [31800, 10.0, 18], [27145, 10.0, 12], [19645, 10.0, 25], [40254, 10.0, 16], [44036, 10.0, 12], [1174, 10.0, 3], [4136, 10.0, 19], [48363, 10.0, 3], [11586, 10.0, 10], [37203, 10.0, 18], [34058, 10.0, 17], [27811, 10.0, 12], [26331, 10.0, 89], [22325, 10.0, 10], [28353, 10.0, 13]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 651 | Query Precision: 0.434 | Query Recall: 0.7181612660135644 | Training Nums: 7624 | Unalebled Nums: 43206
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.80000305175781	 Error rate (%): 40.19999694824219
+detected_unknown:  359062.0
+
+
+[[37923, 10.0, 1], [34109, 10.0, 4], [13805, 10.0, 65], [49175, 10.0, 5], [39901, 10.0, 6], [46510, 10.0, 34], [7311, 10.0, 6], [10062, 10.0, 10], [43462, 10.0, 38], [28073, 10.0, 48], [7358, 10.0, 21], [9984, 10.0, 5], [45220, 10.0, 3], [47006, 10.0, 15], [13617, 10.0, 44], [6644, 10.0, 3], [45841, 10.0, 63], [31011, 10.0, 5], [47347, 10.0, 17], [41233, 10.0, 66]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 535 | Query Precision: 0.3566666666666667 | Query Recall: 0.7533702677747 | Training Nums: 8159 | Unalebled Nums: 42871
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 61.400001525878906	 Error rate (%): 38.599998474121094
+detected_unknown:  367074.0
+
+
+[[35784, 10.0, 6], [35497, 10.0, 94], [20229, 10.0, 24], [14589, 10.0, 6], [6024, 10.0, 15], [36976, 9.0, 74], [41626, 9.0, 4], [14605, 9.0, 29], [24263, 9.0, 69], [2164, 9.0, 7], [16885, 9.0, 83], [16259, 9.0, 27], [20903, 9.0, 76], [481, 9.0, 24], [29890, 9.0, 27], [15068, 9.0, 19], [17951, 9.0, 72], [31692, 9.0, 58], [43842, 9.0, 91], [49378, 9.0, 39]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 410 | Query Precision: 0.2733333333333333 | Query Recall: 0.7768812330009066 | Training Nums: 8569 | Unalebled Nums: 42633
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.35000228881836	 Error rate (%): 39.64999771118164
+detected_unknown:  375781.0
+
+
+[[18092, 10.0, 3], [40165, 10.0, 12], [40006, 10.0, 7], [11820, 10.0, 15], [13207, 10.0, 79], [5510, 9.0, 83], [5510, 9.0, 83], [30906, 9.0, 74], [44976, 9.0, 72], [44976, 9.0, 72], [27397, 9.0, 66], [27397, 9.0, 66], [41476, 9.0, 14], [37492, 9.0, 66], [17840, 9.0, 28], [23796, 9.0, 3], [18092, 9.0, 3], [25616, 9.0, 88], [33946, 9.0, 3], [30554, 9.0, 7]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 354 | Query Precision: 0.236 | Query Recall: 0.7965541867523657 | Training Nums: 8923 | Unalebled Nums: 42438
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:36:31
+[tensor(60.6500, device='cuda:0'), tensor(59.0000, device='cuda:0'), tensor(59.6500, device='cuda:0'), tensor(60.6000, device='cuda:0'), tensor(60.3500, device='cuda:0')]
+| Valid Query Nums: 381 | Query Precision: 0.254 | Query Recall: 0.7423619796319457 | Training Nums: 8310 | Unalebled Nums: 43033
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.05000305175781	 Error rate (%): 39.94999694824219
+detected_unknown:  377843.0
+
+
+active learning
+[[18761, 9.0, 21, -1.0], [37051, 9.0, 74, -1.0], [27603, 8.0, 54, -1.0], [42954, 8.0, 3, -1.0], [25918, 8.0, 89, -1.0], [18761, 8.0, 21, -1.0], [31692, 8.0, 58, -1.0], [31692, 8.0, 58, -1.0], [37051, 8.0, 74, -1.0], [46165, 8.0, 51, -1.0], [30260, 8.0, 46, -1.0], [21340, 8.0, 91, -1.0], [40706, 8.0, 10, -1.0], [34730, 8.0, 76, -1.0], [23282, 8.0, 65, -1.0], [37003, 7.0, 28, -1.0], [27603, 7.0, 54, -1.0], [22020, 7.0, 66, -1.0], [22020, 7.0, 66, -1.0], [47828, 7.0, 9, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 452 | Query Precision: 0.30133333333333334 | Query Recall: 0.7724587851538394 | Training Nums: 8762 | Unalebled Nums: 42783
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:33:37
+[tensor(53.0000, device='cuda:0'), tensor(56.9500, device='cuda:0'), tensor(59.6000, device='cuda:0'), tensor(58.8000, device='cuda:0'), tensor(60.0500, device='cuda:0')]
+Valid Query Nums: 1441 | Query Precision: 0.9606666666666667 | Query Recall: 0.2522 | Training Nums: 2522 | Unalebled Nums: 47478
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 38.25	 Error rate (%): 61.75
+detected_unknown:  351928.0
+
+
+[[9657, 10.0, 8], [47363, 10.0, 0], [29805, 10.0, 57], [13162, 10.0, 7], [15600, 10.0, 8], [37024, 10.0, 8], [38925, 10.0, 11], [39154, 10.0, 16], [25027, 10.0, 6], [36166, 10.0, 5], [40610, 10.0, 9], [9783, 10.0, 15], [10360, 10.0, 19], [30111, 10.0, 17], [44602, 10.0, 12], [4686, 10.0, 15], [1396, 10.0, 1], [37607, 10.0, 9], [34039, 10.0, 48], [24723, 10.0, 8]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1372 | Query Precision: 0.9146666666666666 | Query Recall: 0.3894 | Training Nums: 3894 | Unalebled Nums: 46106
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 45.650001525878906	 Error rate (%): 54.349998474121094
+detected_unknown:  343497.0
+
+
+[[34996, 10.0, 13], [40401, 10.0, 6], [40971, 10.0, 11], [5154, 10.0, 11], [27197, 10.0, 9], [23173, 10.0, 11], [9964, 10.0, 2], [4611, 10.0, 12], [36562, 10.0, 0], [31033, 10.0, 16], [12666, 10.0, 34], [41561, 10.0, 12], [38207, 10.0, 12], [11899, 10.0, 62], [17492, 10.0, 79], [42921, 10.0, 15], [28618, 10.0, 17], [34950, 10.0, 6], [44877, 10.0, 77], [36323, 10.0, 0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1204 | Query Precision: 0.8026666666666666 | Query Recall: 0.5098 | Training Nums: 5098 | Unalebled Nums: 45044
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 50.750003814697266	 Error rate (%): 49.249996185302734
+detected_unknown:  340093.0
+
+
+[[47439, 10.0, 15], [22702, 10.0, 3], [740, 10.0, 98], [43219, 10.0, 0], [24956, 10.0, 75], [11622, 10.0, 1], [11286, 10.0, 17], [14919, 10.0, 17], [4590, 10.0, 17], [33048, 10.0, 13], [35087, 10.0, 5], [14998, 10.0, 13], [45496, 10.0, 0], [4853, 10.0, 6], [28134, 10.0, 12], [5763, 10.0, 13], [30523, 10.0, 1], [181, 10.0, 11], [41697, 10.0, 53], [48450, 10.0, 1]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1003 | Query Precision: 0.6686666666666666 | Query Recall: 0.6015578781305463 | Training Nums: 6101 | Unalebled Nums: 44258
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 53.650001525878906	 Error rate (%): 46.349998474121094
+detected_unknown:  347202.0
+
+
+[[10010, 10.0, 1], [5493, 10.0, 4], [3906, 10.0, 14], [3811, 10.0, 12], [29328, 10.0, 10], [22808, 10.0, 14], [48578, 10.0, 77], [7992, 10.0, 12], [45374, 10.0, 76], [17877, 10.0, 17], [4743, 10.0, 17], [6419, 10.0, 17], [20671, 10.0, 13], [22121, 10.0, 2], [40608, 10.0, 11], [26138, 10.0, 12], [20720, 10.0, 18], [12952, 10.0, 17], [16338, 10.0, 55], [15133, 10.0, 11]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 872 | Query Precision: 0.5813333333333334 | Query Recall: 0.6731344724394247 | Training Nums: 6973 | Unalebled Nums: 43643
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 55.900001525878906	 Error rate (%): 44.099998474121094
+detected_unknown:  349636.0
+
+
+[[28368, 10.0, 48], [55, 10.0, 6], [868, 10.0, 37], [38293, 10.0, 10], [4637, 10.0, 11], [31800, 10.0, 18], [27145, 10.0, 12], [19645, 10.0, 25], [40254, 10.0, 16], [44036, 10.0, 12], [1174, 10.0, 3], [4136, 10.0, 19], [48363, 10.0, 3], [11586, 10.0, 10], [37203, 10.0, 18], [34058, 10.0, 17], [27811, 10.0, 12], [26331, 10.0, 89], [22325, 10.0, 10], [28353, 10.0, 13]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 651 | Query Precision: 0.434 | Query Recall: 0.7181612660135644 | Training Nums: 7624 | Unalebled Nums: 43206
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.80000305175781	 Error rate (%): 40.19999694824219
+detected_unknown:  359062.0
+
+
+[[37923, 10.0, 1], [34109, 10.0, 4], [13805, 10.0, 65], [49175, 10.0, 5], [39901, 10.0, 6], [46510, 10.0, 34], [7311, 10.0, 6], [10062, 10.0, 10], [43462, 10.0, 38], [28073, 10.0, 48], [7358, 10.0, 21], [9984, 10.0, 5], [45220, 10.0, 3], [47006, 10.0, 15], [13617, 10.0, 44], [6644, 10.0, 3], [45841, 10.0, 63], [31011, 10.0, 5], [47347, 10.0, 17], [41233, 10.0, 66]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 535 | Query Precision: 0.3566666666666667 | Query Recall: 0.7533702677747 | Training Nums: 8159 | Unalebled Nums: 42871
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 61.400001525878906	 Error rate (%): 38.599998474121094
+detected_unknown:  367074.0
+
+
+[[35784, 10.0, 6], [35497, 10.0, 94], [20229, 10.0, 24], [14589, 10.0, 6], [6024, 10.0, 15], [36976, 9.0, 74], [41626, 9.0, 4], [14605, 9.0, 29], [24263, 9.0, 69], [2164, 9.0, 7], [16885, 9.0, 83], [16259, 9.0, 27], [20903, 9.0, 76], [481, 9.0, 24], [29890, 9.0, 27], [15068, 9.0, 19], [17951, 9.0, 72], [31692, 9.0, 58], [43842, 9.0, 91], [49378, 9.0, 39]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 410 | Query Precision: 0.2733333333333333 | Query Recall: 0.7768812330009066 | Training Nums: 8569 | Unalebled Nums: 42633
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.35000228881836	 Error rate (%): 39.64999771118164
+detected_unknown:  375781.0
+
+
+[[18092, 10.0, 3], [40165, 10.0, 12], [40006, 10.0, 7], [11820, 10.0, 15], [13207, 10.0, 79], [5510, 9.0, 83], [5510, 9.0, 83], [30906, 9.0, 74], [44976, 9.0, 72], [44976, 9.0, 72], [27397, 9.0, 66], [27397, 9.0, 66], [41476, 9.0, 14], [37492, 9.0, 66], [17840, 9.0, 28], [23796, 9.0, 3], [18092, 9.0, 3], [25616, 9.0, 88], [33946, 9.0, 3], [30554, 9.0, 7]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 354 | Query Precision: 0.236 | Query Recall: 0.7965541867523657 | Training Nums: 8923 | Unalebled Nums: 42438
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:36:31
+[tensor(60.6500, device='cuda:0'), tensor(59.0000, device='cuda:0'), tensor(59.6500, device='cuda:0'), tensor(60.6000, device='cuda:0'), tensor(60.3500, device='cuda:0')]
+ -1.0], [41470, 9.0, 3, -1.0], [10090, 9.0, 19, -1.0], [42771, 9.0, 19, -1.0], [25846, 9.0, 13, -1.0], [27686, 9.0, 46, -1.0], [3140, 9.0, 90, -1.0], [34689, 9.0, 37, -1.0], [46975, 9.0, 37, -1.0], [49676, 9.0, 16, -1.0], [13071, 9.0, 54, -1.0], [7892, 9.0, 90, -1.0], [13865, 9.0, 97, -1.0], [41014, 8.0, 22, -1.0], [35547, 8.0, 81, -1.0], [3340, 8.0, 82, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 582 | Query Precision: 0.388 | Query Recall: 0.7199019429816597 | Training Nums: 7929 | Unalebled Nums: 43265
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.70000457763672	 Error rate (%): 40.29999542236328
+detected_unknown:  369460.0
+
+
+active learning
+[[25368, 9.0, 15, -1.0], [10763, 8.0, 72, -1.0], [17147, 8.0, 4, -1.0], [17147, 8.0, 4, -1.0], [43265, 8.0, 63, -1.0], [38605, 8.0, 36, -1.0], [19680, 8.0, 97, -1.0], [975, 8.0, 81, -1.0], [31066, 8.0, 0, -1.0], [38451, 8.0, 22, -1.0], [15984, 8.0, 75, -1.0], [26298, 8.0, 10, -1.0], [39178, 8.0, 72, -1.0], [39178, 8.0, 72, -1.0], [6907, 8.0, 78, -1.0], [40467, 8.0, 89, -1.0], [14526, 8.0, 77, -1.0], [1062, 8.0, 39, -1.0], [35006, 8.0, 4, -1.0], [42424, 8.0, 28, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 381 | Query Precision: 0.254 | Query Recall: 0.7423619796319457 | Training Nums: 8310 | Unalebled Nums: 43033
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.05000305175781	 Error rate (%): 39.94999694824219
+detected_unknown:  377843.0
+
+
+active learning
+[[18761, 9.0, 21, -1.0], [37051, 9.0, 74, -1.0], [27603, 8.0, 54, -1.0], [42954, 8.0, 3, -1.0], [25918, 8.0, 89, -1.0], [18761, 8.0, 21, -1.0], [31692, 8.0, 58, -1.0], [31692, 8.0, 58, -1.0], [37051, 8.0, 74, -1.0], [46165, 8.0, 51, -1.0], [30260, 8.0, 46, -1.0], [21340, 8.0, 91, -1.0], [40706, 8.0, 10, -1.0], [34730, 8.0, 76, -1.0], [23282, 8.0, 65, -1.0], [37003, 7.0, 28, -1.0], [27603, 7.0, 54, -1.0], [22020, 7.0, 66, -1.0], [22020, 7.0, 66, -1.0], [47828, 7.0, 9, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 452 | Query Precision: 0.30133333333333334 | Query Recall: 0.7724587851538394 | Training Nums: 8762 | Unalebled Nums: 42783
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:33:37
+[tensor(53.0000, device='cuda:0'), tensor(56.9500, device='cuda:0'), tensor(59.6000, device='cuda:0'), tensor(58.8000, device='cuda:0'), tensor(60.0500, device='cuda:0')]
+07, 10.0, 12], [11899, 10.0, 62], [17492, 10.0, 79], [42921, 10.0, 15], [28618, 10.0, 17], [34950, 10.0, 6], [44877, 10.0, 77], [36323, 10.0, 0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1204 | Query Precision: 0.8026666666666666 | Query Recall: 0.5098 | Training Nums: 5098 | Unalebled Nums: 45044
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 50.750003814697266	 Error rate (%): 49.249996185302734
+detected_unknown:  340093.0
+
+
+[[47439, 10.0, 15], [22702, 10.0, 3], [740, 10.0, 98], [43219, 10.0, 0], [24956, 10.0, 75], [11622, 10.0, 1], [11286, 10.0, 17], [14919, 10.0, 17], [4590, 10.0, 17], [33048, 10.0, 13], [35087, 10.0, 5], [14998, 10.0, 13], [45496, 10.0, 0], [4853, 10.0, 6], [28134, 10.0, 12], [5763, 10.0, 13], [30523, 10.0, 1], [181, 10.0, 11], [41697, 10.0, 53], [48450, 10.0, 1]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1003 | Query Precision: 0.6686666666666666 | Query Recall: 0.6015578781305463 | Training Nums: 6101 | Unalebled Nums: 44258
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 53.650001525878906	 Error rate (%): 46.349998474121094
+detected_unknown:  347202.0
+
+
+[[10010, 10.0, 1], [5493, 10.0, 4], [3906, 10.0, 14], [3811, 10.0, 12], [29328, 10.0, 10], [22808, 10.0, 14], [48578, 10.0, 77], [7992, 10.0, 12], [45374, 10.0, 76], [17877, 10.0, 17], [4743, 10.0, 17], [6419, 10.0, 17], [20671, 10.0, 13], [22121, 10.0, 2], [40608, 10.0, 11], [26138, 10.0, 12], [20720, 10.0, 18], [12952, 10.0, 17], [16338, 10.0, 55], [15133, 10.0, 11]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 872 | Query Precision: 0.5813333333333334 | Query Recall: 0.6731344724394247 | Training Nums: 6973 | Unalebled Nums: 43643
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 55.900001525878906	 Error rate (%): 44.099998474121094
+detected_unknown:  349636.0
+
+
+[[28368, 10.0, 48], [55, 10.0, 6], [868, 10.0, 37], [38293, 10.0, 10], [4637, 10.0, 11], [31800, 10.0, 18], [27145, 10.0, 12], [19645, 10.0, 25], [40254, 10.0, 16], [44036, 10.0, 12], [1174, 10.0, 3], [4136, 10.0, 19], [48363, 10.0, 3], [11586, 10.0, 10], [37203, 10.0, 18], [34058, 10.0, 17], [27811, 10.0, 12], [26331, 10.0, 89], [22325, 10.0, 10], [28353, 10.0, 13]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 651 | Query Precision: 0.434 | Query Recall: 0.7181612660135644 | Training Nums: 7624 | Unalebled Nums: 43206
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.80000305175781	 Error rate (%): 40.19999694824219
+detected_unknown:  359062.0
+
+
+[[37923, 10.0, 1], [34109, 10.0, 4], [13805, 10.0, 65], [49175, 10.0, 5], [39901, 10.0, 6], [46510, 10.0, 34], [7311, 10.0, 6], [10062, 10.0, 10], [43462, 10.0, 38], [28073, 10.0, 48], [7358, 10.0, 21], [9984, 10.0, 5], [45220, 10.0, 3], [47006, 10.0, 15], [13617, 10.0, 44], [6644, 10.0, 3], [45841, 10.0, 63], [31011, 10.0, 5], [47347, 10.0, 17], [41233, 10.0, 66]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 535 | Query Precision: 0.3566666666666667 | Query Recall: 0.7533702677747 | Training Nums: 8159 | Unalebled Nums: 42871
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 61.400001525878906	 Error rate (%): 38.599998474121094
+detected_unknown:  367074.0
+
+
+[[35784, 10.0, 6], [35497, 10.0, 94], [20229, 10.0, 24], [14589, 10.0, 6], [6024, 10.0, 15], [36976, 9.0, 74], [41626, 9.0, 4], [14605, 9.0, 29], [24263, 9.0, 69], [2164, 9.0, 7], [16885, 9.0, 83], [16259, 9.0, 27], [20903, 9.0, 76], [481, 9.0, 24], [29890, 9.0, 27], [15068, 9.0, 19], [17951, 9.0, 72], [31692, 9.0, 58], [43842, 9.0, 91], [49378, 9.0, 39]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 410 | Query Precision: 0.2733333333333333 | Query Recall: 0.7768812330009066 | Training Nums: 8569 | Unalebled Nums: 42633
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.35000228881836	 Error rate (%): 39.64999771118164
+detected_unknown:  375781.0
+
+
+[[18092, 10.0, 3], [40165, 10.0, 12], [40006, 10.0, 7], [11820, 10.0, 15], [13207, 10.0, 79], [5510, 9.0, 83], [5510, 9.0, 83], [30906, 9.0, 74], [44976, 9.0, 72], [44976, 9.0, 72], [27397, 9.0, 66], [27397, 9.0, 66], [41476, 9.0, 14], [37492, 9.0, 66], [17840, 9.0, 28], [23796, 9.0, 3], [18092, 9.0, 3], [25616, 9.0, 88], [33946, 9.0, 3], [30554, 9.0, 7]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 354 | Query Precision: 0.236 | Query Recall: 0.7965541867523657 | Training Nums: 8923 | Unalebled Nums: 42438
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:36:31
+[tensor(60.6500, device='cuda:0'), tensor(59.0000, device='cuda:0'), tensor(59.6500, device='cuda:0'), tensor(60.6000, device='cuda:0'), tensor(60.3500, device='cuda:0')]
+6813 | Training Nums: 6652 | Unalebled Nums: 44158
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.10000228881836	 Error rate (%): 43.89999771118164
+detected_unknown:  359403.0
+
+
+active learning
+[[35710, 9.0, 1, -1.0], [15014, 9.0, 36, -1.0], [19386, 9.0, 45, -1.0], [26081, 9.0, 41, -1.0], [49, 9.0, 78, -1.0], [3889, 9.0, 10, -1.0], [3889, 9.0, 10, -1.0], [45496, 9.0, 0, -1.0], [47554, 9.0, 73, -1.0], [47554, 9.0, 73, -1.0], [43251, 9.0, 16, -1.0], [9996, 8.0, 67, -1.0], [32236, 8.0, 90, -1.0], [36094, 8.0, 32, -1.0], [19820, 8.0, 95, -1.0], [46416, 8.0, 77, -1.0], [35710, 8.0, 1, -1.0], [4307, 8.0, 79, -1.0], [24576, 8.0, 93, -1.0], [24576, 8.0, 93, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 695 | Query Precision: 0.4633333333333333 | Query Recall: 0.6796484736355226 | Training Nums: 7347 | Unalebled Nums: 43667
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.000003814697266	 Error rate (%): 43.999996185302734
+detected_unknown:  361236.0
+
+
+active learning
+[[41014, 10.0, 22, -1.0], [41014, 9.0, 22, -1.0], [41453, 9.0, 26, -1.0], [32406, 9.0, 12, -1.0], [45309, 9.0, 79, -1.0], [41470, 9.0, 3, -1.0], [10090, 9.0, 19, -1.0], [42771, 9.0, 19, -1.0], [25846, 9.0, 13, -1.0], [27686, 9.0, 46, -1.0], [3140, 9.0, 90, -1.0], [34689, 9.0, 37, -1.0], [46975, 9.0, 37, -1.0], [49676, 9.0, 16, -1.0], [13071, 9.0, 54, -1.0], [7892, 9.0, 90, -1.0], [13865, 9.0, 97, -1.0], [41014, 8.0, 22, -1.0], [35547, 8.0, 81, -1.0], [3340, 8.0, 82, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 582 | Query Precision: 0.388 | Query Recall: 0.7199019429816597 | Training Nums: 7929 | Unalebled Nums: 43265
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.70000457763672	 Error rate (%): 40.29999542236328
+detected_unknown:  369460.0
+
+
+active learning
+[[25368, 9.0, 15, -1.0], [10763, 8.0, 72, -1.0], [17147, 8.0, 4, -1.0], [17147, 8.0, 4, -1.0], [43265, 8.0, 63, -1.0], [38605, 8.0, 36, -1.0], [19680, 8.0, 97, -1.0], [975, 8.0, 81, -1.0], [31066, 8.0, 0, -1.0], [38451, 8.0, 22, -1.0], [15984, 8.0, 75, -1.0], [26298, 8.0, 10, -1.0], [39178, 8.0, 72, -1.0], [39178, 8.0, 72, -1.0], [6907, 8.0, 78, -1.0], [40467, 8.0, 89, -1.0], [14526, 8.0, 77, -1.0], [1062, 8.0, 39, -1.0], [35006, 8.0, 4, -1.0], [42424, 8.0, 28, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 381 | Query Precision: 0.254 | Query Recall: 0.7423619796319457 | Training Nums: 8310 | Unalebled Nums: 43033
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.05000305175781	 Error rate (%): 39.94999694824219
+detected_unknown:  377843.0
+
+
+active learning
+[[18761, 9.0, 21, -1.0], [37051, 9.0, 74, -1.0], [27603, 8.0, 54, -1.0], [42954, 8.0, 3, -1.0], [25918, 8.0, 89, -1.0], [18761, 8.0, 21, -1.0], [31692, 8.0, 58, -1.0], [31692, 8.0, 58, -1.0], [37051, 8.0, 74, -1.0], [46165, 8.0, 51, -1.0], [30260, 8.0, 46, -1.0], [21340, 8.0, 91, -1.0], [40706, 8.0, 10, -1.0], [34730, 8.0, 76, -1.0], [23282, 8.0, 65, -1.0], [37003, 7.0, 28, -1.0], [27603, 7.0, 54, -1.0], [22020, 7.0, 66, -1.0], [22020, 7.0, 66, -1.0], [47828, 7.0, 9, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 452 | Query Precision: 0.30133333333333334 | Query Recall: 0.7724587851538394 | Training Nums: 8762 | Unalebled Nums: 42783
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:33:37
+[tensor(53.0000, device='cuda:0'), tensor(56.9500, device='cuda:0'), tensor(59.6000, device='cuda:0'), tensor(58.8000, device='cuda:0'), tensor(60.0500, device='cuda:0')]
+[10010, 10.0, 1], [5493, 10.0, 4], [3906, 10.0, 14], [3811, 10.0, 12], [29328, 10.0, 10], [22808, 10.0, 14], [48578, 10.0, 77], [7992, 10.0, 12], [45374, 10.0, 76], [17877, 10.0, 17], [4743, 10.0, 17], [6419, 10.0, 17], [20671, 10.0, 13], [22121, 10.0, 2], [40608, 10.0, 11], [26138, 10.0, 12], [20720, 10.0, 18], [12952, 10.0, 17], [16338, 10.0, 55], [15133, 10.0, 11]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 872 | Query Precision: 0.5813333333333334 | Query Recall: 0.6731344724394247 | Training Nums: 6973 | Unalebled Nums: 43643
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 55.900001525878906	 Error rate (%): 44.099998474121094
+detected_unknown:  349636.0
+
+
+[[28368, 10.0, 48], [55, 10.0, 6], [868, 10.0, 37], [38293, 10.0, 10], [4637, 10.0, 11], [31800, 10.0, 18], [27145, 10.0, 12], [19645, 10.0, 25], [40254, 10.0, 16], [44036, 10.0, 12], [1174, 10.0, 3], [4136, 10.0, 19], [48363, 10.0, 3], [11586, 10.0, 10], [37203, 10.0, 18], [34058, 10.0, 17], [27811, 10.0, 12], [26331, 10.0, 89], [22325, 10.0, 10], [28353, 10.0, 13]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 651 | Query Precision: 0.434 | Query Recall: 0.7181612660135644 | Training Nums: 7624 | Unalebled Nums: 43206
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.80000305175781	 Error rate (%): 40.19999694824219
+detected_unknown:  359062.0
+
+
+[[37923, 10.0, 1], [34109, 10.0, 4], [13805, 10.0, 65], [49175, 10.0, 5], [39901, 10.0, 6], [46510, 10.0, 34], [7311, 10.0, 6], [10062, 10.0, 10], [43462, 10.0, 38], [28073, 10.0, 48], [7358, 10.0, 21], [9984, 10.0, 5], [45220, 10.0, 3], [47006, 10.0, 15], [13617, 10.0, 44], [6644, 10.0, 3], [45841, 10.0, 63], [31011, 10.0, 5], [47347, 10.0, 17], [41233, 10.0, 66]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 535 | Query Precision: 0.3566666666666667 | Query Recall: 0.7533702677747 | Training Nums: 8159 | Unalebled Nums: 42871
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 61.400001525878906	 Error rate (%): 38.599998474121094
+detected_unknown:  367074.0
+
+
+[[35784, 10.0, 6], [35497, 10.0, 94], [20229, 10.0, 24], [14589, 10.0, 6], [6024, 10.0, 15], [36976, 9.0, 74], [41626, 9.0, 4], [14605, 9.0, 29], [24263, 9.0, 69], [2164, 9.0, 7], [16885, 9.0, 83], [16259, 9.0, 27], [20903, 9.0, 76], [481, 9.0, 24], [29890, 9.0, 27], [15068, 9.0, 19], [17951, 9.0, 72], [31692, 9.0, 58], [43842, 9.0, 91], [49378, 9.0, 39]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 410 | Query Precision: 0.2733333333333333 | Query Recall: 0.7768812330009066 | Training Nums: 8569 | Unalebled Nums: 42633
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.35000228881836	 Error rate (%): 39.64999771118164
+detected_unknown:  375781.0
+
+
+[[18092, 10.0, 3], [40165, 10.0, 12], [40006, 10.0, 7], [11820, 10.0, 15], [13207, 10.0, 79], [5510, 9.0, 83], [5510, 9.0, 83], [30906, 9.0, 74], [44976, 9.0, 72], [44976, 9.0, 72], [27397, 9.0, 66], [27397, 9.0, 66], [41476, 9.0, 14], [37492, 9.0, 66], [17840, 9.0, 28], [23796, 9.0, 3], [18092, 9.0, 3], [25616, 9.0, 88], [33946, 9.0, 3], [30554, 9.0, 7]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 354 | Query Precision: 0.236 | Query Recall: 0.7965541867523657 | Training Nums: 8923 | Unalebled Nums: 42438
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:36:31
+[tensor(60.6500, device='cuda:0'), tensor(59.0000, device='cuda:0'), tensor(59.6500, device='cuda:0'), tensor(60.6000, device='cuda:0'), tensor(60.3500, device='cuda:0')]
+ 10.0, 15, -1.0], [20107, 10.0, 77, -1.0], [19932, 10.0, 19, -1.0], [30224, 10.0, 9, -1.0], [9888, 9.0, 93, -1.0], [28743, 9.0, 3, -1.0], [23254, 9.0, 6, -1.0], [12800, 9.0, 15, -1.0], [43923, 9.0, 79, -1.0], [16338, 9.0, 55, -1.0], [5528, 9.0, 15, -1.0], [27900, 9.0, 76, -1.0], [35167, 9.0, 92, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1124 | Query Precision: 0.7493333333333333 | Query Recall: 0.5634752456174148 | Training Nums: 5850 | Unalebled Nums: 44721
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 51.900001525878906	 Error rate (%): 48.099998474121094
+detected_unknown:  354074.0
+
+
+active learning
+[[16824, 10.0, 28, -1.0], [33452, 10.0, 12, -1.0], [27911, 10.0, 22, -1.0], [16824, 9.0, 28, -1.0], [13069, 9.0, 77, -1.0], [5516, 9.0, 7, -1.0], [24578, 9.0, 2, -1.0], [33452, 9.0, 12, -1.0], [25224, 9.0, 3, -1.0], [11638, 9.0, 35, -1.0], [27911, 9.0, 22, -1.0], [30554, 9.0, 7, -1.0], [38123, 9.0, 44, -1.0], [13263, 9.0, 77, -1.0], [39532, 9.0, 28, -1.0], [30236, 9.0, 15, -1.0], [2975, 9.0, 40, -1.0], [19436, 9.0, 78, -1.0], [43921, 9.0, 6, -1.0], [34533, 9.0, 42, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 802 | Query Precision: 0.5346666666666666 | Query Recall: 0.6292687541386813 | Training Nums: 6652 | Unalebled Nums: 44158
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.10000228881836	 Error rate (%): 43.89999771118164
+detected_unknown:  359403.0
+
+
+active learning
+[[35710, 9.0, 1, -1.0], [15014, 9.0, 36, -1.0], [19386, 9.0, 45, -1.0], [26081, 9.0, 41, -1.0], [49, 9.0, 78, -1.0], [3889, 9.0, 10, -1.0], [3889, 9.0, 10, -1.0], [45496, 9.0, 0, -1.0], [47554, 9.0, 73, -1.0], [47554, 9.0, 73, -1.0], [43251, 9.0, 16, -1.0], [9996, 8.0, 67, -1.0], [32236, 8.0, 90, -1.0], [36094, 8.0, 32, -1.0], [19820, 8.0, 95, -1.0], [46416, 8.0, 77, -1.0], [35710, 8.0, 1, -1.0], [4307, 8.0, 79, -1.0], [24576, 8.0, 93, -1.0], [24576, 8.0, 93, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 695 | Query Precision: 0.4633333333333333 | Query Recall: 0.6796484736355226 | Training Nums: 7347 | Unalebled Nums: 43667
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.000003814697266	 Error rate (%): 43.999996185302734
+detected_unknown:  361236.0
+
+
+active learning
+[[41014, 10.0, 22, -1.0], [41014, 9.0, 22, -1.0], [41453, 9.0, 26, -1.0], [32406, 9.0, 12, -1.0], [45309, 9.0, 79, -1.0], [41470, 9.0, 3, -1.0], [10090, 9.0, 19, -1.0], [42771, 9.0, 19, -1.0], [25846, 9.0, 13, -1.0], [27686, 9.0, 46, -1.0], [3140, 9.0, 90, -1.0], [34689, 9.0, 37, -1.0], [46975, 9.0, 37, -1.0], [49676, 9.0, 16, -1.0], [13071, 9.0, 54, -1.0], [7892, 9.0, 90, -1.0], [13865, 9.0, 97, -1.0], [41014, 8.0, 22, -1.0], [35547, 8.0, 81, -1.0], [3340, 8.0, 82, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 582 | Query Precision: 0.388 | Query Recall: 0.7199019429816597 | Training Nums: 7929 | Unalebled Nums: 43265
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.70000457763672	 Error rate (%): 40.29999542236328
+detected_unknown:  369460.0
+
+
+active learning
+[[25368, 9.0, 15, -1.0], [10763, 8.0, 72, -1.0], [17147, 8.0, 4, -1.0], [17147, 8.0, 4, -1.0], [43265, 8.0, 63, -1.0], [38605, 8.0, 36, -1.0], [19680, 8.0, 97, -1.0], [975, 8.0, 81, -1.0], [31066, 8.0, 0, -1.0], [38451, 8.0, 22, -1.0], [15984, 8.0, 75, -1.0], [26298, 8.0, 10, -1.0], [39178, 8.0, 72, -1.0], [39178, 8.0, 72, -1.0], [6907, 8.0, 78, -1.0], [40467, 8.0, 89, -1.0], [14526, 8.0, 77, -1.0], [1062, 8.0, 39, -1.0], [35006, 8.0, 4, -1.0], [42424, 8.0, 28, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 381 | Query Precision: 0.254 | Query Recall: 0.7423619796319457 | Training Nums: 8310 | Unalebled Nums: 43033
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.05000305175781	 Error rate (%): 39.94999694824219
+detected_unknown:  377843.0
+
+
+active learning
+[[18761, 9.0, 21, -1.0], [37051, 9.0, 74, -1.0], [27603, 8.0, 54, -1.0], [42954, 8.0, 3, -1.0], [25918, 8.0, 89, -1.0], [18761, 8.0, 21, -1.0], [31692, 8.0, 58, -1.0], [31692, 8.0, 58, -1.0], [37051, 8.0, 74, -1.0], [46165, 8.0, 51, -1.0], [30260, 8.0, 46, -1.0], [21340, 8.0, 91, -1.0], [40706, 8.0, 10, -1.0], [34730, 8.0, 76, -1.0], [23282, 8.0, 65, -1.0], [37003, 7.0, 28, -1.0], [27603, 7.0, 54, -1.0], [22020, 7.0, 66, -1.0], [22020, 7.0, 66, -1.0], [47828, 7.0, 9, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 452 | Query Precision: 0.30133333333333334 | Query Recall: 0.7724587851538394 | Training Nums: 8762 | Unalebled Nums: 42783
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:33:37
+[tensor(53.0000, device='cuda:0'), tensor(56.9500, device='cuda:0'), tensor(59.6000, device='cuda:0'), tensor(58.8000, device='cuda:0'), tensor(60.0500, device='cuda:0')]
+y downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.80000305175781	 Error rate (%): 40.19999694824219
+detected_unknown:  359062.0
+
+
+[[37923, 10.0, 1], [34109, 10.0, 4], [13805, 10.0, 65], [49175, 10.0, 5], [39901, 10.0, 6], [46510, 10.0, 34], [7311, 10.0, 6], [10062, 10.0, 10], [43462, 10.0, 38], [28073, 10.0, 48], [7358, 10.0, 21], [9984, 10.0, 5], [45220, 10.0, 3], [47006, 10.0, 15], [13617, 10.0, 44], [6644, 10.0, 3], [45841, 10.0, 63], [31011, 10.0, 5], [47347, 10.0, 17], [41233, 10.0, 66]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 535 | Query Precision: 0.3566666666666667 | Query Recall: 0.7533702677747 | Training Nums: 8159 | Unalebled Nums: 42871
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 61.400001525878906	 Error rate (%): 38.599998474121094
+detected_unknown:  367074.0
+
+
+[[35784, 10.0, 6], [35497, 10.0, 94], [20229, 10.0, 24], [14589, 10.0, 6], [6024, 10.0, 15], [36976, 9.0, 74], [41626, 9.0, 4], [14605, 9.0, 29], [24263, 9.0, 69], [2164, 9.0, 7], [16885, 9.0, 83], [16259, 9.0, 27], [20903, 9.0, 76], [481, 9.0, 24], [29890, 9.0, 27], [15068, 9.0, 19], [17951, 9.0, 72], [31692, 9.0, 58], [43842, 9.0, 91], [49378, 9.0, 39]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 410 | Query Precision: 0.2733333333333333 | Query Recall: 0.7768812330009066 | Training Nums: 8569 | Unalebled Nums: 42633
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.35000228881836	 Error rate (%): 39.64999771118164
+detected_unknown:  375781.0
+
+
+[[18092, 10.0, 3], [40165, 10.0, 12], [40006, 10.0, 7], [11820, 10.0, 15], [13207, 10.0, 79], [5510, 9.0, 83], [5510, 9.0, 83], [30906, 9.0, 74], [44976, 9.0, 72], [44976, 9.0, 72], [27397, 9.0, 66], [27397, 9.0, 66], [41476, 9.0, 14], [37492, 9.0, 66], [17840, 9.0, 28], [23796, 9.0, 3], [18092, 9.0, 3], [25616, 9.0, 88], [33946, 9.0, 3], [30554, 9.0, 7]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 354 | Query Precision: 0.236 | Query Recall: 0.7965541867523657 | Training Nums: 8923 | Unalebled Nums: 42438
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:36:31
+[tensor(60.6500, device='cuda:0'), tensor(59.0000, device='cuda:0'), tensor(59.6500, device='cuda:0'), tensor(60.6000, device='cuda:0'), tensor(60.3500, device='cuda:0')]
+                     ==> Test
+Model_B | Accuracy (%): 42.55000305175781	 Error rate (%): 57.44999694824219
+detected_unknown:  360709.0
+
+
+active learning
+[[7180, 10.0, 88, -1.0], [48212, 10.0, 11, -1.0], [31156, 10.0, 6, -1.0], [48642, 10.0, 11, -1.0], [28098, 10.0, 10, -1.0], [41846, 10.0, 79, -1.0], [44068, 10.0, 56, -1.0], [2991, 10.0, 16, -1.0], [34650, 10.0, 14, -1.0], [11218, 10.0, 10, -1.0], [42414, 10.0, 62, -1.0], [49278, 10.0, 14, -1.0], [39250, 10.0, 7, -1.0], [21769, 10.0, 14, -1.0], [16597, 9.0, 57, -1.0], [28083, 9.0, 51, -1.0], [49678, 9.0, 26, -1.0], [7180, 9.0, 88, -1.0], [34256, 9.0, 6, -1.0], [23082, 9.0, 57, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1166 | Query Precision: 0.7773333333333333 | Query Recall: 0.4630155775448222 | Training Nums: 4726 | Unalebled Nums: 45656
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 49.650001525878906	 Error rate (%): 50.349998474121094
+detected_unknown:  357061.0
+
+
+active learning
+[[28743, 10.0, 3, -1.0], [23254, 10.0, 6, -1.0], [16338, 10.0, 55, -1.0], [5528, 10.0, 15, -1.0], [27900, 10.0, 76, -1.0], [34306, 10.0, 35, -1.0], [27878, 10.0, 14, -1.0], [12812, 10.0, 15, -1.0], [20107, 10.0, 77, -1.0], [19932, 10.0, 19, -1.0], [30224, 10.0, 9, -1.0], [9888, 9.0, 93, -1.0], [28743, 9.0, 3, -1.0], [23254, 9.0, 6, -1.0], [12800, 9.0, 15, -1.0], [43923, 9.0, 79, -1.0], [16338, 9.0, 55, -1.0], [5528, 9.0, 15, -1.0], [27900, 9.0, 76, -1.0], [35167, 9.0, 92, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1124 | Query Precision: 0.7493333333333333 | Query Recall: 0.5634752456174148 | Training Nums: 5850 | Unalebled Nums: 44721
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 51.900001525878906	 Error rate (%): 48.099998474121094
+detected_unknown:  354074.0
+
+
+active learning
+[[16824, 10.0, 28, -1.0], [33452, 10.0, 12, -1.0], [27911, 10.0, 22, -1.0], [16824, 9.0, 28, -1.0], [13069, 9.0, 77, -1.0], [5516, 9.0, 7, -1.0], [24578, 9.0, 2, -1.0], [33452, 9.0, 12, -1.0], [25224, 9.0, 3, -1.0], [11638, 9.0, 35, -1.0], [27911, 9.0, 22, -1.0], [30554, 9.0, 7, -1.0], [38123, 9.0, 44, -1.0], [13263, 9.0, 77, -1.0], [39532, 9.0, 28, -1.0], [30236, 9.0, 15, -1.0], [2975, 9.0, 40, -1.0], [19436, 9.0, 78, -1.0], [43921, 9.0, 6, -1.0], [34533, 9.0, 42, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 802 | Query Precision: 0.5346666666666666 | Query Recall: 0.6292687541386813 | Training Nums: 6652 | Unalebled Nums: 44158
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.10000228881836	 Error rate (%): 43.89999771118164
+detected_unknown:  359403.0
+
+
+active learning
+[[35710, 9.0, 1, -1.0], [15014, 9.0, 36, -1.0], [19386, 9.0, 45, -1.0], [26081, 9.0, 41, -1.0], [49, 9.0, 78, -1.0], [3889, 9.0, 10, -1.0], [3889, 9.0, 10, -1.0], [45496, 9.0, 0, -1.0], [47554, 9.0, 73, -1.0], [47554, 9.0, 73, -1.0], [43251, 9.0, 16, -1.0], [9996, 8.0, 67, -1.0], [32236, 8.0, 90, -1.0], [36094, 8.0, 32, -1.0], [19820, 8.0, 95, -1.0], [46416, 8.0, 77, -1.0], [35710, 8.0, 1, -1.0], [4307, 8.0, 79, -1.0], [24576, 8.0, 93, -1.0], [24576, 8.0, 93, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 695 | Query Precision: 0.4633333333333333 | Query Recall: 0.6796484736355226 | Training Nums: 7347 | Unalebled Nums: 43667
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 56.000003814697266	 Error rate (%): 43.999996185302734
+detected_unknown:  361236.0
+
+
+active learning
+[[41014, 10.0, 22, -1.0], [41014, 9.0, 22, -1.0], [41453, 9.0, 26, -1.0], [32406, 9.0, 12, -1.0], [45309, 9.0, 79, -1.0], [41470, 9.0, 3, -1.0], [10090, 9.0, 19, -1.0], [42771, 9.0, 19, -1.0], [25846, 9.0, 13, -1.0], [27686, 9.0, 46, -1.0], [3140, 9.0, 90, -1.0], [34689, 9.0, 37, -1.0], [46975, 9.0, 37, -1.0], [49676, 9.0, 16, -1.0], [13071, 9.0, 54, -1.0], [7892, 9.0, 90, -1.0], [13865, 9.0, 97, -1.0], [41014, 8.0, 22, -1.0], [35547, 8.0, 81, -1.0], [3340, 8.0, 82, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 582 | Query Precision: 0.388 | Query Recall: 0.7199019429816597 | Training Nums: 7929 | Unalebled Nums: 43265
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 59.70000457763672	 Error rate (%): 40.29999542236328
+detected_unknown:  369460.0
+
+
+active learning
+[[25368, 9.0, 15, -1.0], [10763, 8.0, 72, -1.0], [17147, 8.0, 4, -1.0], [17147, 8.0, 4, -1.0], [43265, 8.0, 63, -1.0], [38605, 8.0, 36, -1.0], [19680, 8.0, 97, -1.0], [975, 8.0, 81, -1.0], [31066, 8.0, 0, -1.0], [38451, 8.0, 22, -1.0], [15984, 8.0, 75, -1.0], [26298, 8.0, 10, -1.0], [39178, 8.0, 72, -1.0], [39178, 8.0, 72, -1.0], [6907, 8.0, 78, -1.0], [40467, 8.0, 89, -1.0], [14526, 8.0, 77, -1.0], [1062, 8.0, 39, -1.0], [35006, 8.0, 4, -1.0], [42424, 8.0, 28, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 381 | Query Precision: 0.254 | Query Recall: 0.7423619796319457 | Training Nums: 8310 | Unalebled Nums: 43033
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_B | Accuracy (%): 60.05000305175781	 Error rate (%): 39.94999694824219
+detected_unknown:  377843.0
+
+
+active learning
+[[18761, 9.0, 21, -1.0], [37051, 9.0, 74, -1.0], [27603, 8.0, 54, -1.0], [42954, 8.0, 3, -1.0], [25918, 8.0, 89, -1.0], [18761, 8.0, 21, -1.0], [31692, 8.0, 58, -1.0], [31692, 8.0, 58, -1.0], [37051, 8.0, 74, -1.0], [46165, 8.0, 51, -1.0], [30260, 8.0, 46, -1.0], [21340, 8.0, 91, -1.0], [40706, 8.0, 10, -1.0], [34730, 8.0, 76, -1.0], [23282, 8.0, 65, -1.0], [37003, 7.0, 28, -1.0], [27603, 7.0, 54, -1.0], [22020, 7.0, 66, -1.0], [22020, 7.0, 66, -1.0], [47828, 7.0, 9, -1.0]]
+Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 452 | Query Precision: 0.30133333333333334 | Query Recall: 0.7724587851538394 | Training Nums: 8762 | Unalebled Nums: 42783
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:33:37
+[tensor(53.0000, device='cuda:0'), tensor(56.9500, device='cuda:0'), tensor(59.6000, device='cuda:0'), tensor(58.8000, device='cuda:0'), tensor(60.0500, device='cuda:0')]
