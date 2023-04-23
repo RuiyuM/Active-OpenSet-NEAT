@@ -45,7 +45,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'test_query_2'])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -73,7 +73,12 @@ parser.add_argument('--active', action='store_true', help="whether to use active
 
 parser.add_argument('--k', type=int, default=10)
 
-parser.add_argument('--runs', type=int, default=5)
+parser.add_argument('--runs', type=int, default=3)
+
+
+parser.add_argument('--active_4', action='store_true', help="whether to use active learning")
+
+parser.add_argument('--active_5', action='store_true', help="whether to use active learning")
 
 
 args = parser.parse_args()
@@ -256,7 +261,7 @@ def main():
 
 
             elif args.query_strategy == "test_query":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query(args,
+                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query_2(args, model_B, query,
                                                                                              unlabeledloader,
                                                                                              len(labeled_ind_train),
                                                                                              use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
@@ -268,7 +273,7 @@ def main():
             labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
             invalidList = list(invalidList) + list(invalidIndex)
 
-            print("Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
+            print("Query round: " + str(query) + " | Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
                 args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
                 Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
                 len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
@@ -282,6 +287,8 @@ def main():
                 unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
             )
             trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
+
+
 
 
 

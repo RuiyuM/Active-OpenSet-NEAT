@@ -192,7 +192,7 @@ def cosDistance_two(unlabeled_features, labeled_features):
 
     labeled_features   = F.normalize(labeled_features, dim=1)  # each feature's l2-norm should be 1
 
-    similarity_matrix = torch.matmul(unlabeled_features, labeled_features.T)
+    similarity_matrix  = torch.matmul(unlabeled_features, labeled_features.T)
 
     distance_matrix = 1.0 - similarity_matrix
     
@@ -240,7 +240,6 @@ def CIFAR100_EXTRACT_ALL():
 
             sel_idx.append(index)
             all_labels.append(labels)
-
 
 
     final_feat = torch.concatenate(features).to(device)
@@ -332,7 +331,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
     for i in range(len(unlabeled_index)):
 
-        index_knn[unlabeled_index[i]] = ( indices[i].cpu().numpy(), values[i] )
+        index_knn[unlabeled_index[i]] = ( indices[i, :].cpu().numpy(), values[i, :] )
 
 
     return index_knn
