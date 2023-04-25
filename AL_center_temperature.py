@@ -81,6 +81,9 @@ parser.add_argument('--active_4', action='store_true', help="whether to use acti
 parser.add_argument('--active_5', action='store_true', help="whether to use active learning")
 
 
+parser.add_argument('--active_5_reverse', action='store_true', help="whether to use active learning")
+
+
 args = parser.parse_args()
 
 
@@ -91,7 +94,7 @@ def main():
 
     for run in range(args.runs):
 
-        args.seed = run
+        args.seed = run*888
 
         last_acc = None
 
@@ -125,6 +128,7 @@ def main():
 
         testloader, unlabeledloader = dataset.testloader, dataset.unlabeledloader
         trainloader_A, trainloader_B = dataset.trainloader, dataset.trainloader
+        
         negativeloader = None  # init negativeloader none
         invalidList = []
         labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
@@ -175,6 +179,7 @@ def main():
            
             #optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
             optimizer_model_B = torch.optim.SGD(model_B.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
+            
             optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
 
             if args.stepsize > 0:
@@ -319,8 +324,9 @@ def main():
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
 
-        all_acc.append(last_acc)
+        all_acc.append(last_acc.cpu().item())
 
+        print ("\n\n")
 
     print(all_acc)
 
@@ -410,7 +416,9 @@ def train_B(model, criterion_xent, criterion_cent,
             data, labels = data.cuda(), labels.cuda()
         features, outputs = model(data)
         loss_xent = criterion_xent(outputs, labels)
-        loss_cent = criterion_cent(features, labels)
+        #loss_cent = criterion_cent(features, labels)
+        loss_cent = 0.0
+
         loss_cent *= args.weight_cent
         loss = loss_xent + loss_cent
         optimizer_model.zero_grad()
@@ -425,7 +433,7 @@ def train_B(model, criterion_xent, criterion_cent,
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))
-        cent_losses.update(loss_cent.item(), labels.size(0))
+        #cent_losses.update(loss_cent.item(), labels.size(0))
 
         if args.plot:
             if use_gpu:

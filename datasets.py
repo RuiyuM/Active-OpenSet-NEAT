@@ -242,6 +242,7 @@ class CIFAR100(object):
     def filter_known_unknown_10percent(self, dataset):
         filter_ind = []
         unlabeled_ind = []
+
         for i in range(len(dataset.targets)):
             c = dataset.targets[i]
             if c < known_class:
@@ -249,6 +250,7 @@ class CIFAR100(object):
             else:
                 unlabeled_ind.append(i)
 
+        print ("Shuffle")
         # 随机选
         random.shuffle(filter_ind)
         labeled_ind = filter_ind[:len(filter_ind) * init_percent // 100]

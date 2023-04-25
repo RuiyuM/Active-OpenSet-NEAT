@@ -898,20 +898,27 @@ def test_query(args, query, unlabeledloader, Len_labeled_ind_train, use_gpu, lab
 
 
 
+
+def calc_entropy(input_tensor):
+    lsm = nn.LogSoftmax()
+    log_probs = lsm(input_tensor)
+    probs = torch.exp(log_probs)
+    p_log_p = log_probs * probs
+    entropy = -p_log_p.mean()
+    return entropy
+
+
 def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label):
 
-    print ("active learning")
+    print ("active learning 5")
     #S_index[n_index][0][1]
 
     new_query_index = []
     
     for i in range(len(queryIndex)):
 
-        neighbor_labels = []
-
         # all the indices for neighbors
         neighbors, values = index_knn[queryIndex[i][0]]
-
 
         predicted_prob =  F.softmax(S_index[queryIndex[i][0]][-1]).cuda()
         
@@ -927,20 +934,25 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
 
             if neighbor_labels < args.known_class:
 
-                knn_labels_cnt[neighbor_labels] += test_variable_1
+                knn_labels_cnt[neighbor_labels] += 1.0
 
-
-        #knn_labels_prob = F.softmax(knn_labels_cnt, dim=0).cuda()
-        #score = F.nll_loss(torch.log(knn_labels_prob + 1e-8), predicted_label, reduction='mean')
 
         score = F.cross_entropy(knn_labels_cnt, predicted_prob, reduction='mean')
         
-        print (score)
         score_np = score.cpu().item()
 
 
-        new_query_index.append(queryIndex[i] + [score_np])
+        entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
 
+
+        if args.active_5:
+
+            new_query_index.append(queryIndex[i] + [score_np])
+
+        elif args.active_5_reverse:
+
+            new_query_index.append(queryIndex[i] + [-score_np])
+    
 
     new_query_index = sorted(new_query_index, key=lambda x: x[-1], reverse=True)
 
@@ -989,8 +1001,8 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
 
     labelArr = []
-    uncertaintyArr = []
 
+    model.eval()
     #################################################################
     S_index = {}
 
@@ -1079,20 +1091,17 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         #################################################################
         
-        if args.active_5:
+        if args.active_5 or args.active_5_reverse:
     
             queryIndex = active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
+
 
         elif args.active_4:
 
             queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
 
-
-        #queryIndex = sorted(queryIndex, key=lambda x: x[-1], reverse=True)
     
     #################################################################
-
-    print (len(queryIndex))
 
     print (queryIndex[:20])
 
@@ -1103,11 +1112,10 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         num = item[0]
 
-        if args.active_5:
+        if args.active_5 or args.active_5_reverse:
             num3 = item[-2]
         else:
             num3 = item[-1]
-
 
         if num3 < args.known_class:
 
@@ -1116,6 +1124,8 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
         elif num3 >= args.known_class:
 
             invalid_index.append(int(num))
+
+    #################################################################
 
     precision = len(final_chosen_index) / args.query_batch
     
