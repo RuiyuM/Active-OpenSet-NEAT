@@ -1,6 +1,6 @@
+#! /bin/bash
 
-
-methods=("test_query" "active_query")
+methods=("active_query")
 
 
 for method in ${methods[@]}; 
