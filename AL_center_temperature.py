@@ -81,9 +81,6 @@ parser.add_argument('--active_4', action='store_true', help="whether to use acti
 parser.add_argument('--active_5', action='store_true', help="whether to use active learning")
 
 
-parser.add_argument('--active_5_reverse', action='store_true', help="whether to use active learning")
-
-
 args = parser.parse_args()
 
 
@@ -97,7 +94,7 @@ def main():
     use_gpu = torch.cuda.is_available()
 
     #indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
-    ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL()
+    ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset)
 
 
     sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
@@ -296,33 +293,23 @@ def main():
 
 
 
-        file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
-                        args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
-                        args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
-                        args.known_T) + "_modelB_T" + str(args.modelB_T)
+    file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+                    args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
+                    args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
+                    args.known_T) + "_modelB_T" + str(args.modelB_T)
 
-        ## Save results
-        with open(file_name + ".pkl", 'wb') as f:
-            
-            data = {'Acc': Acc, 'Err': Err, 'Precision': Precision, 'Recall': Recall}
-            pickle.dump(data, f)
+    ## Save results
+    with open(file_name + ".pkl", 'wb') as f:
         
+        data = {'Acc': Acc, 'Err': Err, 'Precision': Precision, 'Recall': Recall}
+        pickle.dump(data, f)
+    
 
-        f.close()
-        '''
-        ## Save model
-        if args.is_mini:
-            torch.save(model_B,
-                       "save_model/AL_center_" + args.dataset + "30_mini_query" + str(args.max_query) + "_batch" + str(
-                           args.query_batch) + ".pt")
-        else:
-            torch.save(model_B, "save_model/AL_center_" + args.dataset + "30_query" + str(args.max_query) + "_batch" + str(
-                args.query_batch) + ".pt")
-        '''
-
-        elapsed = round(time.time() - start_time)
-        elapsed = str(datetime.timedelta(seconds=elapsed))
-        print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
+    f.close()
+    
+    elapsed = round(time.time() - start_time)
+    elapsed = str(datetime.timedelta(seconds=elapsed))
+    print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
 
 
 

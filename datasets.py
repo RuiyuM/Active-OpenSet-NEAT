@@ -313,9 +313,12 @@ class CustomCIFAR10Dataset_test(Dataset):
 
 
 
+
 class CIFAR10(object):
+
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
-                 labeled_ind_train=None):
+                 labeled_ind_train=None, invalidList=None):
+
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
@@ -331,9 +334,11 @@ class CIFAR10(object):
 
         pin_memory = True if use_gpu else False
 
+        if invalidList is not None:
+            labeled_ind_train = labeled_ind_train + invalidList
+
         #trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
         trainset = CustomCIFAR10Dataset_train(transform=transform_train, invalidList=invalidList)
-
 
 
         ## 初始化

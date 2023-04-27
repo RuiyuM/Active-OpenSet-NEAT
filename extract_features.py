@@ -16,7 +16,7 @@ import pickle
 
 
 class CustomCIFAR10Dataset_train(Dataset):
-    cifar10_dataset = None
+    cifar100_dataset = None
     targets = None
 
     @classmethod
@@ -572,12 +572,6 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args):
 
     ###################################################
 '''
-
-
-
-
-
-
 
 
 def cosDistance(features):
