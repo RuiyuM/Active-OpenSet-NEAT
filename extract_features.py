@@ -13,6 +13,30 @@ from collections import Counter
 from torch.utils.data import SubsetRandomSampler
 import pickle 
 
+
+
+class CustomCIFAR10Dataset_train(Dataset):
+    cifar10_dataset = None
+    targets = None
+
+    @classmethod
+    def load_dataset(cls, root="./data/cifar10", train=True, download=True, transform=None):
+        cls.cifar10_dataset = datasets.CIFAR10(root, train=train, download=download, transform=transform)
+        cls.targets = cls.cifar10_dataset.targets
+    def __init__(self):
+        if CustomCIFAR10Dataset_train.cifar10_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+    def __getitem__(self, index):
+        data_point, label = CustomCIFAR10Dataset_train.cifar10_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(CustomCIFAR10Dataset_train.cifar10_dataset)
+
+
+
+
 class CustomCIFAR100Dataset_train(Dataset):
     cifar100_dataset = None
     targets = None
@@ -47,6 +71,7 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
 
     # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
     CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
+    
     train_data = CustomCIFAR100Dataset_train()
     record = [[] for _ in range(100)]
 
@@ -128,6 +153,107 @@ def CIFAR100_EXTRACT_FEATURE_CLIP():
     return indices, sel_idx#, labels, index_to_order
 
 
+
+
+
+
+def CIFAR10_EXTRACT_FEATURE_CLIP():
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+
+    model.eval()
+
+    crop = transforms.RandomCrop(32, padding=4)
+    normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+
+    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
+
+    # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
+    CustomCIFAR10Dataset_train.load_dataset(transform=preprocess_rand)
+    
+    train_data = CustomCIFAR10Dataset_train()
+    record = [[] for _ in range(10)]
+
+    batch_size = 256
+    print('Data Loader')
+    data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+    for batch_idx, (index, (data, labels)) in enumerate(data_loader):
+        data = data.to(device)
+        labels = labels.to(device)
+        
+        with torch.no_grad():
+            extracted_feature = model.encode_image(data)
+        
+        for i in range(extracted_feature.shape[0]):
+            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
+
+
+    total_len = sum([len(a) for a in record])
+    origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
+
+    origin_label = torch.zeros(total_len).long()
+    index_rec = np.zeros(total_len, dtype=int)
+    cnt, lb = 0, 0
+
+    for item in record:
+        for i in item:
+            origin_trans[cnt] = i['feature']
+            origin_label[cnt] = lb
+            index_rec[cnt] = i['index']
+            cnt += 1
+
+        lb += 1
+
+
+    data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
+
+
+    order_to_index = {}
+
+    index_to_order = {}
+    for i in range(data_set['index'].shape[0]):
+
+        order_to_index[i] = data_set['index'][i]
+
+        index_to_order[data_set['index'][i]] = i
+
+
+    KINDS = 100
+    all_point_cnt = data_set['feature'].shape[0]
+
+    #sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
+    # final_feat, noisy_label = get_feat_clusters(data_set, sample)
+    final_feat = data_set['feature']#[sample]
+    sel_idx = data_set['index']#[sample]
+    labels = data_set['label']#[sample]
+
+
+    Dist = cosDistance(final_feat)
+
+    # min_similarity = 0.0
+    values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
+
+    for k in range(indices.size()[0]):
+        
+        for j in range(indices.size()[1]):
+
+            indices[k][j] = order_to_index[indices[k][j].item()]
+
+
+    #X_train, X_test, y_train, y_test = train_test_split(final_feat, labels, test_size=0.33, random_state=42)
+
+    #neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
+    #neigh.fit(X_train, y_train)
+    #print (neigh.score(X_test, y_test))
+
+    return indices, sel_idx#, labels, index_to_order
+
+
+
 def feature_extraction(data_loader,  model, device):
 
 
@@ -200,7 +326,7 @@ def cosDistance_two(unlabeled_features, labeled_features):
 
 
 
-def CIFAR100_EXTRACT_ALL():
+def CIFAR100_EXTRACT_ALL(dataset):
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
@@ -212,8 +338,15 @@ def CIFAR100_EXTRACT_ALL():
 
     preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
 
-    CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
-    train_data = CustomCIFAR100Dataset_train()
+    if dataset == "cifar10":
+
+        CustomCIFAR10Dataset_train.load_dataset(transform=preprocess_rand)
+        train_data = CustomCIFAR10Dataset_train()
+
+    else:
+
+        CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
+        train_data = CustomCIFAR100Dataset_train()
 
     batch_size = 256
     print('Data Loader')
@@ -261,22 +394,39 @@ def CIFAR100_EXTRACT_ALL():
         index_to_label[index] = labels[idx]
 
 
-    torch.save(ordered_feature, './features/cifar100_features.pt')
-    torch.save(ordered_label,   './features/cifar100_labels.pt')
-    torch.save(index_to_label,   './features/cifar100_index_to_label.pt')
+    if dataset == "cifar10":
 
-def CIFAR100_LOAD_ALL():
+        torch.save(ordered_feature, './features/cifar10_features.pt')
+        torch.save(ordered_label,   './features/cifar10_labels.pt')
+        torch.save(index_to_label,   './features/cifar10_index_to_label.pt')
+    else:
+        torch.save(ordered_feature, './features/cifar100_features.pt')
+        torch.save(ordered_label,   './features/cifar100_labels.pt')
+        torch.save(index_to_label,   './features/cifar100_index_to_label.pt')
+
+
+
+
+def CIFAR100_LOAD_ALL(dataset="cifar100"):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    #with open('./features/cifar100_index_to_label.pkl', 'rb') as f:
-    #    index_to_label = pickle.load(f)
 
-    index_to_label = torch.load('./features/cifar100_index_to_label.pt')
+    if dataset == "cifar10":
+        
+        index_to_label = torch.load('./features/cifar10_index_to_label.pt')
 
-    ordered_feature = torch.load('./features/cifar100_features.pt')
+        ordered_feature = torch.load('./features/cifar10_features.pt')
 
-    ordered_label = torch.load('./features/cifar100_labels.pt')
+        ordered_label = torch.load('./features/cifar10_labels.pt')
+
+    else:
+
+        index_to_label = torch.load('./features/cifar100_index_to_label.pt')
+
+        ordered_feature = torch.load('./features/cifar100_features.pt')
+
+        ordered_label = torch.load('./features/cifar100_labels.pt')
 
     print ("finish loading")
 
@@ -446,7 +596,9 @@ def cosDistance(features):
 
 if __name__ == "__main__":
 
-    CIFAR100_EXTRACT_ALL()
+    dataset = "cifar10"
+
+    CIFAR100_EXTRACT_ALL(dataset=dataset)
 
 
     '''

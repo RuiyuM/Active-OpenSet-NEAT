@@ -1,0 +1,7 @@
+Currently using GPU: 7
+Creating dataset: cifar100
+Files already downloaded and verified
+Shuffle
+openset here!
+Files already downloaded and verified
+Creating model: resnet18

@@ -960,40 +960,6 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
     return new_query_index
 
 
-
-def active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label):
-
-    print ("active learning")
-    #S_index[n_index][0][1]
-
-    new_query_index = []
-    
-    for i in range(len(queryIndex)):
-
-        neighbor_labels = []
-
-        # all the indices for neighbors
-        neighbors = index_knn[queryIndex[i][0]][0]
-
-        predicted_label = S_index[queryIndex[i][0]][-3]
-        predicted_value = S_index[queryIndex[i][0]][-2]
-
-        for neighbor in neighbors:
-
-            neighbor_labels.append(labeled_index_to_label[neighbor])
-
-        x = Counter(neighbor_labels)
-
-        top_1 = x.most_common(1)[0][0]
-
-        if top_1 != predicted_label:
-    
-           new_query_index.append(queryIndex[i])
-
-
-    return new_query_index
-
-
 # unlabeledloader is int 800
 def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
 
@@ -1084,6 +1050,7 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
 
     #################################################################
+    '''
     if args.active:
 
         queryIndex = queryIndex[:2*args.query_batch]
@@ -1100,6 +1067,148 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
             queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
 
+    '''
+    #################################################################
+
+    print (queryIndex[:20])
+
+    final_chosen_index = []
+    invalid_index = []
+
+    for item in queryIndex[:args.query_batch]:
+
+        num = item[0]
+
+
+        num3 = item[-1]
+
+        if num3 < args.known_class:
+
+            final_chosen_index.append(int(num))
+        
+        elif num3 >= args.known_class:
+
+            invalid_index.append(int(num))
+
+    #################################################################
+
+    precision = len(final_chosen_index) / args.query_batch
+    
+    #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+    #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+    
+    recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return final_chosen_index, invalid_index, precision, recall
+
+
+
+
+# unlabeledloader is int 800
+def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train+invalidList, unlabeled_ind_train, args, ordered_feature, ordered_label)
+
+
+    labelArr = []
+
+    model.eval()
+    #################################################################
+    S_index = {}
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+
+        _, outputs = model(data)
+
+        v_ij, predicted = outputs.max(1)
+
+        labelArr += list(np.array(labels.cpu().data))
+
+        for i in range(len(data.data)):
+
+            predict_class = predicted[i].detach()
+
+            predict_value = np.array(v_ij.data.cpu())[i]
+
+            predict_prob = outputs[i, :]
+
+            tmp_index = index[i].item()
+
+            true_label = np.array(labels.data.cpu())[i]
+            
+
+            S_index[tmp_index] = [true_label, predict_class, predict_value, predict_prob.detach().cpu()]
+
+
+    #################################################################
+
+    # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
+
+    # queryIndex 存放known class的地方
+    queryIndex = []
+
+
+    neighbor_unknown = {}
+
+    detected_unknown = 0.0
+    detected_known = 0.0
+
+
+    for current_index in S_index:
+
+
+        index_Neighbor, values = index_knn[current_index] 
+
+        true_label = S_index[current_index][0]
+
+        count_known = 0.0
+        count_unknown = 0.0
+
+        for k in range(len(index_Neighbor)):
+
+            n_index = index_Neighbor[k]
+            
+
+            if n_index in set(labeled_ind_train):
+                count_known += 1
+        
+            elif n_index in set(invalidList):
+                count_unknown += 1
+            
+            if count_unknown < count_known:
+
+                queryIndex.append([current_index, count_known, true_label])               
+
+            else:
+                detected_unknown += 1         
+
+
+
+    print ("detected_unknown: ", detected_unknown)
+    print ("\n")
+
+
+    queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
+
+    #################################################################
+
+    queryIndex = queryIndex[:2*args.query_batch]
+
+    #################################################################
+    
+    #if args.active_5 or args.active_5_reverse:
+
+    queryIndex = active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
+
+
+    #elif args.active_4:
+
+    #queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
     
     #################################################################
 
@@ -1112,10 +1221,8 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         num = item[0]
 
-        if args.active_5 or args.active_5_reverse:
-            num3 = item[-2]
-        else:
-            num3 = item[-1]
+        num3 = item[-2]
+
 
         if num3 < args.known_class:
 

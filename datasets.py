@@ -258,6 +258,61 @@ class CIFAR100(object):
         return labeled_ind, unlabeled_ind
 
 
+
+
+class CustomCIFAR10Dataset_train(Dataset):
+    # cifar100_dataset = None
+    # targets = None
+
+    # @classmethod
+    # def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+    #    cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
+    #    cls.targets = cls.cifar100_dataset.targets
+
+    def __init__(self, root="./data/cifar10", train=True, download=True, transform=None, invalidList=None):
+        # if CustomCIFAR100Dataset_train.cifar100_dataset is None:
+        #    raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+        self.cifar10_dataset = datasets.CIFAR10(root, train=train, download=download, transform=transform)
+        self.targets = self.cifar10_dataset.targets
+
+        if invalidList is not None:
+            targets = np.array(self.cifar10_dataset.targets)
+            targets[targets >= known_class] = known_class
+            self.cifar10_dataset.targets = targets.tolist()
+
+    def __getitem__(self, index):
+        data_point, label = self.cifar10_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(self.cifar10_dataset)
+
+
+class CustomCIFAR10Dataset_test(Dataset):
+    cifar10_dataset = None
+    targets = None
+
+    @classmethod
+    def load_dataset(cls, root="./data/cifar10", train=False, download=True, transform=None):
+        cls.cifar10_dataset = datasets.CIFAR10(root, train=train, download=download, transform=transform)
+        cls.targets = cls.cifar10_dataset.targets
+
+    def __init__(self):
+        if CustomCIFAR10Dataset_test.cifar10_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+    def __getitem__(self, index):
+        data_point, label = CustomCIFAR10Dataset_test.cifar10_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(CustomCIFAR10Dataset_test.cifar10_dataset)
+
+
+
+
+
 class CIFAR10(object):
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
                  labeled_ind_train=None):
@@ -276,7 +331,11 @@ class CIFAR10(object):
 
         pin_memory = True if use_gpu else False
 
-        trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
+        #trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
+        trainset = CustomCIFAR10Dataset_train(transform=transform_train, invalidList=invalidList)
+
+
+
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
@@ -306,7 +365,11 @@ class CIFAR10(object):
                 num_workers=num_workers, pin_memory=pin_memory,
             )
 
-        testset = torchvision.datasets.CIFAR10("./data/cifar10", train=False, download=True, transform=transform_test)
+        #testset = torchvision.datasets.CIFAR10("./data/cifar10", train=False, download=True, transform=transform_test)
+        
+        CustomCIFAR10Dataset_test.load_dataset(transform=transform_test)
+        testset = CustomCIFAR10Dataset_test()
+
         filter_ind_test = self.filter_known_unknown(testset)
         self.filter_ind_test = filter_ind_test
 
@@ -353,7 +416,7 @@ class CIFAR10(object):
 
 
 __factory = {
-    'mnist': MNIST,
+    #'Tiny-Imagenet': TinyImageNet,
     'cifar100': CIFAR100,
     'cifar10': CIFAR10,
 }
