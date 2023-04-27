@@ -89,210 +89,201 @@ args = parser.parse_args()
 
 def main():
 
-    all_acc = []
+
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    use_gpu = torch.cuda.is_available()
+
+    #indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
+    ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL()
 
 
-    for run in range(args.runs):
+    sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
 
-        args.seed = run*888
+    if use_gpu:
+        print("Currently using GPU: {}".format(args.gpu))
+        cudnn.benchmark = True
+        torch.cuda.manual_seed_all(args.seed)
+    else:
+        print("Currently using CPU")
 
-        last_acc = None
-
-        torch.manual_seed(args.seed)
-        np.random.seed(args.seed)
-        random.seed(args.seed)
-        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-        use_gpu = torch.cuda.is_available()
-
-        #indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
-        ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL()
+    print("Creating dataset: {}".format(args.dataset))
 
 
-        sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
+    dataset = datasets.create(
+        name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
+        batch_size=args.batch_size, use_gpu=use_gpu,
+        num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
+    )
+
+    testloader, unlabeledloader = dataset.testloader, dataset.unlabeledloader
+    trainloader_A, trainloader_B = dataset.trainloader, dataset.trainloader
+    
+    negativeloader = None  # init negativeloader none
+    invalidList = []
+    labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
+
+    print("Creating model: {}".format(args.model))
+    # model = models.create(name=args.model, num_classes=dataset.num_classes)
+    #
+    # if use_gpu:
+    #     model = nn.DataParallel(model).cuda()
+    #
+    # criterion_xent = nn.CrossEntropyLoss()
+    # criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
+    # optimizer_model = torch.optim.SGD(model.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
+    # optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
+    #
+    # if args.stepsize > 0:
+    #     scheduler = lr_scheduler.StepLR(optimizer_model, step_size=args.stepsize, gamma=args.gamma)
+
+    start_time = time.time()
+
+    Acc = {}
+    Err = {}
+    Precision = {}
+    Recall = {}
+
+    for query in tqdm(range(args.max_query)):
+        # Model initialization
+        if args.model == "cnn":
+            model = models.create(name=args.model, num_classes=dataset.num_classes)
+        elif args.model == "resnet18":
+            # 多出的一类用来预测为unknown
+            #model_A = resnet18(num_classes=dataset.num_classes + 1)
+            model_B = resnet18(num_classes=dataset.num_classes)
+        elif args.model == "resnet34":
+            #model_A = resnet34(num_classes=dataset.num_classes + 1)
+            model_B = resnet34(num_classes=dataset.num_classes)
+        elif args.model == "resnet50":
+            #model_A = resnet50(num_classes=dataset.num_classes + 1)
+            model_B = resnet50(num_classes=dataset.num_classes)
 
         if use_gpu:
-            print("Currently using GPU: {}".format(args.gpu))
-            cudnn.benchmark = True
-            torch.cuda.manual_seed_all(args.seed)
-        else:
-            print("Currently using CPU")
-
-        print("Creating dataset: {}".format(args.dataset))
+            #model_A = nn.DataParallel(model_A).cuda()
+            model_B = nn.DataParallel(model_B).cuda()
 
 
-        dataset = datasets.create(
+        criterion_xent = nn.CrossEntropyLoss()
+        criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
+       
+        #optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
+        optimizer_model_B = torch.optim.SGD(model_B.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
+        
+        optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
+
+        if args.stepsize > 0:
+            #scheduler_A = lr_scheduler.StepLR(optimizer_model_A, step_size=args.stepsize, gamma=args.gamma)
+            scheduler_B = lr_scheduler.StepLR(optimizer_model_B, step_size=args.stepsize, gamma=args.gamma)
+
+
+        # Model training
+        for epoch in tqdm(range(args.max_epoch)):
+
+            # Train model A for detecting unknown classes
+            #train_A(model_A, criterion_xent, criterion_cent,
+            #        optimizer_model_A, optimizer_centloss,
+            #        trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
+           
+
+            # Train model B for classifying known classes
+            train_B(model_B, criterion_xent, criterion_cent,
+                    optimizer_model_B, optimizer_centloss,
+                    trainloader_B, use_gpu, dataset.num_classes, epoch)
+
+            if args.stepsize > 0:
+                #scheduler_A.step()
+                scheduler_B.step()
+
+            if args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (epoch + 1) == args.max_epoch:
+                print("==> Test")
+                #acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch)
+                acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch)
+                #print("Model_A | Accuracy (%): {}\t Error rate (%): {}".format(acc_A, err_A))
+                print("Model_B | Accuracy (%): {}\t Error rate (%): {}".format(acc_B, err_B))
+
+
+        # Record results
+        acc, err = test(model_B, testloader, use_gpu, dataset.num_classes, args.max_epoch)
+        
+        last_acc = acc
+
+        Acc[query], Err[query] = float(acc), float(err)
+        
+        # Query samples and calculate precision and recall
+        queryIndex = []
+
+        if args.query_strategy == "random":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.random_sampling(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu)
+        elif args.query_strategy == "uncertainty":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
+                                                                                                      unlabeledloader,
+                                                                                                      len(labeled_ind_train),
+                                                                                                      model_A, use_gpu)
+        elif args.query_strategy == "AV_based":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling(args, unlabeledloader,
+                                                                                             len(labeled_ind_train),
+                                                                                             model_A, use_gpu)
+        elif args.query_strategy == "AV_temperature":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling_temperature(args,
+                                                                                                         unlabeledloader,
+                                                                                                         len(labeled_ind_train),
+                                                                                                         model_A,
+                                                                                                         use_gpu)
+        elif args.query_strategy == "AV_uncertainty":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_uncertainty_sampling(args,
+                                                                                                         unlabeledloader,
+                                                                                                         len(labeled_ind_train),
+                                                                                                         model_A,
+                                                                                                         use_gpu)
+        elif args.query_strategy == "AV_based2":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling2(args, trainloader_B,
+                                                                                              unlabeledloader,
+                                                                                              len(labeled_ind_train),
+                                                                                              model_A, use_gpu)
+        elif args.query_strategy == "Max_AV":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.Max_AV_sampling(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu)
+        elif args.query_strategy == "My_Query_Strategy":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+
+
+
+
+        elif args.query_strategy == "test_query":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query_2(args, model_B, query,
+                                                                                         unlabeledloader,
+                                                                                         len(labeled_ind_train),
+                                                                                         use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
+
+
+
+        # Update labeled, unlabeled and invalid set
+        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
+        labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
+        invalidList = list(invalidList) + list(invalidIndex)
+
+        print("Query round: " + str(query) + " | Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
+            args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
+            Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
+            len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
+        
+
+
+        B_dataset = datasets.create(
             name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
             batch_size=args.batch_size, use_gpu=use_gpu,
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
+            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
         )
-
-        testloader, unlabeledloader = dataset.testloader, dataset.unlabeledloader
-        trainloader_A, trainloader_B = dataset.trainloader, dataset.trainloader
-        
-        negativeloader = None  # init negativeloader none
-        invalidList = []
-        labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
-
-        print("Creating model: {}".format(args.model))
-        # model = models.create(name=args.model, num_classes=dataset.num_classes)
-        #
-        # if use_gpu:
-        #     model = nn.DataParallel(model).cuda()
-        #
-        # criterion_xent = nn.CrossEntropyLoss()
-        # criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
-        # optimizer_model = torch.optim.SGD(model.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
-        # optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
-        #
-        # if args.stepsize > 0:
-        #     scheduler = lr_scheduler.StepLR(optimizer_model, step_size=args.stepsize, gamma=args.gamma)
-
-        start_time = time.time()
-
-        Acc = {}
-        Err = {}
-        Precision = {}
-        Recall = {}
-
-        for query in tqdm(range(args.max_query)):
-            # Model initialization
-            if args.model == "cnn":
-                model = models.create(name=args.model, num_classes=dataset.num_classes)
-            elif args.model == "resnet18":
-                # 多出的一类用来预测为unknown
-                #model_A = resnet18(num_classes=dataset.num_classes + 1)
-                model_B = resnet18(num_classes=dataset.num_classes)
-            elif args.model == "resnet34":
-                #model_A = resnet34(num_classes=dataset.num_classes + 1)
-                model_B = resnet34(num_classes=dataset.num_classes)
-            elif args.model == "resnet50":
-                #model_A = resnet50(num_classes=dataset.num_classes + 1)
-                model_B = resnet50(num_classes=dataset.num_classes)
-
-            if use_gpu:
-                #model_A = nn.DataParallel(model_A).cuda()
-                model_B = nn.DataParallel(model_B).cuda()
-
-
-            criterion_xent = nn.CrossEntropyLoss()
-            criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
-           
-            #optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
-            optimizer_model_B = torch.optim.SGD(model_B.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
-            
-            optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
-
-            if args.stepsize > 0:
-                #scheduler_A = lr_scheduler.StepLR(optimizer_model_A, step_size=args.stepsize, gamma=args.gamma)
-                scheduler_B = lr_scheduler.StepLR(optimizer_model_B, step_size=args.stepsize, gamma=args.gamma)
-
-
-            # Model training
-            for epoch in tqdm(range(args.max_epoch)):
-
-                # Train model A for detecting unknown classes
-                #train_A(model_A, criterion_xent, criterion_cent,
-                #        optimizer_model_A, optimizer_centloss,
-                #        trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
-               
-
-                # Train model B for classifying known classes
-                train_B(model_B, criterion_xent, criterion_cent,
-                        optimizer_model_B, optimizer_centloss,
-                        trainloader_B, use_gpu, dataset.num_classes, epoch)
-
-                if args.stepsize > 0:
-                    #scheduler_A.step()
-                    scheduler_B.step()
-
-                if args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (epoch + 1) == args.max_epoch:
-                    print("==> Test")
-                    #acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch)
-                    acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch)
-                    #print("Model_A | Accuracy (%): {}\t Error rate (%): {}".format(acc_A, err_A))
-                    print("Model_B | Accuracy (%): {}\t Error rate (%): {}".format(acc_B, err_B))
-
-
-            # Record results
-            acc, err = test(model_B, testloader, use_gpu, dataset.num_classes, args.max_epoch)
-            
-            last_acc = acc
-
-            Acc[query], Err[query] = float(acc), float(err)
-            
-            # Query samples and calculate precision and recall
-            queryIndex = []
-
-            if args.query_strategy == "random":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.random_sampling(args, unlabeledloader,
-                                                                                                     len(labeled_ind_train),
-                                                                                                     model_A, use_gpu)
-            elif args.query_strategy == "uncertainty":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
-                                                                                                          unlabeledloader,
-                                                                                                          len(labeled_ind_train),
-                                                                                                          model_A, use_gpu)
-            elif args.query_strategy == "AV_based":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling(args, unlabeledloader,
-                                                                                                 len(labeled_ind_train),
-                                                                                                 model_A, use_gpu)
-            elif args.query_strategy == "AV_temperature":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling_temperature(args,
-                                                                                                             unlabeledloader,
-                                                                                                             len(labeled_ind_train),
-                                                                                                             model_A,
-                                                                                                             use_gpu)
-            elif args.query_strategy == "AV_uncertainty":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_uncertainty_sampling(args,
-                                                                                                             unlabeledloader,
-                                                                                                             len(labeled_ind_train),
-                                                                                                             model_A,
-                                                                                                             use_gpu)
-            elif args.query_strategy == "AV_based2":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling2(args, trainloader_B,
-                                                                                                  unlabeledloader,
-                                                                                                  len(labeled_ind_train),
-                                                                                                  model_A, use_gpu)
-            elif args.query_strategy == "Max_AV":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.Max_AV_sampling(args, unlabeledloader,
-                                                                                                     len(labeled_ind_train),
-                                                                                                     model_A, use_gpu)
-            elif args.query_strategy == "My_Query_Strategy":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
-                                                                                                     len(labeled_ind_train),
-                                                                                                     model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
-
-
-
-
-            elif args.query_strategy == "test_query":
-                queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query_2(args, model_B, query,
-                                                                                             unlabeledloader,
-                                                                                             len(labeled_ind_train),
-                                                                                             use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
-
-
-
-            # Update labeled, unlabeled and invalid set
-            unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
-            labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
-            invalidList = list(invalidList) + list(invalidIndex)
-
-            print("Query round: " + str(query) + " | Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
-                args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
-                Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
-                len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
-            
-
-
-            B_dataset = datasets.create(
-                name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
-                batch_size=args.batch_size, use_gpu=use_gpu,
-                num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
-                unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
-            )
-            trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
-
+        trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
 
 
@@ -324,11 +315,6 @@ def main():
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
 
-        all_acc.append(last_acc.cpu().item())
-
-        print ("\n\n")
-
-    print(all_acc)
 
 
 def calculate_precision_recall():
