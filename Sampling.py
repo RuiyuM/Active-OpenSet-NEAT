@@ -945,13 +945,9 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
         entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
 
 
-        if args.active_5:
 
-            new_query_index.append(queryIndex[i] + [score_np])
+        new_query_index.append(queryIndex[i] + [score_np])
 
-        elif args.active_5_reverse:
-
-            new_query_index.append(queryIndex[i] + [-score_np])
     
 
     new_query_index = sorted(new_query_index, key=lambda x: x[-1], reverse=True)
@@ -1049,26 +1045,6 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
     queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
 
-    #################################################################
-    '''
-    if args.active:
-
-        queryIndex = queryIndex[:2*args.query_batch]
-
-
-        #################################################################
-        
-        if args.active_5 or args.active_5_reverse:
-    
-            queryIndex = active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
-
-
-        elif args.active_4:
-
-            queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
-
-    '''
-    #################################################################
 
     print (queryIndex[:20])
 

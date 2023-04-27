@@ -1,2 +1,66 @@
 Currently using GPU: 3
 Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet18
+==> Test
+Model_B | Accuracy (%): 81.50000762939453	 Error rate (%): 18.49999237060547
+detected_unknown:  0.0
+
+
+[[12106, 10.0, 4], [15528, 10.0, 1], [38067, 10.0, 7], [35158, 10.0, 7], [41277, 10.0, 0], [48679, 10.0, 7], [20616, 10.0, 1], [32923, 10.0, 3], [46596, 10.0, 3], [5561, 10.0, 5], [12325, 10.0, 0], [48612, 10.0, 1], [22270, 10.0, 1], [22771, 10.0, 5], [13104, 10.0, 5], [44735, 10.0, 6], [40375, 10.0, 4], [5592, 10.0, 3], [45016, 10.0, 1], [42246, 10.0, 9]]
+Query round: 0 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 303 | Query Precision: 0.202 | Query Recall: 0.0403 | Training Nums: 403 | Unalebled Nums: 49597
+Files already downloaded and verified
+openset here!
+Files already downloaded ==> Test
+Mode==> Test
+Model_B | Accuracy (%): 88.60000610351562	 Error rate (%): 11.399993896484375
+detected_unknown:  405762.0
+
+
+[[31607, 10.0, 1], [24280, 10.0, 1], [2029, 10.0, 1], [19867, 10.0, 1], [45329, 10.0, 1], [46420, 10.0, 0], [43454, 10.0, 0], [26646, 10.0, 1], [9765, 10.0, 1], [48681, 10.0, 1], [44369, 10.0, 0], [29176, 10.0, 1], [27195, 10.0, 1], [47633, 10.0, 1], [38822, 10.0, 1], [35546, 10.0, 0], [44074, 10.0, 0], [12923, 10.0, 1], [16012, 10.0, 1], [41800, 10.0, 0]]
+Query round: 1 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1497 | Query Precision: 0.998 | Query Recall: 0.19 | Training Nums: 1900 | Unalebled Nums: 48100
+Files already downloaded and verified
+openset here!
+Files already downloaded and==> Test
+M==> Test
+Model_B | Accuracy (%): 94.25000762939453	 Error rate (%): 5.749992370605469
+detected_unknown:  400113.0
+
+
+[[47035, 10.0, 1], [21458, 10.0, 0], [33148, 10.0, 0], [11367, 10.0, 1], [46108, 10.0, 0], [14519, 10.0, 1], [11775, 10.0, 0], [24492, 10.0, 0], [35339, 10.0, 1], [10952, 10.0, 0], [25942, 10.0, 0], [22600, 10.0, 8], [36183, 10.0, 0], [46520, 10.0, 1], [30902, 10.0, 1], [4935, 10.0, 0], [44719, 10.0, 0], [40092, 10.0, 1], [18578, 10.0, 0], [29346, 10.0, 1]]
+Query round: 2 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1487 | Query Precision: 0.9913333333333333 | Query Recall: 0.3387 | Training Nums: 3387 | Unalebled Nums: 46613
+Files already downloaded and verified
+openset here!
+Files already downlo====> Test
+Model_B==> Test
+Model_B | Accuracy (%): 97.50000762939453	 Error rate (%): 2.4999923706054688
+detected_unknown:  395332.0
+
+
+[[3934, 10.0, 1], [3114, 10.0, 0], [39471, 10.0, 0], [28193, 10.0, 1], [45599, 10.0, 1], [46323, 10.0, 1], [47749, 10.0, 1], [45283, 10.0, 1], [16985, 10.0, 1], [30534, 10.0, 1], [40193, 10.0, 0], [40118, 10.0, 1], [23808, 10.0, 0], [45390, 10.0, 0], [5196, 10.0, 1], [12429, 10.0, 0], [47279, 10.0, 1], [28098, 10.0, 1], [14721, 10.0, 1], [16100, 10.0, 0]]
+Query round: 3 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1473 | Query Precision: 0.982 | Query Recall: 0.486 | Training Nums: 4860 | Unalebled Nums: 45140
+Files already downloaded and verified
+openset here!
+Files already downloaded ==> Test
+Mode==> Test
+Model_B | Accuracy (%): 97.80000305175781	 Error rate (%): 2.1999969482421875
+detected_unknown:  390596.0
+
+
+[[15546, 10.0, 0], [31587, 10.0, 1], [4458, 10.0, 1], [40149, 10.0, 1], [10112, 10.0, 1], [37847, 10.0, 1], [18671, 10.0, 1], [3884, 10.0, 0], [6356, 10.0, 1], [48021, 10.0, 1], [44275, 10.0, 0], [39769, 10.0, 1], [16103, 10.0, 0], [39118, 10.0, 1], [37428, 10.0, 1], [47670, 10.0, 1], [25117, 10.0, 1], [5559, 10.0, 1], [15258, 10.0, 0], [1381, 10.0, 0]]
+Query round: 4 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1458 | Query Precision: 0.972 | Query Recall: 0.6318 | Training Nums: 6318 | Unalebled Nums: 43682
+Files already downloaded and verified
+openset here!
+Files already downloaded and ve==> Tes==> Test
+Model_B | Accuracy (%): 98.60000610351562	 Error rate (%): 1.399993896484375
+detected_unknown:  387587.0
+
+
+[[7409, 10.0, 0], [32937, 10.0, 1], [22264, 10.0, 0], [48639, 10.0, 1], [33214, 10.0, 0], [9309, 10.0, 1], [46362, 10.0, 0], [28408, 10.0, 0], [13264, 10.0, 1], [23481, 10.0, 0], [44149, 10.0, 0], [38795, 10.0, 1], [7442, 10.0, 1], [37783, 10.0, 0], [19894, 10.0, 0], [22747, 10.0, 1], [38642, 10.0, 1], [29, 10.0, 0], [38670, 10.0, 0], [18105, 10.0, 0]]
+Query round: 5 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1443 | Query Precision: 0.962 | Query Recall: 0.7761 | Training Nums: 7761 | Unalebled Nums: 42239
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+nloaded and verified
