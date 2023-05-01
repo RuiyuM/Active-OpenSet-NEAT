@@ -407,6 +407,94 @@ def CIFAR100_EXTRACT_ALL(dataset):
 
 
 
+class CustomTinyImageNetDataset_train(Dataset):
+    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
+       
+        self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
+                                                          transform=transform)
+        self.targets = target_train
+
+
+    def __getitem__(self, index):
+        data_point, _ = self.tiny_imagenet_dataset[index]
+        # data_point, _ = self.tiny_imagenet_dataset[index]
+        # label = self.targets[index]
+        label = self.targets[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(self.tiny_imagenet_dataset)
+
+
+
+def ImageNet_EXTRACT_ALL(dataset):
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+
+    model.eval()
+
+
+    crop = transforms.RandomCrop(64, padding=4, padding_mode='reflect')
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+
+    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
+
+    train_data = CustomTinyImageNetDataset_train(transform=preprocess_rand)
+
+
+    batch_size = 256
+    print('Data Loader')
+    data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+    features = []
+
+    all_labels = []
+
+    sel_idx = []
+
+    for batch_idx, (index, (data, labels)) in enumerate(data_loader):
+        print (batch_idx)
+        data = data.to(device)
+        labels = labels.to(device)
+        
+        with torch.no_grad():
+
+            extracted_feature = model.encode_image(data)
+        
+            features.append(extracted_feature)
+
+            sel_idx.append(index)
+            all_labels.append(labels)
+
+
+    final_feat = torch.concatenate(features).to(device)
+    sel_idx    = torch.concatenate(sel_idx).to(device)
+    labels     = torch.concatenate(all_labels).to(device)
+
+    ###########################################################
+    feature_sel_idx = sel_idx.unsqueeze(1).repeat(1, final_feat.size()[1]).to(device)
+
+    ordered_feature = torch.gather(final_feat, 0, feature_sel_idx)
+
+    ordered_label   = torch.gather(labels, 0, sel_idx)
+
+    ###########################################################
+
+    index_to_label = {}
+    for idx, index in enumerate(sel_idx):
+
+        index_to_label[index] = labels[idx]
+
+
+    torch.save(ordered_feature, './features/Tiny-Imagenet_features.pt')
+    torch.save(ordered_label,   './features/Tiny-Imagenet_labels.pt')
+    torch.save(index_to_label,   './features/Tiny-Imagenet_index_to_label.pt')
+
+
+
 def CIFAR100_LOAD_ALL(dataset="cifar100"):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -420,13 +508,24 @@ def CIFAR100_LOAD_ALL(dataset="cifar100"):
 
         ordered_label = torch.load('./features/cifar10_labels.pt')
 
-    else:
+    elif dataset == "Tiny-Imagenet":
+
+
+        index_to_label = torch.load('./features/Tiny-Imagenet_index_to_label.pt')
+        ordered_feature = torch.load('./features/Tiny-Imagenet_features.pt')
+        ordered_label = torch.load('./features/Tiny-Imagenet_labels.pt')
+
+
+    elif dataset == "cifar100":
 
         index_to_label = torch.load('./features/cifar100_index_to_label.pt')
 
         ordered_feature = torch.load('./features/cifar100_features.pt')
 
         ordered_label = torch.load('./features/cifar100_labels.pt')
+
+
+
 
     print ("finish loading")
 
@@ -486,92 +585,6 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
     return index_knn
 
-
-
-'''
-def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
-
-
-    model.eval()
-
-    crop = transforms.RandomCrop(32, padding=4)
-    normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-
-    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
-
-    # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
-    CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
-    train_data = CustomCIFAR100Dataset_train()
-
-
-    batch_size = 2048
-    print('Data Loader')
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    pin_memory = True
-    ###########################################################
-
-    labled_loader = torch.utils.data.DataLoader(
-        train_data, batch_size=batch_size, shuffle=False,
-        num_workers=8, pin_memory=pin_memory,
-        sampler=SubsetRandomSampler(labeled_index),
-    )
-
-    unlabled_loader = torch.utils.data.DataLoader(
-        train_data, batch_size=batch_size, shuffle=False,
-        num_workers=8, pin_memory=pin_memory,
-        sampler=SubsetRandomSampler(unlabeled_index),
-    )
-
-    ###########################################################
-
-    labeled_final_feat, labled_sel_idx, labled_labels, labeled_index_to_label         = feature_extraction(labled_loader, model, device)
-
-    unlabeled_final_feat, unlabled_sel_idx, unlabled_labels, unlabeled_index_to_label = feature_extraction(unlabled_loader, model, device)
-    ###########################################################
-
-
-    order_to_index = {}
-
-    index_to_order = {}
-    for i in range(labled_sel_idx.shape[0]):
-
-        order_to_index[i] = labled_sel_idx[i]
-
-        index_to_order[labled_sel_idx[i]] = i
-
-
-    ###################################################
-
-    Dist = cosDistance_two(unlabeled_final_feat, labeled_final_feat)
-
-    values, indices = Dist.topk(k=args.k, dim=1, largest=False, sorted=True)
-
-
-    for k in range(indices.size()[0]):
-        for j in range(indices.size()[1]):
-
-            indices[k][j] = order_to_index[indices[k][j].item()]
-
-    ###################################################
-
-    index_knn = {}
-
-    for i in range(len(unlabled_sel_idx)):
-        
-        if unlabled_sel_idx[i] not in index_knn:
-            
-            index_knn[unlabled_sel_idx[i]] = []
-
-        index_knn[unlabled_sel_idx[i]] = (indices[i].numpy(), values[i])
-
-
-    return index_knn, labeled_index_to_label
-
-    ###################################################
-'''
 
 
 def cosDistance(features):
