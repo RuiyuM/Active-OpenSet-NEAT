@@ -1,2 +1,4 @@
 Currently using GPU: 0
 Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: resnet18

@@ -1,12 +1,21 @@
-from collections import Counter
+import torch
+a = torch.randn((90000, 512), dtype=torch.half, device='cuda')
+import torch.nn.functional as F
+
+values, indices  = torch.topk(a, k=10, dim=1, largest=False, sorted=True)
 
 
-a  = [2,2,3,4,23,1234,1232,3,4,3,3]
+print (indices)
 
 
-x = Counter(a)
-#print (x)
-top_1 = x.most_common(1)
+
+a = torch.tensor([0.9606, 0.0394], device='cuda:0')
+
+b = torch.tensor([1., 9.], device='cuda:0')
 
 
-print (top_1)
+
+
+c = F.cross_entropy(b.unsqueeze(0), a.unsqueeze(0), reduction='mean')
+
+print (c)

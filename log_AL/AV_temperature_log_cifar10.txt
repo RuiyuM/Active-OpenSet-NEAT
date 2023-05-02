@@ -1,2 +1,0 @@
-Currently using GPU: 8
-Creating dataset: cifar10

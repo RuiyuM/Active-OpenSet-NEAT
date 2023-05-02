@@ -1,57 +1,7 @@
-Currently using GPU: 7
+Currently using GPU: 6
 Creating dataset: cifar100
 Files already downloaded and verified
 Shuffle
 openset here!
 Files already downloaded and verified
 Creating model: resnet18
-==> Test
-Model_B | Accuracy (%): 39.30000305175781	 Error rate (%): 60.69999694824219
-detected_unknown:  0.0
-
-
-[[44287, 10.0, 68], [40325, 10.0, 64], [9267, 10.0, 51], [36838, 10.0, 20], [43624, 10.0, 40], [30894, 10.0, 34], [32063, 10.0, 80], [19695, 10.0, 54], [34628, 10.0, 36], [13840, 10.0, 37], [45837, 10.0, 77], [45415, 10.0, 78], [37506, 10.0, 80], [32099, 10.0, 42], [4230, 10.0, 77], [40349, 10.0, 22], [27068, 10.0, 17], [44634, 10.0, 11], [407, 10.0, 18], [10468, 10.0, 8]]
-Query round: 0 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 284 | Query Precision: 0.18933333333333333 | Query Recall: 0.1084 | Training Nums: 1084 | Unalebled Nums: 48916
-Files already downloaded and verified
-openset here!
-Files alread==> Test
-Model_B | Accurac==> Test
-Model_B | Accuracy (%): 42.95000076293945	 Error rate (%): 57.04999923706055
-detected_unknown:  362000.0
-
-
-[[5058, 10.0, 13], [4055, 10.0, 0], [31106, 10.0, 2], [35813, 10.0, 8], [36533, 10.0, 2], [23578, 10.0, 35], [44810, 10.0, 9], [11824, 10.0, 17], [23018, 10.0, 5], [4313, 10.0, 5], [43787, 10.0, 12], [12037, 10.0, 2], [19108, 10.0, 12], [37520, 10.0, 16], [3708, 10.0, 0], [17401, 10.0, 9], [20465, 10.0, 16], [48906, 10.0, 5], [30718, 10.0, 9], [1898, 10.0, 16]]
-Query round: 1 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1409 | Query Precision: 0.9393333333333334 | Query Recall: 0.2493 | Training Nums: 2493 | Unalebled Nums: 47507
-Files already downloaded and verified
-openset here!
-Files alread==> Test
-Model_B | Accurac==> Test
-Model_B | Accuracy (%): 54.150001525878906	 Error rate (%): 45.849998474121094
-detected_unknown:  354377.0
-
-
-[[41026, 10.0, 9], [29211, 10.0, 0], [2010, 10.0, 8], [9101, 10.0, 8], [18968, 10.0, 9], [3579, 10.0, 17], [27334, 10.0, 2], [47612, 10.0, 13], [18503, 10.0, 18], [49045, 10.0, 16], [26145, 10.0, 16], [22405, 10.0, 6], [1853, 10.0, 46], [33546, 10.0, 11], [21410, 10.0, 14], [24055, 10.0, 5], [20489, 10.0, 19], [23466, 10.0, 17], [28126, 10.0, 1], [23790, 10.0, 15]]
-Query round: 2 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1379 | Query Precision: 0.9193333333333333 | Query Recall: 0.3872 | Training Nums: 3872 | Unalebled Nums: 46128
-Files already downloaded and verified
-openset he==> Test
-Model_B | Accuracy (%): 61.650001==> Test
-Model_B | Accuracy (%): 62.35000228881836	 Error rate (%): 37.64999771118164
-detected_unknown:  344186.0
-
-
-[[26470, 10.0, 9], [48184, 10.0, 14], [8968, 10.0, 5], [36817, 10.0, 0], [46823, 10.0, 6], [44911, 10.0, 2], [45820, 10.0, 91], [39694, 10.0, 1], [29221, 10.0, 9], [29791, 10.0, 91], [24744, 10.0, 16], [27474, 10.0, 17], [8085, 10.0, 17], [43994, 10.0, 0], [16981, 10.0, 6], [5789, 10.0, 17], [28971, 10.0, 13], [24313, 10.0, 13], [19546, 10.0, 17], [2342, 10.0, 10]]
-Query round: 3 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1251 | Query Precision: 0.834 | Query Recall: 0.5123 | Training Nums: 5123 | Unalebled Nums: 45045
-Files already downloaded and verified
-openset here!
-Files al==> Test
-Model_B | Accuracy (%==> Test
-Model_B | Accuracy (%): 63.10000228881836	 Error rate (%): 36.89999771118164
-detected_unknown:  339737.0
-
-
-[[6210, 10.0, 10], [25550, 10.0, 81], [17462, 10.0, 38], [29345, 10.0, 18], [377, 10.0, 7], [22897, 10.0, 2], [10382, 10.0, 0], [29966, 10.0, 8], [23354, 10.0, 7], [40207, 10.0, 18], [22692, 10.0, 81], [41119, 10.0, 2], [33881, 10.0, 17], [36233, 10.0, 64], [47664, 10.0, 92], [35942, 10.0, 18], [22136, 10.0, 10], [33566, 10.0, 46], [17866, 10.0, 24], [12770, 10.0, 6]]
-Query round: 4 | Query Strategy: test_query | Query Batch: 1500 | Valid Query Nums: 1023 | Query Precision: 0.682 | Query Recall: 0.6044453186467349 | Training Nums: 6146 | Unalebled Nums: 44248
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-wnloaded and verified

@@ -12,7 +12,7 @@ from collections import Counter
 
 from torch.utils.data import SubsetRandomSampler
 import pickle 
-
+import os
 
 
 class CustomCIFAR10Dataset_train(Dataset):
@@ -410,6 +410,11 @@ def CIFAR100_EXTRACT_ALL(dataset):
 class CustomTinyImageNetDataset_train(Dataset):
     def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
        
+
+        with open('target_train.pkl', 'rb') as f:
+            target_train = pickle.load(f)
+
+
         self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
                                                           transform=transform)
         self.targets = target_train
@@ -420,6 +425,7 @@ class CustomTinyImageNetDataset_train(Dataset):
         # data_point, _ = self.tiny_imagenet_dataset[index]
         # label = self.targets[index]
         label = self.targets[index]
+
         return index, (data_point, label)
 
     def __len__(self):
@@ -427,7 +433,7 @@ class CustomTinyImageNetDataset_train(Dataset):
 
 
 
-def ImageNet_EXTRACT_ALL(dataset):
+def ImageNet_EXTRACT_ALL():
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
@@ -438,7 +444,7 @@ def ImageNet_EXTRACT_ALL(dataset):
     crop = transforms.RandomCrop(64, padding=4, padding_mode='reflect')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
-    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
+    preprocess_rand = transforms.Compose([crop, preprocess])
 
     train_data = CustomTinyImageNetDataset_train(transform=preprocess_rand)
 
@@ -491,7 +497,7 @@ def ImageNet_EXTRACT_ALL(dataset):
 
     torch.save(ordered_feature, './features/Tiny-Imagenet_features.pt')
     torch.save(ordered_label,   './features/Tiny-Imagenet_labels.pt')
-    torch.save(index_to_label,   './features/Tiny-Imagenet_index_to_label.pt')
+    torch.save(index_to_label,  './features/Tiny-Imagenet_index_to_label.pt')
 
 
 
@@ -527,7 +533,7 @@ def CIFAR100_LOAD_ALL(dataset="cifar100"):
 
 
 
-    print ("finish loading")
+    print ("finish loading " + dataset )
 
     new_dict = {}
     for k, v in index_to_label.items():
@@ -566,8 +572,8 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
     Dist = cosDistance_two(unlabeled_final_feat, labeled_final_feat)
 
-    values, indices = Dist.topk(k=args.k, dim=1, largest=False, sorted=True)
 
+    values, indices = torch.topk(Dist, k=args.k, dim=1, largest=False, sorted=True)
 
     for k in range(indices.size()[0]):
         for j in range(indices.size()[1]):
@@ -603,10 +609,11 @@ def cosDistance(features):
 
 if __name__ == "__main__":
 
-    dataset = "cifar10"
+    #dataset = "Tiny-Imagenet"
 
-    CIFAR100_EXTRACT_ALL(dataset=dataset)
+    #CIFAR100_EXTRACT_ALL(dataset=dataset)
 
+    ImageNet_EXTRACT_ALL()
 
     '''
     indices, sel_idx, labels, index_to_order =  CIFAR100_EXTRACT_FEATURE_CLIP()

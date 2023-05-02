@@ -920,7 +920,7 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
         # all the indices for neighbors
         neighbors, values = index_knn[queryIndex[i][0]]
 
-        predicted_prob =  F.softmax(S_index[queryIndex[i][0]][-1]).cuda()
+        predicted_prob =  F.softmax(S_index[queryIndex[i][0]][-1], dim=-1).cuda()
         
         predicted_label = S_index[queryIndex[i][0]][-3]
 
@@ -937,17 +937,14 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
                 knn_labels_cnt[neighbor_labels] += 1.0
 
 
-        score = F.cross_entropy(knn_labels_cnt, predicted_prob, reduction='mean')
+        score = F.cross_entropy(knn_labels_cnt.unsqueeze(0), predicted_prob.unsqueeze(0), reduction='mean')
         
         score_np = score.cpu().item()
 
 
-        entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
-
-
+        #entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
 
         new_query_index.append(queryIndex[i] + [score_np])
-
     
 
     new_query_index = sorted(new_query_index, key=lambda x: x[-1], reverse=True)

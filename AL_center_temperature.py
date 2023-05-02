@@ -93,7 +93,6 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    #indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
     ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset)
 
 
@@ -288,6 +287,7 @@ def main():
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
             unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
         )
+        
         trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
 

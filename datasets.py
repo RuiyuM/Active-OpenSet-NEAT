@@ -8,6 +8,9 @@ from torchvision import datasets
 import random
 import transforms
 
+import pickle
+import os
+
 known_class = -1
 init_percent = -1
 
@@ -541,7 +544,7 @@ def get_image_label(index, dataset):
 
 
 class TinyImageNet(object):
-    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini ,target_train, unlabeled_ind_train=None,
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, target_train, unlabeled_ind_train=None,
                  labeled_ind_train=None, invalidList=None):
         transform = transforms.Compose([
             transforms.RandomHorizontalFlip(p=0.5),
@@ -552,6 +555,10 @@ class TinyImageNet(object):
         ])
 
         pin_memory = True if use_gpu else False
+
+        if invalidList is not None:
+            labeled_ind_train = labeled_ind_train + invalidList
+
 
         trainset = CustomTinyImageNetDataset_train(transform=transform, target_train=target_train)
 
@@ -656,7 +663,7 @@ def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, 
     
     if name == 'Tiny-Imagenet':
         
-        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini,target_train , unlabeled_ind_train, labeled_ind_train,
+        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, target_train , unlabeled_ind_train, labeled_ind_train,
                            invalidList)
     else:
 
