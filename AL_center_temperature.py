@@ -28,7 +28,7 @@ from center_loss import CenterLoss
 
 
 
-from extract_features import CIFAR100_EXTRACT_FEATURE_CLIP, CIFAR100_LOAD_ALL
+from extract_features import CIFAR100_LOAD_ALL
 
 parser = argparse.ArgumentParser("Center Loss Example")
 # dataset
@@ -75,10 +75,10 @@ parser.add_argument('--k', type=int, default=10)
 
 parser.add_argument('--runs', type=int, default=3)
 
-
-parser.add_argument('--active_4', action='store_true', help="whether to use active learning")
-
 parser.add_argument('--active_5', action='store_true', help="whether to use active learning")
+
+parser.add_argument('--pre-type', type=str, default='CLIP')
+
 
 
 args = parser.parse_args()
@@ -120,6 +120,14 @@ def main():
     negativeloader = None  # init negativeloader none
     invalidList = []
     labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
+
+
+    per_round = []
+     
+    per_round.append(list(labeled_ind_train))
+
+
+
 
     print("Creating model: {}".format(args.model))
     # model = models.create(name=args.model, num_classes=dataset.num_classes)
@@ -267,12 +275,18 @@ def main():
                                                                                          use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
 
 
+        per_round.append(list(queryIndex))
+
 
 
         # Update labeled, unlabeled and invalid set
         unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
+        
         labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
+        
         invalidList = list(invalidList) + list(invalidIndex)
+
+
 
         print("Query round: " + str(query) + " | Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
             args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
@@ -293,16 +307,31 @@ def main():
 
 
 
+
+
     file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T)
+
 
     ## Save results
     with open(file_name + ".pkl", 'wb') as f:
         
         data = {'Acc': Acc, 'Err': Err, 'Precision': Precision, 'Recall': Recall}
         pickle.dump(data, f)
+
+
+    selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+                    args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
+                    args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
+                    args.known_T) + "_modelB_T" + str(args.modelB_T)
+
+
+    with open(selected_index + "_per_round_query_index.pkl", 'wb') as f:
+        
+        pickle.dump(per_round, f)
+
     
 
     f.close()

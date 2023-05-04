@@ -15,6 +15,42 @@ import pickle
 import os
 
 
+import resnet_image as res_image
+
+
+
+def set_model_min(pre_type):
+    # use resnet18 (pretrained with CIFAR-10). Only for the minimum implementation of HOC
+    print(f'Use model {pre_type}')
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if pre_type == 'CLIP':
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model, preprocess = clip.load('ViT-B/32', device, jit=False)  # RN50, RN101, RN50x4, ViT-B/32
+        return model, preprocess
+
+    else:
+
+        if  pre_type == 'image18':
+            model = res_image.resnet18(pretrained=True)
+        elif pre_type == 'image34':
+            model = res_image.resnet34(pretrained=True)
+        elif pre_type == 'image50':
+            model = res_image.resnet50(pretrained=True)
+        else:
+            RuntimeError('Undefined pretrained model.')
+        
+        for param in model.parameters():
+
+            param.requires_grad = False
+        
+        model.to(device)
+        
+        return model, None
+
+
+
 class CustomCIFAR10Dataset_train(Dataset):
     cifar100_dataset = None
     targets = None
@@ -33,7 +69,6 @@ class CustomCIFAR10Dataset_train(Dataset):
 
     def __len__(self):
         return len(CustomCIFAR10Dataset_train.cifar10_dataset)
-
 
 
 
@@ -57,258 +92,30 @@ class CustomCIFAR100Dataset_train(Dataset):
         return len(CustomCIFAR100Dataset_train.cifar100_dataset)
 
 
-def CIFAR100_EXTRACT_FEATURE_CLIP():
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+class CustomTinyImageNetDataset_train(Dataset):
+    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
+       
 
-    model.eval()
+        with open('target_train.pkl', 'rb') as f:
+            target_train = pickle.load(f)
 
-    crop = transforms.RandomCrop(32, padding=4)
-    normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
 
-    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
+        self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
+                                                          transform=transform)
+        self.targets = target_train
 
-    # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
-    CustomCIFAR100Dataset_train.load_dataset(transform=preprocess_rand)
-    
-    train_data = CustomCIFAR100Dataset_train()
-    record = [[] for _ in range(100)]
 
-    batch_size = 256
-    print('Data Loader')
-    data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    def __getitem__(self, index):
+        data_point, _ = self.tiny_imagenet_dataset[index]
+        # data_point, _ = self.tiny_imagenet_dataset[index]
+        # label = self.targets[index]
+        label = self.targets[index]
 
+        return index, (data_point, label)
 
-    for batch_idx, (index, (data, labels)) in enumerate(data_loader):
-        data = data.to(device)
-        labels = labels.to(device)
-        
-        with torch.no_grad():
-            extracted_feature = model.encode_image(data)
-        
-        for i in range(extracted_feature.shape[0]):
-            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
-
-
-    total_len = sum([len(a) for a in record])
-    origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
-
-    origin_label = torch.zeros(total_len).long()
-    index_rec = np.zeros(total_len, dtype=int)
-    cnt, lb = 0, 0
-
-    for item in record:
-        for i in item:
-            origin_trans[cnt] = i['feature']
-            origin_label[cnt] = lb
-            index_rec[cnt] = i['index']
-            cnt += 1
-
-        lb += 1
-
-
-    data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
-
-
-    order_to_index = {}
-
-    index_to_order = {}
-    for i in range(data_set['index'].shape[0]):
-
-        order_to_index[i] = data_set['index'][i]
-
-        index_to_order[data_set['index'][i]] = i
-
-
-    KINDS = 100
-    all_point_cnt = data_set['feature'].shape[0]
-
-    #sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
-    # final_feat, noisy_label = get_feat_clusters(data_set, sample)
-    final_feat = data_set['feature']#[sample]
-    sel_idx = data_set['index']#[sample]
-    labels = data_set['label']#[sample]
-
-
-    Dist = cosDistance(final_feat)
-
-    # min_similarity = 0.0
-    values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
-
-    for k in range(indices.size()[0]):
-        
-        for j in range(indices.size()[1]):
-
-            indices[k][j] = order_to_index[indices[k][j].item()]
-
-
-    #X_train, X_test, y_train, y_test = train_test_split(final_feat, labels, test_size=0.33, random_state=42)
-
-    #neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
-    #neigh.fit(X_train, y_train)
-    #print (neigh.score(X_test, y_test))
-
-    return indices, sel_idx#, labels, index_to_order
-
-
-
-
-
-
-def CIFAR10_EXTRACT_FEATURE_CLIP():
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
-
-    model.eval()
-
-    crop = transforms.RandomCrop(32, padding=4)
-    normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-
-    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
-
-    # train_data = datasets.CIFAR100('./data/', train=True, download=True, transform=preprocess_rand)
-    CustomCIFAR10Dataset_train.load_dataset(transform=preprocess_rand)
-    
-    train_data = CustomCIFAR10Dataset_train()
-    record = [[] for _ in range(10)]
-
-    batch_size = 256
-    print('Data Loader')
-    data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-
-    for batch_idx, (index, (data, labels)) in enumerate(data_loader):
-        data = data.to(device)
-        labels = labels.to(device)
-        
-        with torch.no_grad():
-            extracted_feature = model.encode_image(data)
-        
-        for i in range(extracted_feature.shape[0]):
-            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
-
-
-    total_len = sum([len(a) for a in record])
-    origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
-
-    origin_label = torch.zeros(total_len).long()
-    index_rec = np.zeros(total_len, dtype=int)
-    cnt, lb = 0, 0
-
-    for item in record:
-        for i in item:
-            origin_trans[cnt] = i['feature']
-            origin_label[cnt] = lb
-            index_rec[cnt] = i['index']
-            cnt += 1
-
-        lb += 1
-
-
-    data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
-
-
-    order_to_index = {}
-
-    index_to_order = {}
-    for i in range(data_set['index'].shape[0]):
-
-        order_to_index[i] = data_set['index'][i]
-
-        index_to_order[data_set['index'][i]] = i
-
-
-    KINDS = 100
-    all_point_cnt = data_set['feature'].shape[0]
-
-    #sample = np.random.choice(np.arange(data_set['feature'].shape[0]), all_point_cnt, replace=False)
-    # final_feat, noisy_label = get_feat_clusters(data_set, sample)
-    final_feat = data_set['feature']#[sample]
-    sel_idx = data_set['index']#[sample]
-    labels = data_set['label']#[sample]
-
-
-    Dist = cosDistance(final_feat)
-
-    # min_similarity = 0.0
-    values, indices = Dist.topk(k=10, dim=1, largest=False, sorted=True)
-
-    for k in range(indices.size()[0]):
-        
-        for j in range(indices.size()[1]):
-
-            indices[k][j] = order_to_index[indices[k][j].item()]
-
-
-    #X_train, X_test, y_train, y_test = train_test_split(final_feat, labels, test_size=0.33, random_state=42)
-
-    #neigh = KNeighborsClassifier(n_neighbors=10, metric="cosine")
-    #neigh.fit(X_train, y_train)
-    #print (neigh.score(X_test, y_test))
-
-    return indices, sel_idx#, labels, index_to_order
-
-
-
-def feature_extraction(data_loader,  model, device):
-
-
-    record = [[] for _ in range(100)]
-
-    index_to_label = {}
-
-
-    for batch_idx, (index, (data, labels)) in enumerate(data_loader):
-        data = data.to(device)
-        labels = labels.to(device)
-        
-        with torch.no_grad():
-            extracted_feature = model.encode_image(data)
-        
-        for i in range(extracted_feature.shape[0]):
-            record[labels[i]].append({'feature': extracted_feature[i].detach().cpu(), 'index': (index[i]).item()})
-
-
-        for i in range(len(data.data)):
-
-            tmp_index = index[i].item()
-
-            true_label = np.array(labels.data.cpu())[i]
-            
-            index_to_label[tmp_index] = true_label
-
-
-
-    total_len = sum([len(a) for a in record])
-    origin_trans = torch.zeros(total_len, record[0][0]['feature'].shape[0])
-
-    origin_label = torch.zeros(total_len).long()
-    index_rec = np.zeros(total_len, dtype=int)
-    cnt, lb = 0, 0
-
-    for item in record:
-        for i in item:
-            origin_trans[cnt] = i['feature']
-            origin_label[cnt] = lb
-            index_rec[cnt] = i['index']
-            cnt += 1
-
-        lb += 1
-
-
-    data_set = {'feature': origin_trans[:cnt], 'label': origin_label[:cnt], 'index': index_rec[:cnt]}
-
-
-    final_feat = data_set['feature']#[sample]
-    sel_idx = data_set['index']#[sample]
-    labels = data_set['label']#[sample]
-
-
-    return final_feat, sel_idx, labels, index_to_label
+    def __len__(self):
+        return len(self.tiny_imagenet_dataset)
 
 
 
@@ -326,17 +133,27 @@ def cosDistance_two(unlabeled_features, labeled_features):
 
 
 
-def CIFAR100_EXTRACT_ALL(dataset):
+def CIFAR100_EXTRACT_ALL(pre_type, dataset, model, preprocess):
     
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
-
     model.eval()
 
+    #################################################
     crop = transforms.RandomCrop(32, padding=4)
     normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+    
+    if pre_type == "CLIP":
+        preprocess_rand = transforms.Compose([crop,
+                                              transforms.RandomHorizontalFlip(),
+                                              preprocess])
+    elif 'image' in pre_type:
+        
+        preprocess_rand = transforms.Compose([crop,
+                                              transforms.RandomHorizontalFlip(),
+                                              transforms.Resize(224),
+                                              transforms.ToTensor(),
+                                              normalize])
+    #################################################
 
-    preprocess_rand = transforms.Compose([crop, transforms.RandomHorizontalFlip(), preprocess])
 
     if dataset == "cifar10":
 
@@ -367,7 +184,14 @@ def CIFAR100_EXTRACT_ALL(dataset):
         
         with torch.no_grad():
 
-            extracted_feature = model.encode_image(data)
+            if pre_type == "CLIP":
+
+                extracted_feature = model.encode_image(data)
+
+            else:
+
+                extracted_feature = model(data)
+
         
             features.append(extracted_feature)
 
@@ -375,9 +199,9 @@ def CIFAR100_EXTRACT_ALL(dataset):
             all_labels.append(labels)
 
 
-    final_feat = torch.concatenate(features).to(device)
-    sel_idx    = torch.concatenate(sel_idx).to(device)
-    labels     = torch.concatenate(all_labels).to(device)
+    final_feat = torch.concat(features).to(device)
+    sel_idx    = torch.concat(sel_idx).to(device)
+    labels     = torch.concat(all_labels).to(device)
 
     ###########################################################
     feature_sel_idx = sel_idx.unsqueeze(1).repeat(1, final_feat.size()[1]).to(device)
@@ -394,57 +218,55 @@ def CIFAR100_EXTRACT_ALL(dataset):
         index_to_label[index] = labels[idx]
 
 
+
+
+    save_folder = "./features/" +  pre_type
+
+    isExist = os.path.exists(save_folder)
+    if not isExist:
+
+       # Create a new directory because it does not exist
+       os.makedirs(save_folder) 
+
+
+
     if dataset == "cifar10":
 
-        torch.save(ordered_feature, './features/cifar10_features.pt')
-        torch.save(ordered_label,   './features/cifar10_labels.pt')
-        torch.save(index_to_label,   './features/cifar10_index_to_label.pt')
-    else:
-        torch.save(ordered_feature, './features/cifar100_features.pt')
-        torch.save(ordered_label,   './features/cifar100_labels.pt')
-        torch.save(index_to_label,   './features/cifar100_index_to_label.pt')
-
-
-
-
-class CustomTinyImageNetDataset_train(Dataset):
-    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
-       
-
-        with open('target_train.pkl', 'rb') as f:
-            target_train = pickle.load(f)
-
-
-        self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
-                                                          transform=transform)
-        self.targets = target_train
-
-
-    def __getitem__(self, index):
-        data_point, _ = self.tiny_imagenet_dataset[index]
-        # data_point, _ = self.tiny_imagenet_dataset[index]
-        # label = self.targets[index]
-        label = self.targets[index]
-
-        return index, (data_point, label)
-
-    def __len__(self):
-        return len(self.tiny_imagenet_dataset)
-
-
-
-def ImageNet_EXTRACT_ALL():
+        torch.save(ordered_feature, save_folder + '/cifar10_features.pt')
+        torch.save(ordered_label,   save_folder + '/cifar10_labels.pt')
+        torch.save(index_to_label,  save_folder + '/cifar10_index_to_label.pt')
     
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+    else:
+    
+        torch.save(ordered_feature, save_folder + '/cifar100_features.pt')
+        torch.save(ordered_label,   save_folder + '/cifar100_labels.pt')
+        torch.save(index_to_label,  save_folder + '/cifar100_index_to_label.pt')
 
+
+
+
+
+
+def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
+    
     model.eval()
-
 
     crop = transforms.RandomCrop(64, padding=4, padding_mode='reflect')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
-    preprocess_rand = transforms.Compose([crop, preprocess])
+
+    if pre_type == "CLIP":
+        preprocess_rand = transforms.Compose([crop,
+                                              transforms.RandomHorizontalFlip(),
+                                              preprocess])
+    elif 'image' in pre_type:
+
+        preprocess_rand = transforms.Compose([crop,
+                                              transforms.RandomHorizontalFlip(),
+                                              transforms.Resize(224),
+                                              transforms.ToTensor(),
+                                              normalize])
+
 
     train_data = CustomTinyImageNetDataset_train(transform=preprocess_rand)
 
@@ -468,7 +290,13 @@ def ImageNet_EXTRACT_ALL():
         
         with torch.no_grad():
 
-            extracted_feature = model.encode_image(data)
+            if pre_type == "CLIP":
+
+                extracted_feature = model.encode_image(data)
+
+            else:
+
+                extracted_feature = model(data)
         
             features.append(extracted_feature)
 
@@ -476,9 +304,9 @@ def ImageNet_EXTRACT_ALL():
             all_labels.append(labels)
 
 
-    final_feat = torch.concatenate(features).to(device)
-    sel_idx    = torch.concatenate(sel_idx).to(device)
-    labels     = torch.concatenate(all_labels).to(device)
+    final_feat = torch.concat(features).to(device)
+    sel_idx    = torch.concat(sel_idx).to(device)
+    labels     = torch.concat(all_labels).to(device)
 
     ###########################################################
     feature_sel_idx = sel_idx.unsqueeze(1).repeat(1, final_feat.size()[1]).to(device)
@@ -495,9 +323,35 @@ def ImageNet_EXTRACT_ALL():
         index_to_label[index] = labels[idx]
 
 
-    torch.save(ordered_feature, './features/Tiny-Imagenet_features.pt')
-    torch.save(ordered_label,   './features/Tiny-Imagenet_labels.pt')
-    torch.save(index_to_label,  './features/Tiny-Imagenet_index_to_label.pt')
+    save_folder = "./features/" +  pre_type
+
+    isExist = os.path.exists(save_folder)
+    if not isExist:
+
+       # Create a new directory because it does not exist
+       os.makedirs(save_folder) 
+
+
+
+    torch.save(ordered_feature, save_folder + '/Tiny-Imagenet_features.pt')
+    torch.save(ordered_label,   save_folder +  '/Tiny-Imagenet_labels.pt')
+    torch.save(index_to_label,  save_folder + '/Tiny-Imagenet_index_to_label.pt')
+
+
+
+def extracted_feature(pre_type, dataset):
+
+
+    model, preprocess = set_model_min(pre_type)
+
+
+    if dataset == "Tiny-Imagenet":
+
+        ImageNet_EXTRACT_ALL(pre_type, model, preprocess)
+
+    else:
+
+        CIFAR100_EXTRACT_ALL(pre_type, dataset, model, preprocess)
 
 
 
@@ -508,28 +362,21 @@ def CIFAR100_LOAD_ALL(dataset="cifar100"):
 
     if dataset == "cifar10":
         
-        index_to_label = torch.load('./features/cifar10_index_to_label.pt')
-
-        ordered_feature = torch.load('./features/cifar10_features.pt')
-
-        ordered_label = torch.load('./features/cifar10_labels.pt')
+        index_to_label = torch.load('./features/clip/cifar10_index_to_label.pt')
+        ordered_feature = torch.load('./features/clip/cifar10_features.pt')
+        ordered_label = torch.load('./features/clip/cifar10_labels.pt')
 
     elif dataset == "Tiny-Imagenet":
 
-
-        index_to_label = torch.load('./features/Tiny-Imagenet_index_to_label.pt')
-        ordered_feature = torch.load('./features/Tiny-Imagenet_features.pt')
-        ordered_label = torch.load('./features/Tiny-Imagenet_labels.pt')
-
+        index_to_label = torch.load('./features/clip/Tiny-Imagenet_index_to_label.pt')
+        ordered_feature = torch.load('./features/clip/Tiny-Imagenet_features.pt')
+        ordered_label = torch.load('./features/clip/Tiny-Imagenet_labels.pt')
 
     elif dataset == "cifar100":
 
-        index_to_label = torch.load('./features/cifar100_index_to_label.pt')
-
-        ordered_feature = torch.load('./features/cifar100_features.pt')
-
-        ordered_label = torch.load('./features/cifar100_labels.pt')
-
+        index_to_label = torch.load('./features/clip/cifar100_index_to_label.pt')
+        ordered_feature = torch.load('./features/clip/cifar100_features.pt')
+        ordered_label = torch.load('./features/clip/cifar100_labels.pt')
 
 
 
@@ -592,147 +439,15 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
     return index_knn
 
 
-
-def cosDistance(features):
-    # features: N*M matrix. N features, each features is M-dimension.
-    features = F.normalize(features, dim=1)  # each feature's l2-norm should be 1
-    similarity_matrix = torch.matmul(features, features.T)
-    distance_matrix = 1.0 - similarity_matrix
-    return distance_matrix
-
-    # extracted_feature = model.encode_image(data)
-    # features.append(extracted_feature.cpu().numpy())
-    # data = Variable(data)
-    # labels.append(labels.cpu().numpy())
-    # indices.extend(index)
-
-
 if __name__ == "__main__":
 
     #dataset = "Tiny-Imagenet"
 
     #CIFAR100_EXTRACT_ALL(dataset=dataset)
 
-    ImageNet_EXTRACT_ALL()
-
-    '''
-    indices, sel_idx, labels, index_to_order =  CIFAR100_EXTRACT_FEATURE_CLIP()
-
-
-    index_knn = {}
-    for i in range(len(sel_idx)):
-        
-        if sel_idx[i] not in index_knn:
-            index_knn[sel_idx[i]] = []
-            
-        index_knn[sel_idx[i]].append(indices[i])
+    for dataset in ["cifar10", "cifar100", "Tiny-Imagenet"]:
+        print (dataset)
+        for pre_type in ["image18", "image34", "image50"]:
 
 
-    print (index_knn)
-
-    neighbor_unknown = {}
-
-    correct = 0.0
-    cnt = 0.0
-
-    for i, (key, value) in enumerate(index_knn.items()):
-
-        cnt += 1
-
-
-        value = value[0].numpy()
-
-        key_label = labels[i].item()
-
-        #if key_label not in neighbor_unknown:
-        #    neighbor_unknown[key_label] = []
-        neighbor_labels = []
-
-        for k in range(len(value)):
-
-            neighbor_label = labels[index_to_order[value[k]]].item()
-
-            neighbor_labels.append(neighbor_label)
-
-
-        #print (neighbor_labels)
-
-        x = Counter(neighbor_labels)
-
-        #print (x)
-        top_1 = x.most_common(1)[0][0]
-
-        #print (top_1)
-        #print ("\n")
-        if key_label == top_1:
-            correct += 1
-
-
-        if neighbor_label >= 20:
-            neighbor_label = 20
-
-        if neighbor_label >= 20:
-
-            c_uk += 1
-   
-        #neighbor_unknown[key_label].append(c_uk)
-
-    print (correct / cnt)
-
-    #for key, value in neighbor_unknown.items():
-    #    print (key, sum(value)/len(value))
-    
-    '''
-
-
-
-# Install necessary packages
-# !pip install torch torchvision openai-clip
-
-# # Create a custom dataset class to return the index along with the data and label
-# batch_size = 256
-# use_gpu = True
-# num_workers = 4
-# SEED = 1
-#
-# torch.manual_seed(SEED)
-# np.random.seed(SEED)
-# random.seed(SEED)
-#
-# # Load CIFAR-100 dataset
-# transform_train = transforms.Compose([
-# transforms.RandomCrop(32, padding=4),
-# transforms.RandomHorizontalFlip(),
-# transforms.RandomRotation(15),
-# transforms.ToTensor(),
-#         # This results in an image tensor with values centered
-#         # around zero and scaled to a range of approximately -1 to 1.
-# transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))])
-# pin_memory = True if use_gpu else False
-# Cifar100_dataset = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True, transform=transform_train)
-# trainloader = DataLoader(dataset=Cifar100_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
-# for batch_idx, (index, (data, labels)) in enumerate(trainloader):
-#     x = index
-#     break
-
-# Load the CLIP model
-# device = "cuda" if torch.cuda.is_available() else "cpu"
-# model, preprocess = clip.load("ViT-B/32", device=device)
-
-
-# Extract features from the images using the CLIP model
-# x = CIFAR100_EXTRACT_FEATURE(256, True, 4, 1)
-# print(x)
-# mnistdata = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True, transform=transform_train)
-# print('number of image : ',len(mnistdata))
-#
-# batch_size = 10
-# print('Data Loader')
-# data_loader = torch.utils.data.DataLoader(dataset=mnistdata, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
-#
-# count = 0
-# for batch_idx, (data, targets) in enumerate(data_loader):
-#
-#     count += batch_size
-#     print('batch :', batch_idx + 1,'    ', count, '/', len(mnistdata),
-#           'image:', data.shape, 'target : ', targets)
+            extracted_feature(pre_type, dataset)
