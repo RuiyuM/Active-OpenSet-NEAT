@@ -77,7 +77,7 @@ parser.add_argument('--runs', type=int, default=3)
 
 parser.add_argument('--active_5', action='store_true', help="whether to use active learning")
 
-parser.add_argument('--pre-type', type=str, default='CLIP')
+parser.add_argument('--pre-type', type=str, default='clip')
 
 
 
@@ -93,7 +93,8 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset)
+
+    ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset, pre_type=args.pre_type)
 
 
     sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
@@ -306,13 +307,12 @@ def main():
 
 
 
-
-
+    #############################################################################################################
 
     file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
-                    args.known_T) + "_modelB_T" + str(args.modelB_T)
+                    args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type)
 
 
     ## Save results
@@ -321,16 +321,17 @@ def main():
         data = {'Acc': Acc, 'Err': Err, 'Precision': Precision, 'Recall': Recall}
         pickle.dump(data, f)
 
-
+    #############################################################################################################
     selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
-                    args.known_T) + "_modelB_T" + str(args.modelB_T)
+                    args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type)
 
 
     with open(selected_index + "_per_round_query_index.pkl", 'wb') as f:
         
         pickle.dump(per_round, f)
+    #############################################################################################################
 
     
 

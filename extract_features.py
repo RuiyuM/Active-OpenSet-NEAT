@@ -245,8 +245,6 @@ def CIFAR100_EXTRACT_ALL(pre_type, dataset, model, preprocess):
 
 
 
-
-
 def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
     
     model.eval()
@@ -355,28 +353,31 @@ def extracted_feature(pre_type, dataset):
 
 
 
-def CIFAR100_LOAD_ALL(dataset="cifar100"):
+def CIFAR100_LOAD_ALL(dataset="cifar100", pre_type="clip"):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
+    save_folder = "./features/" +  pre_type
+
+
     if dataset == "cifar10":
         
-        index_to_label = torch.load('./features/clip/cifar10_index_to_label.pt')
-        ordered_feature = torch.load('./features/clip/cifar10_features.pt')
-        ordered_label = torch.load('./features/clip/cifar10_labels.pt')
+        index_to_label = torch.load(save_folder + '/cifar10_index_to_label.pt')
+        ordered_feature = torch.load(save_folder + '/cifar10_features.pt')
+        ordered_label = torch.load(save_folder + '/cifar10_labels.pt')
 
     elif dataset == "Tiny-Imagenet":
 
-        index_to_label = torch.load('./features/clip/Tiny-Imagenet_index_to_label.pt')
-        ordered_feature = torch.load('./features/clip/Tiny-Imagenet_features.pt')
-        ordered_label = torch.load('./features/clip/Tiny-Imagenet_labels.pt')
+        index_to_label = torch.load(save_folder + '/Tiny-Imagenet_index_to_label.pt')
+        ordered_feature = torch.load(save_folder + '/Tiny-Imagenet_features.pt')
+        ordered_label = torch.load(save_folder + '/Tiny-Imagenet_labels.pt')
 
     elif dataset == "cifar100":
 
-        index_to_label = torch.load('./features/clip/cifar100_index_to_label.pt')
-        ordered_feature = torch.load('./features/clip/cifar100_features.pt')
-        ordered_label = torch.load('./features/clip/cifar100_labels.pt')
+        index_to_label = torch.load(save_folder + '/cifar100_index_to_label.pt')
+        ordered_feature = torch.load(save_folder + '/cifar100_features.pt')
+        ordered_label = torch.load(save_folder + './cifar100_labels.pt')
 
 
 

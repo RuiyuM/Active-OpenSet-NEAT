@@ -63,5 +63,22 @@ detected_unknown:  506594.0
 
 
 [[6358, 10.0, 12], [19742, 10.0, 39], [594, 10.0, 1], [6841, 10.0, 13], [13856, 10.0, 27], [13462, 10.0, 26], [12868, 10.0, 25], [10874, 10.0, 21], [22821, 10.0, 45], [11074, 10.0, 22], [16023, 10.0, 32], [7476, 10.0, 14], [1138, 10.0, 2], [9393, 10.0, 18], [10919, 10.0, 21], [18403, 10.0, 36], [12858, 10.0, 25], [2585, 10.0, 5], [21395, 10.0, 42], [1783, 10.0, 3]]
-Query round: 7 | Query Strategy: test_query | Query Batch: 400 | Valid Query Nums: 354 | Query Precision: 0.885 | Query Recall: 0.2002 | Training Nums: 4004 | Unalebled Nums: 95996
+Query round: 7 | Query Strategy: test_query | Query Batch: 400 | Valid Query Nums: 354 | Query Precision: 0.885 | Query Recall: 0.2002 | Tra==> Test
+Model_B | Accuracy (%): 4==> Test
+Model_B | Ac==> Test
+Model_B | Accuracy (%): 45.85000228881836	 Error rate (%): 54.14999771118164
+detected_unknown:  508624.0
+
+
+[[4209, 10.0, 8], [14271, 10.0, 28], [14485, 10.0, 28], [10329, 10.0, 20], [4379, 10.0, 8], [14621, 10.0, 29], [5400, 10.0, 10], [5632, 10.0, 11], [4110, 10.0, 8], [10143, 10.0, 20], [9103, 10.0, 18], [7590, 10.0, 15], [321, 10.0, 0], [12439, 10.0, 24], [481, 10.0, 0], [10882, 10.0, 21], [15616, 10.0, 31], [10443, 10.0, 20], [19159, 10.0, 38], [10157, 10.0, 20]]
+Query round: 8 | Query Strategy: test_query | Query Batch: 400 | Valid Query Nums: 362 | Query Precision: 0.905 | Query Recall: 0.2183 | Training==> Test
+Model_B | Accuracy ==> Test
+Model_B | Acc==> Test
+Model_B | Accuracy (%): 47.500003814697266	 Error rate (%): 52.499996185302734
+detected_unknown:  510610.0
+
+
+[[8360, 10.0, 16], [13187, 10.0, 26], [1790, 10.0, 3], [4240, 10.0, 8], [16354, 10.0, 32], [11219, 10.0, 22], [63423, 10.0, 126], [2989, 10.0, 5], [13789, 10.0, 27], [16716, 10.0, 33], [2024, 10.0, 4], [2693, 10.0, 5], [11143, 10.0, 22], [98414, 10.0, 196], [15816, 10.0, 31], [70744, 10.0, 141], [2354, 10.0, 4], [16710, 10.0, 33], [61468, 10.0, 122], [2521, 10.0, 5]]
+Query round: 9 | Query Strategy: test_query | Query Batch: 400 | Valid Query Nums: 345 | Query Precision: 0.8625 | Query Recall: 0.23555 | Training Nums: 4711 | Unalebled Nums: 95289
 openset here!
+Finished. Total elapsed time (h:m:s): 4:00:10
