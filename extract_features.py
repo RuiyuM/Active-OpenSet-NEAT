@@ -363,21 +363,21 @@ def CIFAR100_LOAD_ALL(dataset="cifar100", pre_type="clip"):
 
     if dataset == "cifar10":
         
-        index_to_label = torch.load(save_folder + '/cifar10_index_to_label.pt')
+        index_to_label = torch.load(save_folder  + '/cifar10_index_to_label.pt')
         ordered_feature = torch.load(save_folder + '/cifar10_features.pt')
-        ordered_label = torch.load(save_folder + '/cifar10_labels.pt')
+        ordered_label = torch.load(save_folder   + '/cifar10_labels.pt')
 
     elif dataset == "Tiny-Imagenet":
 
-        index_to_label = torch.load(save_folder + '/Tiny-Imagenet_index_to_label.pt')
+        index_to_label = torch.load(save_folder  + '/Tiny-Imagenet_index_to_label.pt')
         ordered_feature = torch.load(save_folder + '/Tiny-Imagenet_features.pt')
-        ordered_label = torch.load(save_folder + '/Tiny-Imagenet_labels.pt')
+        ordered_label = torch.load(save_folder   + '/Tiny-Imagenet_labels.pt')
 
     elif dataset == "cifar100":
 
-        index_to_label = torch.load(save_folder + '/cifar100_index_to_label.pt')
+        index_to_label = torch.load(save_folder  + '/cifar100_index_to_label.pt')
         ordered_feature = torch.load(save_folder + '/cifar100_features.pt')
-        ordered_label = torch.load(save_folder + './cifar100_labels.pt')
+        ordered_label = torch.load(save_folder   + '/cifar100_labels.pt')
 
 
 
