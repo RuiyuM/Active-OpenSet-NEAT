@@ -276,7 +276,7 @@ def main():
                                                                                          use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
 
 
-        per_round.append(list(queryIndex))
+        per_round.append(list(queryIndex) + list(invalidIndex))
 
 
 
@@ -309,10 +309,16 @@ def main():
 
     #############################################################################################################
 
+    '''
     file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
+    '''
+    file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+                    args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
+                    args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
+                    args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) 
 
 
     ## Save results
@@ -322,10 +328,17 @@ def main():
         pickle.dump(data, f)
 
     #############################################################################################################
+    '''
     selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
+    '''
+    
+    selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+                    args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
+                    args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
+                    args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type)
 
 
     with open(selected_index + "_per_round_query_index.pkl", 'wb') as f:
