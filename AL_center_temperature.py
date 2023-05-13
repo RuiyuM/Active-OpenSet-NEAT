@@ -45,7 +45,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'test_query_2', 'active_query'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'test_query_2', 'active_query', "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty"])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -228,7 +228,7 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
                                                                                                       unlabeledloader,
                                                                                                       len(labeled_ind_train),
-                                                                                                      model_A, use_gpu)
+                                                                                                      model_B, use_gpu)
         elif args.query_strategy == "AV_based":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling(args, unlabeledloader,
                                                                                              len(labeled_ind_train),
@@ -243,7 +243,7 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_uncertainty_sampling(args,
                                                                                                          unlabeledloader,
                                                                                                          len(labeled_ind_train),
-                                                                                                         model_A,
+                                                                                                         model_B,
                                                                                                          use_gpu)
         elif args.query_strategy == "AV_based2":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling2(args, trainloader_B,
@@ -274,6 +274,16 @@ def main():
                                                                                          unlabeledloader,
                                                                                          len(labeled_ind_train),
                                                                                          use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
+
+        elif args.query_strategy == "BGADL" or "OpenMax" or "Core_set" or "BADGE_sampling" or "certainty":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.passive_and_implement_other_baseline(args, model_B, query,
+                                                                                         unlabeledloader,
+                                                                                         len(labeled_ind_train),len(unlabeled_ind_train),
+                                                                                         use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
+
+
+
+
 
 
         per_round.append(list(queryIndex) + list(invalidIndex))

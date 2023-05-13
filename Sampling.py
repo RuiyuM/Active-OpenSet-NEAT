@@ -1,14 +1,18 @@
 import numpy as np
 from sklearn.mixture import GaussianMixture
 import torch
-
+from scipy.spatial.distance import euclidean
 import torch.nn.functional as F
 from collections import Counter
-
-
+import pdb
+from scipy import stats
 from extract_features import CIFAR100_EXTRACT_FEATURE_CLIP_new
-
+from copy import deepcopy
 from torch.distributions import Categorical
+import datasets
+from torch.nn.functional import softmax
+from sklearn.metrics import pairwise_distances_argmin_min
+from sklearn.cluster import KMeans
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
@@ -41,6 +45,8 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         features, outputs = model(data)
 
         uncertaintyArr += list(
@@ -1087,3 +1093,407 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
+
+def init_centers(X, K):
+    embs = torch.Tensor(X)
+    ind = torch.argmax(torch.norm(embs, 2, 1)).item()
+    embs = embs.cuda()
+    mu = [embs[ind]]
+    indsAll = [ind]
+    centInds = [0.] * len(embs)
+    cent = 0
+    # print('#Samps\tTotal Distance')
+    while len(mu) < K:
+        if len(mu) == 1:
+            D2 = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+        else:
+            newD = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+            for i in range(len(embs)):
+                if D2[i] >  newD[i]:
+                    centInds[i] = cent
+                    D2[i] = newD[i]
+        print(str(len(mu)) + '\t' + str(sum(D2)), flush=True)
+        if sum(D2) == 0.0: pdb.set_trace()
+        D2 = D2.ravel().astype(float)
+        Ddist = (D2 ** 2)/ sum(D2 ** 2)
+        customDist = stats.rv_discrete(name='custm', values=(np.arange(len(D2)), Ddist))
+        ind = customDist.rvs(size=1)[0]
+        while ind in indsAll: ind = customDist.rvs(size=1)[0]
+        mu.append(embs[ind])
+        indsAll.append(ind)
+        cent += 1
+    return indsAll
+
+def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
+                                                                            invalidList, model, use_gpu):
+    model.eval()
+    embDim = 512
+    nLab = args.known_class
+    embedding = np.zeros([len_unlabeled_ind_train + Len_labeled_ind_train + len(invalidList), embDim * nLab])
+
+    queryIndex = []
+    data_image = []
+    labelArr = []
+    uncertaintyArr = []
+    S_ij = {}
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        # output = cout
+        out, outputs = model(data)
+        out = out.data.cpu().numpy()
+        batchProbs = F.softmax(outputs, dim=1).data.cpu().numpy()
+        maxInds = np.argmax(batchProbs, 1)
+        for j in range(len(labels)):
+            for c in range(nLab):
+                if c == maxInds[j]:
+                    embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (1 - batchProbs[j][c])
+                else:
+                    embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (-1 * batchProbs[j][c])
+        # 当前的index 128 个 进入queryIndex array
+        data_image += data
+        queryIndex += index
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i].item()
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
+
+            if tmp_index not in S_ij:
+                S_ij[tmp_index] = []
+            S_ij[tmp_index].append([tmp_class, tmp_value, tmp_label])
+
+    embedding = torch.Tensor(embedding)
+    chosen = init_centers(embedding, args.query_batch)
+    queryIndex = chosen
+    queryLabelArr = []
+    # Assuming labeled_ind_train, invalidList and queryIndex are defined and are lists
+
+    # Merging the lists labeled_ind_train and invalidList into a single list
+    elements_to_remove = labeled_ind_train + invalidList
+
+    # Using list comprehension to remove elements in queryIndex which are also found in elements_to_remove
+    queryIndex = [element for element in queryIndex if element not in elements_to_remove]
+    queryIndex = np.array(queryIndex)
+    # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
+
+    for i in range(len(queryIndex)):
+        queryLabelArr.append(S_ij[queryIndex[i]][0][2])
+
+    queryLabelArr = np.array(queryLabelArr)
+    labelArr = np.array(labelArr)
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+
+
+def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, openmax_beta=0.5):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertainty_scores = []
+
+    def compute_openmax_score(proba_out, mean_proba_known_classes, beta=openmax_beta):
+        # Approximate distance by the difference between the probability and the mean probability
+        distances = np.abs(proba_out - mean_proba_known_classes)
+        scores = (1 - proba_out) * np.exp(-beta * distances)
+        return np.sum(scores, axis=1)
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
+        with torch.no_grad():
+            _, outputs = model(data)
+
+        queryIndex += list(np.array(index.cpu().data))
+        labelArr += list(np.array(labels.cpu().data))
+
+        _, predicted = outputs.max(1)
+        proba_out = softmax(outputs, dim=1)
+        proba_out_known_classes = proba_out[:, :args.known_class]
+
+        mean_proba_known_classes = proba_out_known_classes.mean(axis=1, keepdims=True)
+
+        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
+        uncertainty_scores += list(uncertainty)
+        # if batch_idx > 10:
+        #     break
+
+    uncertainty_scores = np.array(uncertainty_scores)
+    sorted_indices = np.argsort(-uncertainty_scores)
+    selected_indices = sorted_indices[:args.query_batch]
+
+    query_indices = np.array(queryIndex)[selected_indices]
+    query_labels = np.array(labelArr)[selected_indices]
+
+    known_indices = query_indices[query_labels < args.known_class]
+    unknown_indices = query_indices[query_labels >= args.known_class]
+
+    precision = len(known_indices) / len(query_indices)
+    recall = (len(known_indices) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return known_indices, unknown_indices, precision, recall
+
+def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+    model.eval()
+    queryIndex = []
+    embedding_vectors = []
+    S_per_class = {}
+    S_index = {}
+    labelArr = []
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
+        with torch.no_grad():
+            embeddings, outputs = model(data)
+        # 当前的index 128 个 进入queryIndex array
+        queryIndex += list(np.array(index.cpu().data))
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+        embedding_vectors += list(np.array(embeddings.cpu().data))
+        # proba_out = torch.nn.functional.softmax(outputs, dim=1)
+
+        # proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))
+
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i].item()
+
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
+
+            if tmp_class not in S_per_class:
+                S_per_class[tmp_class] = []
+
+            S_per_class[tmp_class].append([tmp_value, tmp_class, tmp_index, tmp_label])
+
+            if tmp_index not in S_index:
+                S_index[tmp_index] = []
+
+            S_index[tmp_index].append([tmp_value, tmp_class, tmp_label])
+    kmeans = KMeans(n_clusters=args.query_batch)
+    kmeans.fit(embedding_vectors)
+    closest, _ = pairwise_distances_argmin_min(kmeans.cluster_centers_, embedding_vectors)
+
+    selected_indices = [queryIndex[i] for i in closest]
+
+    final_chosen_index = []
+    invalid_index = []
+
+    for i in range(len(selected_indices)):
+        if S_index[selected_indices[i]][0][2] < args.known_class:
+            final_chosen_index.append(selected_indices[i])
+        elif S_index[selected_indices[i]][0][2] >= args.known_class:
+            invalid_index.append(selected_indices[i])
+
+    #
+    precision = len(final_chosen_index) / args.query_batch
+    # print(len(queryIndex_unknown))
+
+    # recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+    #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+
+    recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return final_chosen_index, invalid_index, precision, recall
+
+def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
+                                                  ordered_feature, ordered_label)
+
+    labelArr = []
+
+    model.eval()
+    #################################################################
+    S_index = {}
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+
+        _, outputs = model(data)
+
+        v_ij, predicted = outputs.max(1)
+
+        labelArr += list(np.array(labels.cpu().data))
+
+        for i in range(len(data.data)):
+            predict_class = predicted[i].detach()
+
+            predict_value = np.array(v_ij.data.cpu())[i]
+
+            predict_prob = outputs[i, :]
+
+            tmp_index = index[i].item()
+
+            true_label = np.array(labels.data.cpu())[i]
+
+            S_index[tmp_index] = [true_label, predict_class, predict_value, predict_prob.detach().cpu()]
+
+    #################################################################
+
+    # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
+
+    # queryIndex 存放known class的地方
+    queryIndex = []
+
+    neighbor_unknown = {}
+
+    detected_unknown = 0.0
+    detected_known = 0.0
+
+    for current_index in S_index:
+
+        index_Neighbor, values = index_knn[current_index]
+
+        true_label = S_index[current_index][0]
+
+        count_known = 0.0
+        count_unknown = 0.0
+
+        for k in range(len(index_Neighbor)):
+
+            n_index = index_Neighbor[k]
+
+            if n_index in set(labeled_ind_train):
+                count_known += 1
+
+            elif n_index in set(invalidList):
+                count_unknown += 1
+
+        if count_unknown < count_known:
+
+            queryIndex.append([current_index, count_known, true_label])
+
+        else:
+            detected_unknown += 1
+
+    print("detected_unknown: ", detected_unknown)
+    print("\n")
+
+    queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
+
+    #################################################################
+
+    queryIndex = queryIndex[:2 * args.query_batch]
+    newList = [sublist[0] for sublist in queryIndex]
+
+    B_dataset = datasets.create(
+        name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
+        batch_size=args.batch_size, use_gpu=use_gpu,
+        num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
+        unlabeled_ind_train=newList, labeled_ind_train=labeled_ind_train,
+    )
+
+    _, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
+
+    if args.query_strategy == "BGADL":
+        return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+    if args.query_strategy == "OpenMax":
+        return openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, openmax_beta=0.5)
+    if args.query_strategy == "Core_set":
+        return core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+    if args.query_strategy == "BADGE_sampling":
+        return badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
+                                                                            invalidList, model, use_gpu)
+    if args.query_strategy == "certainty":
+        return certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+
+
+
+
+
+def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertainty_scores = []
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
+        with torch.no_grad():
+            _, outputs = model(data)
+
+
+        queryIndex += list(np.array(index.cpu().data))
+        labelArr += list(np.array(labels.cpu().data))
+
+        _, predicted = outputs.max(1)
+        proba_out = softmax(outputs, dim=1)
+        proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))
+
+        uncertainty = 1 - proba_out.squeeze().cpu().numpy()
+        uncertainty_scores += list(uncertainty)
+
+    uncertainty_scores = np.array(uncertainty_scores)
+    sorted_indices = np.argsort(-uncertainty_scores)
+    selected_indices = sorted_indices[:args.query_batch]
+
+    query_indices = np.array(queryIndex)[selected_indices]
+    query_labels = np.array(labelArr)[selected_indices]
+
+    known_indices = query_indices[query_labels < args.known_class]
+    unknown_indices = query_indices[query_labels >= args.known_class]
+
+    precision = len(known_indices) / len(query_indices)
+    recall = (len(known_indices) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return known_indices, unknown_indices, precision, recall
+
+def certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    certaintyArr = []
+    precision, recall = 0, 0
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
+        features, outputs = model(data)
+
+        certaintyArr += list(
+            # Certainty(P) = max(P(x))
+            np.array(torch.softmax(outputs, 1).max(1).values.cpu().data))
+        queryIndex += index
+        labelArr += list(np.array(labels.cpu().data))
+
+    tmp_data = np.vstack((certaintyArr, queryIndex, labelArr)).T
+    tmp_data = tmp_data[np.argsort(-tmp_data[:, 0])]  # Use negative sign to sort in descending order
+    tmp_data = tmp_data.T
+    queryIndex = tmp_data[1][-args.query_batch:].astype(int)
+    labelArr = tmp_data[2].astype(int)
+    queryLabelArr = tmp_data[2][-args.query_batch:]
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
