@@ -895,12 +895,13 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
             elif n_index in set(invalidList):
                 count_unknown += 1
             
-            if count_unknown < count_known:
+            
+        if count_unknown < count_known:
 
-                queryIndex.append([current_index, count_known, true_label])               
+            queryIndex.append([current_index, count_known, true_label])               
 
-            else:
-                detected_unknown += 1         
+        else:
+            detected_unknown += 1         
 
 
 
@@ -1021,12 +1022,13 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
             elif n_index in set(invalidList):
                 count_unknown += 1
             
-            if count_unknown < count_known:
 
-                queryIndex.append([current_index, count_known, true_label])               
+        if count_unknown < count_known:
 
-            else:
-                detected_unknown += 1         
+            queryIndex.append([current_index, count_known, true_label])               
+
+        else:
+            detected_unknown += 1         
 
 
 

@@ -1,8 +1,8 @@
 #! /bin/bash
 
-#methods=("active_query" "test_query")
+methods=("active_query" "test_query")
 
-methods=("active_query")
+#methods=("active_query")
 
 for method in ${methods[@]}; 
 do
