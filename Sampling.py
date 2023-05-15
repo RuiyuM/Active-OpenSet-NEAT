@@ -36,35 +36,6 @@ def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
-def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
-    model.eval()
-    queryIndex = []
-    labelArr = []
-    uncertaintyArr = []
-    precision, recall = 0, 0
-    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
-        if use_gpu:
-            data, labels = data.cuda(), labels.cuda()
-        if args.dataset == 'mnist':
-            data = data.repeat(1, 3, 1, 1)
-        features, outputs = model(data)
-
-        uncertaintyArr += list(
-            np.array((-torch.softmax(outputs, 1) * torch.log(torch.softmax(outputs, 1))).sum(1).cpu().data))
-        queryIndex += index
-        labelArr += list(np.array(labels.cpu().data))
-
-    tmp_data = np.vstack((uncertaintyArr, queryIndex, labelArr)).T
-    tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
-    tmp_data = tmp_data.T
-    queryIndex = tmp_data[1][-args.query_batch:].astype(int)
-    labelArr = tmp_data[2].astype(int)
-    queryLabelArr = tmp_data[2][-args.query_batch:]
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
-    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
-    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
-        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
 def Max_AV_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
@@ -1419,8 +1390,8 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
     if args.query_strategy == "BADGE_sampling":
         return badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
                                                                             invalidList, model, use_gpu)
-    if args.query_strategy == "certainty":
-        return certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+    if args.query_strategy == "uncertainty":
+        return uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
 
 
 
@@ -1466,6 +1437,38 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
+
+
+def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertaintyArr = []
+    precision, recall = 0, 0
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
+        features, outputs = model(data)
+
+        uncertaintyArr += list(
+            np.array((-torch.softmax(outputs, 1) * torch.log(torch.softmax(outputs, 1))).sum(1).cpu().data))
+        queryIndex += index
+        labelArr += list(np.array(labels.cpu().data))
+
+    tmp_data = np.vstack((uncertaintyArr, queryIndex, labelArr)).T
+    tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
+    tmp_data = tmp_data.T
+    queryIndex = tmp_data[1][-args.query_batch:].astype(int)
+    labelArr = tmp_data[2].astype(int)
+    queryLabelArr = tmp_data[2][-args.query_batch:]
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+
 
 def certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()

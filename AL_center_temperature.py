@@ -224,11 +224,11 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.random_sampling(args, unlabeledloader,
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu)
-        elif args.query_strategy == "uncertainty":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
-                                                                                                      unlabeledloader,
-                                                                                                      len(labeled_ind_train),
-                                                                                                      model_B, use_gpu)
+        #elif args.query_strategy == "uncertainty":
+        #    queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
+        #                                                                                              unlabeledloader,
+        #                                                                                              len(labeled_ind_train),
+        #                                                                                              model_B, use_gpu)
         elif args.query_strategy == "AV_based":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.AV_sampling(args, unlabeledloader,
                                                                                              len(labeled_ind_train),
@@ -273,9 +273,11 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.active_query(args, model_B, query,
                                                                                          unlabeledloader,
                                                                                          len(labeled_ind_train),
+                                         
                                                                                          use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, index_to_label)
 
-        elif args.query_strategy == "BGADL" or "OpenMax" or "Core_set" or "BADGE_sampling" or "certainty":
+
+        elif args.query_strategy == "BGADL" or "OpenMax" or "Core_set" or "BADGE_sampling" or "uncertainty":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.passive_and_implement_other_baseline(args, model_B, query,
                                                                                          unlabeledloader,
                                                                                          len(labeled_ind_train),len(unlabeled_ind_train),
@@ -326,7 +328,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    file_name = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+    file_name = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) 
@@ -346,7 +348,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
     
-    selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type)
