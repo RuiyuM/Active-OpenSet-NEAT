@@ -1,0 +1,11 @@
+Currently using GPU: 2
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: resnet18
+==> Test
+Model_B | Accuracy (%): 29.000001907348633	 Error rate (%): 71.0
+detected_unknown:  0.0
+
+
+openset here!
+enset here!

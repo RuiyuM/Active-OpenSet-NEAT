@@ -1,8 +1,8 @@
 #! /bin/bash
 
-methods=("active_query" "test_query")
+#methods=("active_query" "test_query")
 
-#methods=("active_query")
+methods=("BGADL" "Core_set" "uncertainty" "BADGE_sampling")
 
 for method in ${methods[@]}; 
 do
@@ -27,6 +27,3 @@ do
 done
 
 
-
-
-#CUDA_VISIBLE_DEVICES=1 python AL_center_temperature.py --gpu 1 --save-dir log_AL/ --weight-cent 0 --query-strategy active_query --init-percent 8 --known-class 40 --query-batch 200 --seed 2 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset Tiny-Imagenet
