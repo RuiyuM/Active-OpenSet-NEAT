@@ -1125,7 +1125,7 @@ def init_centers(X, K):
     return indsAll
 
 def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu):
+                                                                            invalidList, model, use_gpu, S_index):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -1151,25 +1151,7 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
                 else:
                     embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (-1 * batchProbs[j][c])
         # 当前的index 128 个 进入queryIndex array
-        data_image += data
-        queryIndex += index
-        # my_test_for_outputs = outputs.cpu().data.numpy()
-        # print(my_test_for_outputs)
-        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
-        labelArr += list(np.array(labels.cpu().data))
-        # activation value based
-        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
-        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
-        v_ij, predicted = outputs.max(1)
-        for i in range(len(predicted.data)):
-            tmp_class = np.array(predicted.data.cpu())[i]
-            tmp_index = index[i].item()
-            tmp_label = np.array(labels.data.cpu())[i]
-            tmp_value = np.array(v_ij.data.cpu())[i]
 
-            if tmp_index not in S_ij:
-                S_ij[tmp_index] = []
-            S_ij[tmp_index].append([tmp_class, tmp_value, tmp_label])
 
     embedding = torch.Tensor(embedding)
     chosen = init_centers(embedding, args.query_batch)
@@ -1186,7 +1168,7 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
     # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
 
     for i in range(len(queryIndex)):
-        queryLabelArr.append(S_ij[queryIndex[i]][0][2])
+        queryLabelArr.append(S_index[queryIndex[i]][0])
 
     queryLabelArr = np.array(queryLabelArr)
     labelArr = np.array(labelArr)
@@ -1418,7 +1400,7 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
         return core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
     if args.query_strategy == "BADGE_sampling":
         return badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu)
+                                                                            invalidList, model, use_gpu, S_index)
     if args.query_strategy == "certainty":
         return certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
 
