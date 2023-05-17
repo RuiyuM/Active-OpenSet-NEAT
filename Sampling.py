@@ -61,9 +61,12 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
     labelArr = tmp_data[2].astype(int)
     labelArr_true = np.array(labelArr_true)
     queryLabelArr = tmp_data[2][-args.query_batch:]
+
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / args.query_batch
+    
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(labelArr_true < args.known_class)[0]) + Len_labeled_ind_train)
+
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -1394,6 +1397,8 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
     )
 
     _, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
+
+
     length = len(np.where(np.array(labelArr) < args.known_class)[0])
     if args.query_strategy == "BGADL":
         return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)

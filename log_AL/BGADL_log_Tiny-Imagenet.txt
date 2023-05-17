@@ -1,78 +1,137 @@
-Currently using GPU: 2
+Currently using GPU: 0
 Creating dataset: Tiny-Imagenet
 openset here!
 Creating model: resnet18
 ==> Test
-Model_B | Accuracy (%): 28.55000114440918	 Error rate (%): 71.44999694824219
+Model_B | Accuracy (%): 29.55000114440918	 Error rate (%): 70.44999694824219
+tensor([[1218,  134, 1207,  ...,  456,  481,  965],
+        [ 885,  971, 1355,  ..., 1280, 1520, 1108],
+        [ 820, 1487, 1022,  ...,   51, 1485,  602],
+        ...,
+        [1527,  350, 1448,  ...,  326,  544,  521],
+        [ 629, 1525, 1053,  ...,  780,  250,  298],
+        [1293, 1039,   82,  ..., 1074,  676,  257]], device='cuda:0')
 detected_unknown:  0.0
 
 
 openset here!
-Query round: 0 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 59 | Query Precision: 0.1475 | Query Recall: 0.9606253618992473 | Training Nums: 1659 | Unalebled Nums: 98341
-openset here!
-==> Test
-Model_B | Accuracy (%): 25.05000114440918	 Error rate (%): 74.94999694824219
-detected_unknown:  32828.0
+Query round: 0 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 58 | Query Precision: 0.145 | Query Recall: 0.0829 | Training Nums: 1658 | Unalebled Nums: 98342
+openset her==>==> Test
+Model_B | Accuracy (%): 28.85000228881836	 Error rate (%): 71.149993896484tentensor([[ 963, 1027,   88,  ..., 1017,   39,  592],
+        [ 711, 1401, 1240,  ...,  327,  586, 1105],
+        [ 406,  543,  783,  ...,  961, 1495,  987],
+        ...,
+        [ 904,  411,    3,  ..., 1150, 1827, 1984],
+        [ 766, 1805, 1363,  ...,  528,  446, 1153],
+        [ 242, 1805, 1929,  ...,  766, 1099, 1129]], device='cuda:0detdetected_unknown:  32161.0
 
 
 openset here!
-Query round: 1 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 217 | Query Precision: 0.5425 | Query Recall: 0.8772093023255814 | Training Nums: 1886 | Unalebled Nums: 98114
-o====> Test
-Mo==> Test
-Model_B | Accuracy (%): 30.35000228881836	 Error rate (%): 69.64999389648438
-detected_unknown:  41571.0
+Query round: 1 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 249 | Query Precision: 0.6225 | Query Recall: 0.09535 | Training Nums: 1907 | Unalebled Nums: 98093
+openset==> ==>==> Test
+Model_B | Accuracy (%): 32.400001525878906	 Error rate (%): 67.59999847412tentensor([[ 963, 1027,   88,  ..., 1017,   39,  592],
+        [ 711, 1401, 1240,  ...,  327,  586, 1105],
+        [ 406,  543,  783,  ...,  961, 1495,  987],
+        ...,
+        [ 904, 2382,  411,  ...,  327,  120, 1150],
+        [ 766, 2054, 1363,  ..., 1708, 1797, 1900],
+        [ 242, 2054, 2178,  ..., 1868,  644, 1583]], device='cudetedetdetected_unknown:  37619.0
 
 
 openset here!
-Query round: 2 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 286 | Query Precision: 0.715 | Query Recall: 0.86810551558753 | Training Nums: 2172 | Unalebled Nums: 97828
-opens===> Test==> Test
-Model_B | Accuracy (%): 34.55000305175781	 Error rate (%): 65.44999694824219
-detected_unknown:  45179.0
+Query round: 2 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 289 | Query Precision: 0.7225 | Query Recall: 0.1098 | Training Nums: 2196 | Unalebled Nums: 97804
+openset ==> Test
+Model_B | Accuracy (%): 35.45000076293945	 Error rate (%): 64.55000305175781
+tensor([[1308,  581,  275,  ...,  350, 1501, 2669],
+        [ 235, 2184,   71,  ...,  639, 1680, 2198],
+        [ 235,  300,  548,  ...,  639, 1680,  290],
+        ...,
+        [2653, 1337, 1945,  ...,  995,  213,  252],
+        [ 320, 2171, 2240,  ..., 1280,  485, 1447],
+        [ 518, 2240,  320,  ...,  987,  252, 1571]], device='cuda:0')
+detected_unknown:  40561.0
 
 
 openset here!
-Query round: 3 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 316 | Query Precision: 0.79 | Query Recall: 0.880084895649098 | Training Nums: 2488 | Un==> Test
-Model_B | Accurac==> Test==> Test
-Model_B | Accuracy (%): 37.20000076293945	 Error rate (%): 62.79999923706055
-detected_unknown:  46919.0
-
-
-openset here!
-Query round: 4 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 321 | Query Precision: 0.8025 | Query Recall: 0.8866792929292929 | Training Nums: 2809 | Una===> Test
-Model_B | Accuracy (%):==> Test
-Model_B | Accuracy (%): 39.10000228881836	 Error rate (%): 60.89999771118164
-detected_unknown:  48733.0
-
-
-openset here!
-Query round: 5 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 333 | Query Precision: 0.8325 | Query Recall: 0.8954117982331149 | Training Nums: 3142 | Una==>==> Test
-Model_B | Accuracy (%): 44.400001525878906	 Error rate (%): 55.599998474121094
-detected_unknown:  48066.0
-
-
-openset here!
-Query round: 6 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 338 | Query Precision: 0.845 | Query Recall: 0.9055683859379009 | Training Nums: 3529 | Unalebled Nums: 96471
-openset he==> ==> Test
-Model_B | Accuracy (%): 45.55000305175781	 Error rate (%): 54.44999694824219
-detected_unknown:  48617.0
-
-
-openset here!
-Query round: 7 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 332 | Query Precision: 0.83 | Query Recall: 0.910828025477707 | Training Nums: 3861 | Unalebled Nums: 96139
-openset here!===> Test
-Model_B | Accuracy (%): 48.000003814697266	 Error rate (%): 51.999996185302734
-detected_unknown:  49580.0
-
-
-openset here!
-Query round: 8 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 339 | Query Precision: 0.8475 | Query Recall: 0.91683038637852 | Training Nums: 4200 | Unalebled Nums: 95800
+Query round: 3 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 329 | Query Precision: 0.8225 | Query Recall: 0.12665 | Training Nums: 2533 | Unalebled Nums: 97467
 openset here====> Test
-Model_B | Accuracy (%): 48.80000305175781	 Error rate (%): 51.19999694824219
-detected_unknown:  50121.0
+Model_B | Accuracy (%): 39.150001525878906	 Error rate (%): 60.849998474121094
+tensor([[1308,  581,  275,  ..., 1881,  350, 1501],
+        [ 235, 2184,   71,  ...,  639, 1680, 2481],
+        [ 235,  300, 2184,  ...,   71,  639, 1680],
+        ...,
+        [2982, 1337, 1945,  ...,  995,  213,  252],
+        [ 320, 2171, 3132,  ...,  644, 1280,  485],
+        [ 518, 2569,  320,  ...,  987,  252, 1571]], device='cuda:detedetected_unknown:  42435.0
 
 
 openset here!
-Query round: 9 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 340 | Query Precision: 0.85 | Query Recall: 0.9220146222583265 | Training Nums: 4540 | Unalebled Nums: 95460
+Query round: 4 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 326 | Query Precision: 0.815 | Query Recall: 0.14295 | Training Nums: 2859 | Unalebled Nums: 97141
+openset h==> T==> Test
+Model_B | Accuracy (%): 41.150001525878906	 Error rate (%): 58.849998474121094
+tensor([[1308,  581,  275,  ..., 1881, 3539,  350],
+        [ 235, 2184,   71,  ..., 1589, 2730, 2753],
+        [ 235,  300, 2730,  ..., 2481, 2015,   71],
+        ...,
+        [3308, 1337, 1945,  ...,  995,  213,  252],
+        [ 320, 2171, 3458,  ..., 1867,  644, 2547],
+        [ 518, 2895, 3575,  ..., 1359,  987,  252]], device='cudetectedetected_unknown:  43950.0
+
+
 openset here!
-Finished. Total elapsed time (h:m:s): 4:03:54
- Total elapsed time (h:m:s): 4:03:29
+Query round: 5 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 349 | Query Precision: 0.8725 | Query Recall: 0.1604 | Training Nums: 3208 | Unalebled Nums: 96792
+openset ==> Te==> Test
+Model_B | Accuracy (%): 43.150001525878906	 Error rate (%): 56.849998474121094
+tensor([[1308,  581,  275,  ..., 1881, 3888,  350],
+        [ 235, 2184,   71,  ..., 1589, 2730, 2753],
+        [ 235,  300, 2730,  ..., 2481, 2015,   71],
+        ...,
+        [3657, 1337, 1945,  ...,  995,  213,  252],
+        [ 320, 2171, 3807,  ..., 1867,  644, 2547],
+        [ 518, 3244, 3924,  ..., 1359, 2882,  987]], device='cdetecteddetected_unknown:  43934.0
+
+
+openset here!
+Query round: 6 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 336 | Query Precision: 0.84 | Query Recall: 0.1772 | Training Nums: 3544 | Unalebled Nums: 96456
+openset==> Tes==> Test
+Model_B | Accuracy (%): 47.10000228881836	 Error rate (%): 52.89999771118164
+tensor([[1308,  581,  275,  ..., 1881, 4224,  350],
+        [ 235, 2184,   71,  ..., 1589, 2730, 2753],
+        [ 235,  300, 2730,  ..., 2481, 2015,   71],
+        ...,
+        [3993, 1337, 1945,  ...,  995,  213,  252],
+        [ 320, 2171, 4143,  ..., 1867,  644, 2547],
+        [ 518, 3580, 4260,  ..., 1359, 2882,  987]], device='cudetectedetected_unknown:  44329.0
+
+
+openset here!
+Query round: 7 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 338 | Query Precision: 0.845 | Query Recall: 0.1941 | Training Nums: 3882 | Unalebled Nums: 96118
+openset h==> T==> Test
+Model_B | Accuracy (%): 47.500003814697266	 Error rate (%): 52.499996185302734
+tensor([[1308,  581,  275,  ..., 1881, 4562,  350],
+        [ 235, 2184,   71,  ..., 2015, 1589, 2730],
+        [ 235,  300, 2730,  ..., 2481, 2015,   71],
+        ...,
+        [4772, 4331, 1337,  ...,  222,  995,  213],
+        [ 320, 2171, 4481,  ..., 1115, 1867,  644],
+        [ 518, 3918, 4598,  ..., 1359, 2882,  987]], device='cudadetecdetected_unknown:  44872.0
+
+
+openset here!
+Query round: 8 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 333 | Query Precision: 0.8325 | Query Recall: 0.21075 | Training Nums: 4215 | Unalebled Nums: 95785
+openset ==> Te==> Test
+Model_B | Accuracy (%): 50.150001525878906	 Error rate (%): 49.849998474121094
+tensor([[1308,  581,  275,  ..., 1881, 4895,  350],
+        [ 235, 2184,   71,  ..., 2015, 1589, 2730],
+        [ 235,  300, 2730,  ..., 2481, 2015,   71],
+        ...,
+        [5105, 4664, 1337,  ...,  222,  995,  213],
+        [ 320, 2171, 5073,  ...,  987, 1115, 1867],
+        [ 518, 4251, 4931,  ...,  798, 1359, 5179]], device='cdetecteddetected_unknown:  45934.0
+
+
+openset here!
+Query round: 9 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 353 | Query Precision: 0.8825 | Query Recall: 0.2284 | Training Nums: 4568 | Unalebled Nums: 95432
+openset here!
+Finished. Total elapsed time (h:m:s): 1:47:01
+52

@@ -3,83 +3,145 @@ Creating dataset: Tiny-Imagenet
 openset here!
 Creating model: resnet18
 ==> Test
-Model_B | Accuracy (%): 30.000001907348633	 Error rate (%): 70.0
-detected_unknown:  0.0
+Model_B | Accuracy (%): 31.200000762939453	 Error rate (%): 68.80000305175781ttensor([[1218,  134, 1207,  ...,  456,  481,  965],
+        [ 885,  971, 1355,  ..., 1280, 1520, 1108],
+        [ 820, 1487, 1022,  ...,   51, 1485,  602],
+        ...,
+        [1527,  350, 1448,  ...,  326,  544,  521],
+        [ 629, 1525, 1053,  ...,  780,  250,  298],
+        [1293, 1039,   82,  ..., 1074,  676,  257]], device='cuda:0')detected_unknown:  0.0
 
 
 openset here!
-Query round: 0 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 82 | Query Precision: 0.205 | Query Recall: 0.9622425629290617 | Training Nums: 1682 | Unalebled Nums: 98318
+Query round: 0 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 80 | Query Precision: 0.2 | Query Recall: 0.084 | Training Nums: 1680 | Unalebled Nums: 98320
 openset here!
-==> Test
-Mode==> Test
-Model_B | Accuracy (%): 27.05000114440918	 Error rate (%): 72.94999694824219
-detected_unknown:  31464.0
+==> Te==> Test
+Model_B | Accuracy (%): 30.500001907348633	 Error rate (%):tensortensor([[ 290,  442, 1121,  ...,  239,  601,  392],
+        [ 226, 1077, 1748,  ..., 1616,  726, 1561],
+        [ 667, 1650,  172,  ...,  866,  410,  326],
+        ...,
+        [1866,  664, 1958,  ...,  198, 1388, 1175],
+        [ 588,  388, 1393,  ...,  602,  705,  516],
+        [ 602,  649,  389,  ...,   87,  769, 1393]], device='cuddetectdetected_unknown:  33686.0
 
 
-openset here!
-Query round: 1 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 253 | Query Precision: 0.6325 | Query Recall: 0.8768248175182481 | Training Nums: 1922 | Unalebled Nums: 98078
-o==> Test
-Mode==> Test
-Model_B | Accuracy (%): 24.700000762939453	 Error rate (%): 75.30000305175781
-detected_unknown:  39815.0
-
-
-openset here!
-Query round: 2 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 330 | Query Precision: 0.825 | Query Recall: 0.8807195932733672 | Training Nums: 2252 | Unaleble==> ==> Test
-Model_B | Accur==> Test
-Model_B | Accuracy (%): 36.25	 Error rate (%): 63.75
-detected_unknown:  41920.0
-
-
-openset here!
-Query round: 3 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 332 | Query Precision: 0.83 | Query Recall: 0.8843258042436687 | Training Nums: 2584 | Unalebled Nums: 97416
-openset her==>==> Test
-Model_B | Accuracy (%): 40.0	 Error rate (%): 60.0
-detected_unknown:  43487.0
+openset Query Query round: 1 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 237 | Query Precision: 0.5925 | Query Recall: 0.0962 | Training Nums: 1924 | Unalebled Nums: 98076
+opense==> Test==> Test
+Model_B | Accuracy (%): 28.85000228881836	 Error rate (%)tensor([[1308,  581,tensor([[ 290, 1837,  442,  ..., 1100,  239,  601],
+        [ 226, 1077, 1985,  ..., 1616,  726, 1561],
+        [1704,  667, 1650,  ..., 1265, 1309, 1860],
+        ...,
+        [2103, 1871, 2384,  ..., 1372, 2004,  198],
+        [2246,  588, 2277,  ...,  159,  769,  602],
+        [ 602,  649, 2389,  ..., 1175, 2380,  235]detected_unknown:  4detected_unknown:  41619.0
 
 
 openset here!
-Query round: 4 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 350 | Query Precision: 0.875 | Query Recall: 0.8936947913493756 | Training Nums: 2934 | Unalebled Nums: 97066
-openset here!
-==> Test
-Model_B | Accuracy (%): 40.650001525878906	 Error rate (%): 59.349998474121094
-detected_unknown:  44305.0
+Query round: 2 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 333 | Query Precision: 0.8325 | Query Recall: 0.11285 | Training Nums: 2257 | Unalebled Num==> Test
+Model_B | Ac====> Test
+Model_B | Accuracy (%): 37.0	 Error rate (%): 63.0
+tensor([[2232,  290,  442,  ..., 2742, 2219,  123],
+        [ 226, 1077, 2770,  ...,  521,  423, 1616],
+        [1704,  667, 2044,  ..., 2130, 2167, 1503],
+        ...,
+        [2436, 1871, 2717,  ..., 1372, 2070, 2337],
+        [2579,  588, 2610,  ..., 2738, 2213,  159],
+        [ 602,  649, 2722,  ..., 1175, 2713,  235]], device='cuda:0')
+detected_unknown:  42921.0
 
 
 openset here!
-Query round: 5 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 363 | Query Precision: 0.9075 | Query Recall: 0.9018052516411379 | Training Nums: 3297 | Unalebled Nums: 96703
-openset here!
-==> Test
-Model_B | Accuracy (%): 44.80000305175781	 Error rate (%): 55.19999694824219
-detected_unknown:  43994.0
-
-
-openset here!
-Query round: 6 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 344 | Query Precision: 0.86 | Query Recall: 0.9120741482965932 | Training Nums: 3641 | Unalebled Nums: 96359
+Query round: 3 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 327 | Query Precision: 0.8175 | Query Recall: 0.1292 | Training Nums: 2584 | Unalebled Nums: 97416
 openset here!
 ==> Test
-Model_B | Accuracy (%): 44.900001525878906	 Error rate (%): 55.099998474121094
-detected_unknown:  44246.0
+Model_B | Accuracy (%): 39.60000228881836	 Error rate (%): 60.39999771118164
+tensor([[2232,  290,  442,  ...,    3, 3069, 2219],
+        [ 226, 1077, 2522,  ..., 2004,  832,  521],
+        [1704, 2285, 2452,  ...,  172, 2248, 1877],
+        ...,
+        [2763, 1871, 3044,  ..., 1372, 2070, 2268],
+        [2906,  588, 2937,  ..., 3065, 2213,  159],
+        [ 602,  649, 3049,  ..., 1175, 3040,  235]], device='cuda:0')
+detected_unknown:  43835.0
 
 
 openset here!
-Query round: 7 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 348 | Query Precision: 0.87 | Query Recall: 0.9184895233709417 | Training Nums: 3989 | Unalebled Nums: 96011
+Query round: 4 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 328 | Query Precision: 0.82 | Query Recall: 0.1456 | Training Nums: 2912 | Unalebled Nums: 97088
 openset here!
 ==> Test
-Model_B | Accuracy (%): 47.55000305175781	 Error rate (%): 52.44999694824219
-detected_unknown:  45053.0
+Model_B | Accuracy (%): 42.750003814697266	 Error rate (%): 57.249996185302734
+tensor([[2232,  290,  442,  ..., 3580, 2634,    3],
+        [ 226, 2844, 1077,  ..., 1653, 2004,  832],
+        [1704, 2285, 2452,  ..., 1650,  172, 2248],
+        ...,
+        [3091, 1871, 3372,  ...,  602, 1372, 2070],
+        [3234, 2883,  588,  ..., 1277, 3393, 2723],
+        [ 602,  649, 3377,  ..., 1175, 3368,  235]], device='cuda:0')
+detected_unknown:  45255.0
 
 
 openset here!
-Query round: 8 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 350 | Query Precision: 0.875 | Query Recall: 0.924962694521424 | Training Nums: 4339 | Unalebled Nums: 95661
+Query round: 5 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 351 | Query Precision: 0.8775 | Query Recall: 0.16315 | Training Nums: 3263 | Unalebled Nums: 96737
 openset here!
 ==> Test
-Model_B | Accuracy (%): 48.80000305175781	 Error rate (%): 51.19999694824219
-detected_unknown:  45246.0
+Model_B | Accuracy (%): 44.95000076293945	 Error rate (%): 55.04999923706055
+tensor([[2232,  290,  442,  ..., 3931, 2634,    3],
+        [ 226, 2844, 1077,  ..., 2302, 1653, 2004],
+        [1704, 2285, 2452,  ..., 1650, 3152,  172],
+        ...,
+        [3442, 1871, 3723,  ...,  602, 1372, 2070],
+        [3585, 2883,  588,  ..., 1277, 3744, 2723],
+        [ 602,  649, 3728,  ..., 1175, 3719,  235]], device='cuda:0')
+detected_unknown:  45029.0
 
 
 openset here!
-Query round: 9 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 353 | Query Precision: 0.8825 | Query Recall: 0.9292929292929293 | Training Nums: 4692 | Unalebled Nums: 95308
+Query round: 6 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 337 | Query Precision: 0.8425 | Query Recall: 0.18 | Training Nums: 3600 | Unalebled Nums: 96400
 openset here!
-Finished. Total elapsed time (h:m:s): 4:08:56
-ed time (h:m:s): 4:07:33
+==> Test
+Model_B | Accuracy (%): 46.250003814697266	 Error rate (%): 53.749996185302734
+tensor([[2232,  290,  442,  ..., 4268, 2634,    3],
+        [ 226, 2844, 1077,  ..., 2302, 1653, 2004],
+        [1704, 2285, 2452,  ..., 2044, 1650, 3299],
+        ...,
+        [3779, 1871, 4060,  ...,  602, 1372, 2070],
+        [3922, 2883,  588,  ..., 1277, 4081, 2723],
+        [ 602,  649, 4065,  ..., 1175, 4056,  235]], device='cuda:0')
+detected_unknown:  45841.0
+
+
+openset here!
+Query round: 7 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 349 | Query Precision: 0.8725 | Query Recall: 0.19745 | Training Nums: 3949 | Unalebled Nums: 96051
+openset here!
+==> Test
+Model_B | Accuracy (%): 47.35000228881836	 Error rate (%): 52.64999771118164
+tensor([[2232,  290,  442,  ..., 4617, 2634,    3],
+        [ 226, 2844, 1077,  ..., 2302, 1653, 3765],
+        [1704, 2285, 3628,  ..., 2518, 2044, 1650],
+        ...,
+        [4128, 1871, 4409,  ...,  602, 1372, 2070],
+        [4271, 2883,  588,  ..., 1277, 4430, 2723],
+        [ 602,  649, 4414,  ..., 1175, 4405,  235]], device='cuda:0')
+detected_unknown:  46525.0
+
+
+openset here!
+Query round: 8 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 345 | Query Precision: 0.8625 | Query Recall: 0.2147 | Training Nums: 4294 | Unalebled Nums: 95706
+openset here!
+==> Test
+Model_B | Accuracy (%): 49.05000305175781	 Error rate (%): 50.94999694824219
+tensor([[2232,  290,  442,  ..., 4962, 2634,    3],
+        [ 226, 2844, 1077,  ..., 2302, 1653, 3765],
+        [1704, 2285, 3628,  ..., 2726, 2518, 2044],
+        ...,
+        [4473, 1871, 4754,  ..., 4017,  602, 1372],
+        [4616, 3957, 2883,  ...,  334, 1277, 4775],
+        [ 602,  649, 4759,  ..., 1175, 4750,  235]], device='cuda:0')
+detected_unknown:  46862.0
+
+
+openset here!
+Query round: 9 | Query Strategy: Core_set | Query Batch: 400 | Valid Query Nums: 346 | Query Precision: 0.865 | Query Recall: 0.232 | Training Nums: 4640 | Unalebled Nums: 95360
+openset here!
+Finished. Total elapsed time (h:m:s): 1:49:40
+elapsed time (h:m:s): 1:49:08

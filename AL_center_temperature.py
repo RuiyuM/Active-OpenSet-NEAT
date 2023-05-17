@@ -33,7 +33,7 @@ from extract_features import CIFAR100_LOAD_ALL
 parser = argparse.ArgumentParser("Center Loss Example")
 # dataset
 parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['Tiny-Imagenet', 'cifar100', 'cifar10'])
-parser.add_argument('-j', '--workers', default=0, type=int,
+parser.add_argument('-j', '--workers', default=4, type=int,
                     help="number of data loading workers (default: 4)")
 # optimization
 parser.add_argument('--batch-size', type=int, default=128)

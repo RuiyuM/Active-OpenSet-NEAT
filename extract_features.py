@@ -423,6 +423,8 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
     values, indices = torch.topk(Dist, k=args.k, dim=1, largest=False, sorted=True)
 
+    print (indices)
+
     for k in range(indices.size()[0]):
         for j in range(indices.size()[1]):
 
@@ -442,13 +444,16 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
 if __name__ == "__main__":
 
-    #dataset = "Tiny-Imagenet"
+    dataset = "Tiny-Imagenet"
 
     #CIFAR100_EXTRACT_ALL(dataset=dataset)
 
+    extracted_feature("CLIP", dataset)
+
+    '''
     for dataset in ["cifar10", "cifar100", "Tiny-Imagenet"]:
         print (dataset)
         for pre_type in ["image18", "image34", "image50"]:
 
-
             extracted_feature(pre_type, dataset)
+    '''
