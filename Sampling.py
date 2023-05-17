@@ -36,7 +36,7 @@ def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
-def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
     queryIndex = []
     labelArr = []
@@ -59,10 +59,11 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
     tmp_data = tmp_data.T
     queryIndex = tmp_data[1][-args.query_batch:].astype(int)
     labelArr = tmp_data[2].astype(int)
+    labelArr_true = np.array(labelArr_true)
     queryLabelArr = tmp_data[2][-args.query_batch:]
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / args.query_batch
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(labelArr_true < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -1125,7 +1126,7 @@ def init_centers(X, K):
     return indsAll
 
 def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu, S_index):
+                                                                            invalidList, model, use_gpu, S_index, labelArr_true):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -1151,8 +1152,9 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
                 else:
                     embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (-1 * batchProbs[j][c])
         # 当前的index 128 个 进入queryIndex array
+        queryIndex += index
 
-
+    print(f'number of image selected using KNN voting {len(queryIndex)}')
     embedding = torch.Tensor(embedding)
     chosen = init_centers(embedding, args.query_batch)
     queryIndex = chosen
@@ -1165,6 +1167,7 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
     # Using list comprehension to remove elements in queryIndex which are also found in elements_to_remove
     queryIndex = [element for element in queryIndex if element not in elements_to_remove]
     queryIndex = np.array(queryIndex)
+    labelArr_true = np.array(labelArr_true)
     # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
 
     for i in range(len(queryIndex)):
@@ -1172,14 +1175,14 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
 
     queryLabelArr = np.array(queryLabelArr)
     labelArr = np.array(labelArr)
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / args.query_batch
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(labelArr_true < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
-def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, openmax_beta=0.5):
+def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true, openmax_beta=0.5, ):
     model.eval()
     queryIndex = []
     labelArr = []
@@ -1223,13 +1226,13 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
     known_indices = query_indices[query_labels < args.known_class]
     unknown_indices = query_indices[query_labels >= args.known_class]
 
-    precision = len(known_indices) / len(query_indices)
+    precision = len(known_indices) / args.query_batch
     recall = (len(known_indices) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
 
-def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
     queryIndex = []
     embedding_vectors = []
@@ -1297,7 +1300,7 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
 
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
 
@@ -1391,24 +1394,24 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
     )
 
     _, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
-
+    length = len(np.where(np.array(labelArr) < args.known_class)[0])
     if args.query_strategy == "BGADL":
-        return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+        return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
     if args.query_strategy == "OpenMax":
-        return openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, openmax_beta=0.5)
+        return openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr, openmax_beta=0.5)
     if args.query_strategy == "Core_set":
-        return core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+        return core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
     if args.query_strategy == "BADGE_sampling":
         return badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu, S_index)
-    if args.query_strategy == "certainty":
-        return certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu)
+                                                                            invalidList, model, use_gpu, S_index, labelArr)
+    if args.query_strategy == "uncertainty":
+        return uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
 
 
 
 
 
-def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
+def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
     queryIndex = []
     labelArr = []
@@ -1443,9 +1446,9 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
     known_indices = query_indices[query_labels < args.known_class]
     unknown_indices = query_indices[query_labels >= args.known_class]
 
-    precision = len(known_indices) / len(query_indices)
+    precision = len(known_indices) / args.query_batch
     recall = (len(known_indices) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
 
