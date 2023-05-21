@@ -84,8 +84,8 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    if args.query_strategy == 'test_query' or 'active_query' or "hybrid-BGADL" or "hybrid-OpenMax" or \
-            "hybrid-Core_set" or "hybrid-BADGE_sampling" or "hybrid-uncertainty":
+    if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+                               'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
         ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset, pre_type=args.pre_type)
 
     sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
@@ -138,8 +138,8 @@ def main():
     Recall = {}
 
     for query in tqdm(range(args.max_query)):
-        if args.query_strategy == 'test_query' or 'active_query' or "hybrid-BGADL" or "hybrid-OpenMax" or \
-                "hybrid-Core_set" or "hybrid-BADGE_sampling" or "hybrid-uncertainty":
+        if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
         # Model initialization
             if args.model == "cnn":
                 model = models.create(name=args.model, num_classes=dataset.num_classes)
@@ -206,8 +206,9 @@ def main():
 
         # Model training
         for epoch in tqdm(range(args.max_epoch)):
-            if args.query_strategy == 'test_query' or 'active_query' or "hybrid-BGADL" or "hybrid-OpenMax" or \
-                    "hybrid-Core_set" or "hybrid-BADGE_sampling" or "hybrid-uncertainty":
+            if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax',
+                                       'hybrid-Core_set',
+                                       'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
                 # Train model B for classifying known classes
                 train_B(model_B, criterion_xent, criterion_cent,
                         optimizer_model_B, optimizer_centloss,
@@ -239,8 +240,8 @@ def main():
 
                 if args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (epoch + 1) == args.max_epoch:
                     print("==> Test")
-                    acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch, args.dataset)
-                    acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch, args.dataset)
+                    acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch)
+                    acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch)
                     print("Model_A | Accuracy (%): {}\t Error rate (%): {}".format(acc_A, err_A))
                     print("Model_B | Accuracy (%): {}\t Error rate (%): {}".format(acc_B, err_B))
 
