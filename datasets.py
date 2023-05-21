@@ -424,40 +424,6 @@ class CIFAR10(object):
 
 
 
-
-
-
-def load_tiny_imagenet_train(root):
-    target = []
-    class_id_mapping = {}
-    id_to_class = {}
-
-    # Load the wnids.txt file containing class ids
-    with open(os.path.join(root, 'wnids.txt'), 'r') as f:
-        class_ids = [line.strip() for line in f.readlines()]
-
-    # Create a mapping of class ids to label numbers (0-199)
-    root = './data/tiny-imagenet-200'
-    # index_to_label = parse_val_annotations_index(root)
-    image_to_label = parse_val_annotations(root)
-    label_to_index = {label: index for index, label in enumerate(sorted(set(image_to_label.values())))}
-    # Iterate over the train folder to get the images and their labels
-    for class_id, label in label_to_index.items():
-        class_folder = os.path.join(root, 'train', class_id)
-        image_files = glob.glob(os.path.join(class_folder, 'images', '*.JPEG'))
-
-        for image_file in image_files:
-            # Open the image to check if it's a valid image
-            try:
-                img = Image.open(image_file)
-                img.verify()  # Verify if it's a valid image
-                target.append(label)
-            except Exception as e:
-                print(f"Invalid image: {image_file} - {e}")
-
-    return target
-
-
 class CustomTinyImageNetDataset_train(Dataset):
     def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
         self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
