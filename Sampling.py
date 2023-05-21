@@ -14,6 +14,7 @@ from torch.nn.functional import softmax
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.cluster import KMeans
 
+
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
     queryIndex = []
@@ -63,7 +64,7 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
     queryLabelArr = tmp_data[2][-args.query_batch:]
 
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / args.query_batch
-    
+
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(labelArr_true < args.known_class)[0]) + Len_labeled_ind_train)
 
@@ -381,11 +382,11 @@ def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model,
 
     tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
     tmp_data = tmp_data.T
-    
+
     # 取前1500个index
     queryIndex = tmp_data[2][-args.query_batch:].astype(int)
     labelArr = tmp_data[3].astype(int)
-    
+
     queryLabelArr = tmp_data[3][-args.query_batch:]
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
@@ -491,10 +492,10 @@ def My_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     labelArr = tmp_data[3].astype(int)
     queryLabelArr = tmp_data[3][-args.query_batch:]
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
-    
+
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
-    
+
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -557,7 +558,6 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
         count_unknown = 0
         index_Neighbor = index_knn[key]
 
-
         # known 的情况
         if value[0][0] < 20:
             for i in range(len(index_Neighbor[0])):
@@ -571,10 +571,9 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                         count_known += 1
                     else:
                         count_unknown += 1
-            
+
             if count_known >= 6:
                 queryIndex.append([key, value[0]])
-        
 
         # 假设20个known class 那么第21位就是unknown
         if value[0][0] == 20:
@@ -589,14 +588,12 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                         count_known += 1
                     else:
                         count_unknown += 1
-            
+
             if count_unknown >= 4:
                 queryIndex_unknown.append([key, value[0]])
-    
 
     queryIndex = sorted(queryIndex, key=lambda x: x[1][1], reverse=True)
     queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
-
 
     print("queryIndex: ", len(queryIndex))
     # 取前1500个index
@@ -640,12 +637,9 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
     return final_chosen_index, invalid_index, precision, recall
 
 
-
-
 def active_learning(index_knn, queryIndex, S_index):
-
-    print ("active learning")
-    #S_index[n_index][0][1]
+    print("active learning")
+    # S_index[n_index][0][1]
 
     for i in range(len(queryIndex)):
 
@@ -676,34 +670,27 @@ def active_learning(index_knn, queryIndex, S_index):
 
         queryIndex[i][1] = np.append(queryIndex[i][1], score)
 
-
     return queryIndex
 
 
 def knn_prediction(k_neighbors, S_index):
-
     neighbor_labels = []
 
     for k in k_neighbors:
-
         label = S_index[k][1][2]
 
         neighbor_labels.append(label)
 
-
     x = Counter(neighbor_labels)
-    #print (x)
+    # print (x)
     top_1 = x.most_common(1)[0][0]
 
     return top_1
 
 
-
-
 def active_learning_3(args, query, index_knn, queryIndex, S_index, labeled_index_to_label):
-
-    print ("active learning")
-    #S_index[n_index][0][1]
+    print("active learning")
+    # S_index[n_index][0][1]
 
     for i in range(len(queryIndex)):
 
@@ -719,28 +706,24 @@ def active_learning_3(args, query, index_knn, queryIndex, S_index, labeled_index
             knn_labels_cnt = torch.zeros(args.known_class).cuda()
 
             for idx, neighbor in enumerate(neighbors):
-
                 neighbor_labels = labeled_index_to_label[neighbor]
 
                 test_variable_1 = 1.0 - values[idx]
 
                 knn_labels_cnt[neighbor_labels] += test_variable_1
 
-
             knn_labels_prob = F.softmax(knn_labels_cnt, dim=0)
 
-            score = Categorical(probs = knn_labels_prob).entropy()
+            score = Categorical(probs=knn_labels_prob).entropy()
 
         queryIndex[i].append(score.item())
-
 
     return queryIndex
 
 
 def active_learning_2(args, index_knn, queryIndex, S_index, labeled_index_to_label):
-
-    print ("active learning")
-    #S_index[n_index][0][1]
+    print("active learning")
+    # S_index[n_index][0][1]
 
     for i in range(len(queryIndex)):
 
@@ -750,11 +733,9 @@ def active_learning_2(args, index_knn, queryIndex, S_index, labeled_index_to_lab
         neighbors = index_knn[queryIndex[i][0]][0]
 
         for neighbor in neighbors:
-
             neighbor_labels.append(labeled_index_to_label[neighbor])
 
         x = Counter(neighbor_labels)
-
 
         top = x.most_common(2)
 
@@ -772,34 +753,22 @@ def active_learning_2(args, index_knn, queryIndex, S_index, labeled_index_to_lab
 
         queryIndex[i].append(score)
 
-
     return queryIndex
 
 
-
-def calc_entropy(input_tensor):
-    lsm = nn.LogSoftmax()
-    log_probs = lsm(input_tensor)
-    probs = torch.exp(log_probs)
-    p_log_p = log_probs * probs
-    entropy = -p_log_p.mean()
-    return entropy
-
-
 def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label):
-
-    print ("active learning 5")
-    #S_index[n_index][0][1]
+    print("active learning 5")
+    # S_index[n_index][0][1]
 
     new_query_index = []
-    
+
     for i in range(len(queryIndex)):
 
         # all the indices for neighbors
         neighbors, values = index_knn[queryIndex[i][0]]
 
-        predicted_prob =  F.softmax(S_index[queryIndex[i][0]][-1], dim=-1).cuda()
-        
+        predicted_prob = F.softmax(S_index[queryIndex[i][0]][-1], dim=-1).cuda()
+
         predicted_label = S_index[queryIndex[i][0]][-3]
 
         knn_labels_cnt = torch.zeros(args.known_class).cuda()
@@ -811,31 +780,26 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
             test_variable_1 = 1.0 - values[idx]
 
             if neighbor_labels < args.known_class:
-
                 knn_labels_cnt[neighbor_labels] += 1.0
 
-
         score = F.cross_entropy(knn_labels_cnt.unsqueeze(0), predicted_prob.unsqueeze(0), reduction='mean')
-        
+
         score_np = score.cpu().item()
 
-
-        #entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
+        # entropy = Categorical(probs = predicted_prob ).entropy().cpu().item()
 
         new_query_index.append(queryIndex[i] + [score_np])
-    
 
     new_query_index = sorted(new_query_index, key=lambda x: x[-1], reverse=True)
-
 
     return new_query_index
 
 
 # unlabeledloader is int 800
-def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
-
-    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train+invalidList, unlabeled_ind_train, args, ordered_feature, ordered_label)
-
+def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList,
+                 unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
+                                                  ordered_feature, ordered_label)
 
     labelArr = []
 
@@ -844,7 +808,7 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     S_index = {}
 
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
-        
+
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
 
@@ -855,7 +819,6 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
         labelArr += list(np.array(labels.cpu().data))
 
         for i in range(len(data.data)):
-
             predict_class = predicted[i].detach()
 
             predict_value = np.array(v_ij.data.cpu())[i]
@@ -865,10 +828,8 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
             tmp_index = index[i].item()
 
             true_label = np.array(labels.data.cpu())[i]
-            
 
             S_index[tmp_index] = [true_label, predict_class, predict_value, predict_prob.detach().cpu()]
-
 
     #################################################################
 
@@ -877,17 +838,14 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     # queryIndex 存放known class的地方
     queryIndex = []
 
-
     neighbor_unknown = {}
 
     detected_unknown = 0.0
     detected_known = 0.0
 
-
     for current_index in S_index:
 
-
-        index_Neighbor, values = index_knn[current_index] 
+        index_Neighbor, values = index_knn[current_index]
 
         true_label = S_index[current_index][0]
 
@@ -897,32 +855,26 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
         for k in range(len(index_Neighbor)):
 
             n_index = index_Neighbor[k]
-            
 
             if n_index in set(labeled_ind_train):
                 count_known += 1
-        
+
             elif n_index in set(invalidList):
                 count_unknown += 1
-            
-            
+
         if count_unknown < count_known:
 
-            queryIndex.append([current_index, count_known, true_label])               
+            queryIndex.append([current_index, count_known, true_label])
 
         else:
-            detected_unknown += 1         
+            detected_unknown += 1
 
-
-
-    print ("detected_unknown: ", detected_unknown)
-    print ("\n")
-
+    print("detected_unknown: ", detected_unknown)
+    print("\n")
 
     queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
 
-
-    print (queryIndex[:20])
+    print(queryIndex[:20])
 
     final_chosen_index = []
     invalid_index = []
@@ -931,13 +883,12 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         num = item[0]
 
-
         num3 = item[-1]
 
         if num3 < args.known_class:
 
             final_chosen_index.append(int(num))
-        
+
         elif num3 >= args.known_class:
 
             invalid_index.append(int(num))
@@ -945,10 +896,10 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     #################################################################
 
     precision = len(final_chosen_index) / args.query_batch
-    
-    #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+
+    # recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
-    
+
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
 
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
@@ -956,13 +907,11 @@ def test_query_2(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     return final_chosen_index, invalid_index, precision, recall
 
 
-
-
 # unlabeledloader is int 800
-def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
-
-    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train+invalidList, unlabeled_ind_train, args, ordered_feature, ordered_label)
-
+def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use_gpu, labeled_ind_train, invalidList,
+                 unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
+                                                  ordered_feature, ordered_label)
 
     labelArr = []
 
@@ -971,7 +920,7 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     S_index = {}
 
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
-        
+
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
 
@@ -982,7 +931,6 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
         labelArr += list(np.array(labels.cpu().data))
 
         for i in range(len(data.data)):
-
             predict_class = predicted[i].detach()
 
             predict_value = np.array(v_ij.data.cpu())[i]
@@ -992,10 +940,8 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
             tmp_index = index[i].item()
 
             true_label = np.array(labels.data.cpu())[i]
-            
 
             S_index[tmp_index] = [true_label, predict_class, predict_value, predict_prob.detach().cpu()]
-
 
     #################################################################
 
@@ -1004,17 +950,14 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     # queryIndex 存放known class的地方
     queryIndex = []
 
-
     neighbor_unknown = {}
 
     detected_unknown = 0.0
     detected_known = 0.0
 
-
     for current_index in S_index:
 
-
-        index_Neighbor, values = index_knn[current_index] 
+        index_Neighbor, values = index_knn[current_index]
 
         true_label = S_index[current_index][0]
 
@@ -1024,48 +967,42 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
         for k in range(len(index_Neighbor)):
 
             n_index = index_Neighbor[k]
-            
 
             if n_index in set(labeled_ind_train):
                 count_known += 1
-        
+
             elif n_index in set(invalidList):
                 count_unknown += 1
-            
 
         if count_unknown < count_known:
 
-            queryIndex.append([current_index, count_known, true_label])               
+            queryIndex.append([current_index, count_known, true_label])
 
         else:
-            detected_unknown += 1         
+            detected_unknown += 1
 
-
-
-    print ("detected_unknown: ", detected_unknown)
-    print ("\n")
-
+    print("detected_unknown: ", detected_unknown)
+    print("\n")
 
     queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
 
     #################################################################
 
-    queryIndex = queryIndex[:2*args.query_batch]
+    queryIndex = queryIndex[:2 * args.query_batch]
 
     #################################################################
-    
-    #if args.active_5 or args.active_5_reverse:
+
+    # if args.active_5 or args.active_5_reverse:
 
     queryIndex = active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
 
+    # elif args.active_4:
 
-    #elif args.active_4:
+    # queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
 
-    #queryIndex = active_learning_4(args, query, index_knn, queryIndex, S_index, labeled_index_to_label)
-    
     #################################################################
 
-    print (queryIndex[:20])
+    print(queryIndex[:20])
 
     final_chosen_index = []
     invalid_index = []
@@ -1076,11 +1013,10 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         num3 = item[-2]
 
-
         if num3 < args.known_class:
 
             final_chosen_index.append(int(num))
-        
+
         elif num3 >= args.known_class:
 
             invalid_index.append(int(num))
@@ -1088,15 +1024,16 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
     #################################################################
 
     precision = len(final_chosen_index) / args.query_batch
-    
-    #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+
+    # recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
-    
+
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
 
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
+
 
 def init_centers(X, K):
     embs = torch.Tensor(X)
@@ -1109,17 +1046,17 @@ def init_centers(X, K):
     # print('#Samps\tTotal Distance')
     while len(mu) < K:
         if len(mu) == 1:
-            D2 = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+            D2 = torch.cdist(mu[-1].view(1, -1), embs, 2)[0].cpu().numpy()
         else:
-            newD = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+            newD = torch.cdist(mu[-1].view(1, -1), embs, 2)[0].cpu().numpy()
             for i in range(len(embs)):
-                if D2[i] >  newD[i]:
+                if D2[i] > newD[i]:
                     centInds[i] = cent
                     D2[i] = newD[i]
         print(str(len(mu)) + '\t' + str(sum(D2)), flush=True)
         if sum(D2) == 0.0: pdb.set_trace()
         D2 = D2.ravel().astype(float)
-        Ddist = (D2 ** 2)/ sum(D2 ** 2)
+        Ddist = (D2 ** 2) / sum(D2 ** 2)
         customDist = stats.rv_discrete(name='custm', values=(np.arange(len(D2)), Ddist))
         ind = customDist.rvs(size=1)[0]
         while ind in indsAll: ind = customDist.rvs(size=1)[0]
@@ -1128,8 +1065,9 @@ def init_centers(X, K):
         cent += 1
     return indsAll
 
-def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu, S_index, labelArr_true):
+
+def badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
+                   invalidList, model, use_gpu, S_index, labelArr_true):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -1214,7 +1152,8 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
 
         mean_proba_known_classes = proba_out_known_classes.mean(axis=1, keepdims=True)
 
-        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
+        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(),
+                                            mean_proba_known_classes.cpu().numpy(), openmax_beta)
         uncertainty_scores += list(uncertainty)
         # if batch_idx > 10:
         #     break
@@ -1234,6 +1173,7 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
             len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
+
 
 def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
@@ -1307,7 +1247,10 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, label
 
     return final_chosen_index, invalid_index, precision, recall
 
-def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, use_gpu, labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
+
+def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Len_labeled_ind_train,
+                                         len_unlabeled_ind_train, use_gpu, labeled_ind_train, invalidList,
+                                         unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label):
     index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
                                                   ordered_feature, ordered_label)
 
@@ -1398,22 +1341,19 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
 
     _, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
-
-    length = len(np.where(np.array(labelArr) < args.known_class)[0])
-    if args.query_strategy == "BGADL":
-        return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
-    if args.query_strategy == "OpenMax":
-        return openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr, openmax_beta=0.5)
-    if args.query_strategy == "Core_set":
+    if args.query_strategy == "hybrid-BGADL":
+        return bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu,
+                                                   labelArr)
+    if args.query_strategy == "hybrid-OpenMax":
+        return openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr,
+                                openmax_beta=0.5)
+    if args.query_strategy == "hybrid-Core_set":
         return core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
-    if args.query_strategy == "BADGE_sampling":
-        return badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu, S_index, labelArr)
-    if args.query_strategy == "uncertainty":
+    if args.query_strategy == "hybrid-BADGE_sampling":
+        return badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
+                              invalidList, model, use_gpu, S_index, labelArr)
+    if args.query_strategy == "hybrid-uncertainty":
         return uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
-
-
-
 
 
 def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
@@ -1429,7 +1369,6 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
             data = data.repeat(1, 3, 1, 1)
         with torch.no_grad():
             _, outputs = model(data)
-
 
         queryIndex += list(np.array(index.cpu().data))
         labelArr += list(np.array(labels.cpu().data))
@@ -1456,6 +1395,7 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
             len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
+
 
 def certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()

@@ -6,21 +6,23 @@
 
 import torch
 import torch.nn as nn
+import torchvision.models as models
+
 
 class BasicBlock(nn.Module):
     """Basic Block for resnet 18 and resnet 34
     """
 
-    #BasicBlock and BottleNeck block
-    #have different output size
-    #we use class attribute expansion
-    #to distinct
+    # BasicBlock and BottleNeck block
+    # have different output size
+    # we use class attribute expansion
+    # to distinct
     expansion = 1
 
     def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
 
-        #residual function
+        # residual function
         self.residual_function = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
@@ -29,11 +31,11 @@ class BasicBlock(nn.Module):
             nn.BatchNorm2d(out_channels * BasicBlock.expansion)
         )
 
-        #shortcut
+        # shortcut
         self.shortcut = nn.Sequential()
 
-        #the shortcut output dimension is not the same with residual function
-        #use 1*1 convolution to match the dimension
+        # the shortcut output dimension is not the same with residual function
+        # use 1*1 convolution to match the dimension
         if stride != 1 or in_channels != BasicBlock.expansion * out_channels:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels * BasicBlock.expansion, kernel_size=1, stride=stride, bias=False),
@@ -43,10 +45,12 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         return nn.ReLU(inplace=True)(self.residual_function(x) + self.shortcut(x))
 
+
 class BottleNeck(nn.Module):
     """Residual block for resnet over 50 layers
     """
     expansion = 4
+
     def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
         self.residual_function = nn.Sequential(
@@ -71,6 +75,7 @@ class BottleNeck(nn.Module):
     def forward(self, x):
         return nn.ReLU(inplace=True)(self.residual_function(x) + self.shortcut(x))
 
+
 class ResNet(nn.Module):
 
     def __init__(self, block, num_block, num_classes=70):
@@ -82,16 +87,16 @@ class ResNet(nn.Module):
             nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True))
-        #we use a different inputsize than the original paper
-        #so conv2_x's stride is 1
+        # we use a different inputsize than the original paper
+        # so conv2_x's stride is 1
         self.conv2_x = self._make_layer(block, 64, num_block[0], 1)
         self.conv3_x = self._make_layer(block, 128, num_block[1], 2)
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2)
         self.conv5_x = self._make_layer(block, 512, num_block[3], 2)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        
-        #self.fc1 = nn.Linear(512 * block.expansion, 2)
-        #self.fc2 = nn.Linear(2, num_classes)
+
+        # self.fc1 = nn.Linear(512 * block.expansion, 2)
+        # self.fc2 = nn.Linear(2, num_classes)
 
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -127,36 +132,62 @@ class ResNet(nn.Module):
 
         output = self.avg_pool(output)
         features_for_TSNE = torch.flatten(output, 1)
-       
+
         feature = output.view(output.size(0), -1)
-        
-        #feature = self.fc1(output)
-        
+
         output = self.fc(feature)
 
         return feature, output
+
+
+class VGG16(nn.Module):
+    def __init__(self, num_classes=1000):
+        super(VGG16, self).__init__()
+        self.features = models.vgg16(pretrained=False).features
+        self.avgpool = models.vgg16(pretrained=False).avgpool
+        self.classifier = models.vgg16(pretrained=False).classifier[:-1]  # remove the last layer
+        self.final = nn.Linear(4096, num_classes)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avgpool(x)
+        features = torch.flatten(x, 1)  # this will be the 512 features
+        x = self.classifier(features)
+        outputs = self.final(x)  # this will be the activation value
+        return features, outputs
+
 
 def resnet18(num_classes):
     """ return a ResNet 18 object
     """
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes)
 
+
 def resnet34(num_classes):
     """ return a ResNet 34 object
     """
     return ResNet(BasicBlock, [3, 4, 6, 3], num_classes)
+
 
 def resnet50(num_classes):
     """ return a ResNet 50 object
     """
     return ResNet(BottleNeck, [3, 4, 6, 3], num_classes)
 
+
 def resnet101(num_classes):
     """ return a ResNet 101 object
     """
     return ResNet(BottleNeck, [3, 4, 23, 3], num_classes)
 
+
 def resnet152(num_classes):
     """ return a ResNet 152 object
     """
     return ResNet(BottleNeck, [3, 8, 36, 3], num_classes)
+
+
+def vgg16(num_classes):
+    """ return a VGG 16 object
+    """
+    return VGG16(num_classes=num_classes)
