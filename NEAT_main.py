@@ -329,7 +329,7 @@ def main():
                                                                                               index_to_label)
 
 
-        elif args.query_strategy == "hybrid-BGADL" or "hybrid-OpenMax" or "hybrid-Core_set" or "hybrid-BADGE_sampling" or "hybrid-uncertainty":
+        elif args.query_strategy in ["hybrid-BGADL", "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"]:
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.passive_and_implement_other_baseline(
                 args, model_B, query,
                 unlabeledloader,
@@ -350,8 +350,8 @@ def main():
             args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
             Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
             len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
-        if args.query_strategy == 'test_query' or 'active_query' or "hybrid-BGADL" or "hybrid-OpenMax" or \
-                "hybrid-Core_set" or "hybrid-BADGE_sampling" or "hybrid-uncertainty":
+        if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
             B_dataset = datasets.create(
                 name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
                 batch_size=args.batch_size, use_gpu=use_gpu,
