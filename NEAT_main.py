@@ -45,7 +45,7 @@ parser.add_argument('--query-strategy', type=str, default='AV_based2',
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
-parser.add_argument('--model', type=str, default='resnet18')
+parser.add_argument('--model', type=str, default='resnet18', choices=['resnet18', 'resnet34', 'resnet50', 'vgg16'])
 # misc
 parser.add_argument('--eval-freq', type=int, default=100)
 parser.add_argument('--print-freq', type=int, default=50)

@@ -1,39 +1,26 @@
-﻿# Active Learning for Open-set Annotation
-
-The parameters I used for experiment: 
-
-CUDA_VISIBLE_DEVICES=2,3 nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 > ./log_AL/cifar100.txt &
-
-
-CUDA_VISIBLE_DEVICES=2,3  python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy test_query --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 --active
-
-
-
-
-CUDA_VISIBLE_DEVICES=2,3 python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy My_Query_Strategy --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100 
-
-
-wormhole send 
+﻿# Inconsistency-Based Data-Centric Active Open-Set Annotation
+An implementation of NEAT batch active learning algorithm for Open-Set Annotation.
+Details are provided in our paper[***]
 
 
 
 ## 1. Requirements
 ### Environments
-Currently, requires following packages.
+Currently, requires following packages. (We are using CUDA == 11.6, 
+python == 3.9,
+pytorch == 1.13.0, torchvision == 0.14.0, scikit-learn == 1.2.2, matplotlib == 3.7.1, numpy == 1.23.5)
 
 - CUDA 10.1+
-- python == 3.7.9
-- pytorch == 1.7.1
-- torchvision == 0.8.2
-- scikit-learn == 0.24.0
-- tensorboardx == 2.1
-- matplotlib  == 3.3.3
-- numpy == 1.19.2
-- scipy == 1.5.3
+- python 3.7.9+
+- pytorch 1.7.1+
+- torchvision 0.8.2+
+- scikit-learn 0.24.0+
+- matplotlib 3.3.3+
+- numpy 1.19.2+
 
 
 ### Datasets 
-For CIFAR10 and CIFAR100, we provide a function to automatically download and preprocess the data, you can also download the datasets from the link, and please download it to `~/data`.
+For CIFAR10 and CIFAR100, we provide a function to automatically download and preprocess the data, you can also download the datasets from the link, and please download it to `~/data` folder.
 * [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz)
 * [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz)
 * [TinyImagenet](http://cs231n.stanford.edu/tiny-imagenet-200.zip)
@@ -41,11 +28,11 @@ For CIFAR10 and CIFAR100, we provide a function to automatically download and pr
 ## 2. Get started
 Zip this repo and run the code
 ```bash
-$ cd LfOSA
+$ cd NEAT
 ```
 
-## 3. Training baselines
-run the code
+## 3. Training all the active learning strategies mentioned in our paper
+run the following command in the terminal 
 ```bash
 $ python AL_center.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy uncertainty --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --dataset cifar100
 ```
