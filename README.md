@@ -28,7 +28,7 @@ For CIFAR10 and CIFAR100, we provide a function to automatically download and pr
 ## 2. Get started
 Zip this repo and run the code
 ```bash
-$ cd NEAT
+$ cd resnet_CLIP
 ```
 
 ## 3. Training all the active learning strategies mentioned in our paper

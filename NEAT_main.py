@@ -154,6 +154,10 @@ def main():
                 # model_A = resnet50(num_classes=dataset.num_classes + 1)
                 model_B = resnet50(num_classes=dataset.num_classes)
 
+            elif args.model == 'vgg16':
+                # model_A = vgg16(num_classes=dataset.num_classes + 1)
+                model_B = vgg16(num_classes=dataset.num_classes)
+
             if use_gpu:
                 # model_A = nn.DataParallel(model_A).cuda()
                 model_B = nn.DataParallel(model_B).cuda()
