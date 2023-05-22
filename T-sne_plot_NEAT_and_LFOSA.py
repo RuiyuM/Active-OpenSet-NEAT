@@ -109,7 +109,7 @@ for perplexity in perplexities:
 
                     ax.scatter(baseline_index[:, 0], baseline_index[:, 1], s=75, c='b', alpha=0.9, label='LfOSA',
                                edgecolor='white')
-                    ax.scatter(active_index[:, 0], active_index[:, 1], s=70, c='r', alpha=0.9, label='NEAT',
+                    ax.scatter(active_index[:, 0], active_index[:, 1], s=70, c='r', alpha=0.9, label='resnet_CLIP',
                                edgecolor='white')
 
                     # create custom legend handles
@@ -119,7 +119,7 @@ for perplexity in perplexities:
                                               markerfacecolor=colors[5], markersize=15, markeredgecolor='white'),
                                        Line2D([0], [0], marker='o', color='w', label='Unknown Class',
                                               markerfacecolor='gray', markersize=15, markeredgecolor='white'),
-                                       Line2D([0], [0], marker='o', color='w', label='NEAT',
+                                       Line2D([0], [0], marker='o', color='w', label='resnet_CLIP',
                                               markerfacecolor='r', markersize=15, markeredgecolor='white'),
                                        Line2D([0], [0], marker='o', color='w', label='LfOSA',
                                               markerfacecolor='b', markersize=15, markeredgecolor='white')]

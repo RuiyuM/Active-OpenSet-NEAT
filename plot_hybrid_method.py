@@ -284,16 +284,16 @@ from matplotlib import patches
 
 # def plot_legend(sampling_methods):
 #     # Replace the labels
-#     sampling_methods = ['NEAT' if method == 'active_query' else method for method in sampling_methods]
+#     sampling_methods = ['resnet_CLIP' if method == 'active_query' else method for method in sampling_methods]
 #     sampling_methods = ['CORESET' if method == 'Core_set' else method for method in sampling_methods]
 #     sampling_methods = ['UNCERTAINTY' if method == 'uncertainty' else method for method in sampling_methods]
 #
 #     # method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
 #     method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
-#     method_colors['NEAT'] = method_colors['active_query'] if 'active_query' in method_colors else method_colors['NEAT']
+#     method_colors['resnet_CLIP'] = method_colors['active_query'] if 'active_query' in method_colors else method_colors['resnet_CLIP']
 #
 #     # Reorder legend elements
-#     desired_order = ['NEAT']
+#     desired_order = ['resnet_CLIP']
 #     other_methods = [method for method in sampling_methods if method not in desired_order]
 #     ordered_sampling_methods = desired_order + other_methods
 #
