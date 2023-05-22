@@ -1,4 +1,4 @@
-Currently using GPU: 0
+Currently using GPU: 1
 Creating dataset: cifar10
 Files already downloaded and verified
 openset here!

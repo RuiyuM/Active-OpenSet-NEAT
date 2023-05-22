@@ -1,10 +1,32 @@
-Currently using GPU: 1
+Currently using GPU: 3
 Creating dataset: cifar10
 Files already downloaded and verified
 openset here!
 Files already downloaded and verified
-Creating model: vgg16
+Creating model: resnet34
 ==> Test
-Model_A | Accuracy (%): 76.1500015258789	 Error rate (%): 23.849998474121094
-Model_B | Accuracy (%): 75.25	 Error rate (%): 24.75
-(%): 26.099998474121094
+Model_A | Accuracy (%): 81.80000305175781	 Error rate (%): 18.199996948242188
+Model_B | Accuracy (%): 78.80000305175781	 Error rate (%): 21.199996948242188QQuery round: 0 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 82 | Query Precision: 0.205 | Query Recall: 0.0182 | Training Nums: 182 | Unalebled Nums: 49818
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified===> Test
+Model_A | Accuracy (%): 59.900001525878906	 Error rate (%): 40.099998474121094
+Model_B | Accuracy (%): 84.70000457763672	 Error rate (%): 15.2999954223632QueQuery round: 1 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 145 | Query Precision: 0.3625 | Query Recall: 0.0327 | Training Nums: 327 | Unalebled Nums: 49673
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verif======> Test
+Model_A | Accuracy (%): 0.0	 Error rate (%): 100.0
+Model_B | Accuracy (%): 86.30000305175781	 Error rate (%): 13.69999694824218QuQuery round: 2 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 41 | Query Precision: 0.1025 | Query Recall: 0.0368 | Training Nums: 368 | Unalebled Nums: 49632
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+loaded and verified

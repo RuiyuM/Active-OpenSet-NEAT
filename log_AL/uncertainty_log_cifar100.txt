@@ -4,7 +4,31 @@ Files already downloaded and verified
 Shuffle
 openset here!
 Files already downloaded and verified
-Creating model: vgg16
+Creating model: resnet34
 ==> Test
-Model_A | Accuracy (%): 28.60000228881836	 Error rate (%): 71.39999389648438
-Model_B | Accuracy (%): 24.400001525878906	 Error rate (%): 75.5999984741211
+Model_A | Accuracy (%): 33.650001525878906	 Error rate (%): 66.3499984741211
+Model_B | Accuracy (%): 37.400001525878906	 Error rQuery round: 0 | Query StratQuery round: 0 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 56 | Query Precision: 0.14 | Query Recall: 0.0856 | Training Nums: 856 | Unalebled Nums: 49144
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Fi==> Test
+==> Test
+Model_A | Accuracy (%): 30.Model_A | Accuracy (%): 30.60000228881836	 Error rate (%): 69.39999389648438
+Model_B | Accuracy (%): 37.400001525878906	 Error Query round: 1 | Query StrateQuery round: 1 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 73 | Query Precision: 0.1825 | Query Recall: 0.0929 | Training Nums: 929 | Unalebled Nums: 49071
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+==> Test
+Model_A | Accuracy (%): 26.900001525878906	 Error rate (%): 73.0999984741211
+Model_B | Accuracy (%): 37.20000076293945	 Error rate (%): 62.79999923706055
+Query round: 2 | Query Strategy: uncertainty | Query Batch: 400 | Valid Query Nums: 92 | Query Precision: 0.23 | Query Recall: 0.1025 | Training Nums: 1025 | Unalebled Nums: 48975
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified

@@ -1,31 +1,7 @@
-Currently using GPU: 0
+Currently using GPU: 2
 Creating dataset: cifar100
 Files already downloaded and verified
 Shuffle
 openset here!
 Files already downloaded and verified
-Creating model: resnet18
-==> Test
-Model_B | Accuracy (%): 39.70000076293945	 Error rate (%): 60.29999923706055
-detected_unknown:  0.0
-
-
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Query round: 0 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 73 | Query Precision: 0.1825 | Query Recall: 0.0873 | Training Nums: 873 | Unalebled Nums: 49127
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-==> Test
-Model_B | Accuracy (%): 39.80000305175781	 Error rate (%): 60.19999694824219
-detected_unknown:  17641.0
-
-
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Query round: 1 | Query Strategy: BGADL | Query Batch: 400 | Valid Query Nums: 310 | Query Precision: 0.775 | Query Recall: 0.1183 | Training Nums: 1183 | Unalebled Nums: 48817
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
+Creating model: vgg16
