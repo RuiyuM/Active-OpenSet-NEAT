@@ -5,7 +5,7 @@
 methods=("BGADL" "Core_set" "uncertainty")
 #methods=("BADGE_sampling")
 
-for method in ${methods[@]}; 
+for method in ${methods[@]};
 do
 	for j in 400
 	do

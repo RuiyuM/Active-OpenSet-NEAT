@@ -1,0 +1,11 @@
+Currently using GPU: 0
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: vgg16
+==> Test
+Model_A | Accuracy (%): 22.05000114440918	 Error rate (%): 77.94999694824219
+Model_B | Accuracy (%): 19.75	 Error rate (%): 80.25
+Query round: 0 | Query Strategy: certainty | Query Batch: 400 | Valid Query Nums: 83 | Query Precision: 0.2075 | Query Recall: 0.08415 | Training Nums: 1683 | Unalebled Nums: 98317
+openset here!
+openset here!
+penset here!

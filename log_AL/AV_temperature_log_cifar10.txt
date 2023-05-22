@@ -1,0 +1,36 @@
+Currently using GPU: 0
+Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet50
+==> Test
+Model_A | Accuracy (%): 71.55000305175781	 Error rate (%): 28.449996948242188
+Model_B | Accuracy (%): 72.55000305175781	 Error rate (%): 27.449996948242188QQuery round: 0 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 116 | Query Precision: 0.29 | Query Recall: 0.0216 | Training Nums: 216 | Unalebled Nums: 49784
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+===> Test
+Model_A | Accuracy (%): 70.80000305175781	 Error rate (%): 29.199996948242188
+Model_B | Accuracy (%): 76.95000457763672	 Error rate (%): 23.04999542236328
+Query round: 1 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 175 | Query Precision: 0.4375 | Query Recall: 0.0352 | Training Nums: 352 | Unalebled Nums: 49648
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files alread==> Test
+Model_A | Accu==> Test
+Model_A | Accuracy (%): 40.70000076293945	 Error rate (%): 59.29999923706055
+Model_B | Accuracy (%): 79.55000305175781	 Error rate (%): 20.449996948242188
+Query round: 2 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 181 | Query Precision: 0.4525 | Query Recall: 0.0637 | Training Nums: 637 | Unalebled Nums: 49363
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+d

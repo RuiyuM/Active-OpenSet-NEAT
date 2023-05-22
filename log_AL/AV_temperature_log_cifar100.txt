@@ -1,0 +1,27 @@
+Currently using GPU: 1
+Creating dataset: cifar100
+Files already downloaded and verified
+Shuffle
+openset here!
+Files already downloaded and verified
+Creating model: resnet50
+==> Test
+Model_A | Accuracy (%): 18.0	 Error rate (%): 82.0
+Model_B | Accuracy (%): 34.75	 Error rate (%): 65.25
+Query round: 0 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 55 | Query Precision: 0.1375 | Query Recall: 0.0855 | Training Nums: 855 | Unalebled Nums: 49145
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 34.400001525878906	 Error Model_A | Accuracy (%): 26.650001525878906	 Error rate (%): 73.3499984741211
+ModQuery round: 1 | Query Strategy: AV_temperature | Query Batch: 400 | ValidQuery round: 1 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 88 | Query Precision: 0.22 | Query Recall: 0.0963 | Training Nums: 963 | Unalebled Nums: 49037
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+rified
