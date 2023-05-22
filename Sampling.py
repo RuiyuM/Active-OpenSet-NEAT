@@ -600,8 +600,8 @@ def init_centers(X, K):
         cent += 1
     return indsAll
 
-def badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
-                   invalidList, model, use_gpu, S_index):
+def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
+                                                                            invalidList, model, use_gpu):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -627,9 +627,26 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_i
                 else:
                     embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (-1 * batchProbs[j][c])
         # 当前的index 128 个 进入queryIndex array
+        data_image += data
         queryIndex += index
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i].item()
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
 
-    print(f'number of image selected using KNN voting {len(queryIndex)}')
+            if tmp_index not in S_ij:
+                S_ij[tmp_index] = []
+            S_ij[tmp_index].append([tmp_class, tmp_value, tmp_label])
+
     embedding = torch.Tensor(embedding)
     chosen = init_centers(embedding, args.query_batch)
     queryIndex = chosen
@@ -642,17 +659,16 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_i
     # Using list comprehension to remove elements in queryIndex which are also found in elements_to_remove
     queryIndex = [element for element in queryIndex if element not in elements_to_remove]
     queryIndex = np.array(queryIndex)
-    labelArr_true = np.array(labelArr_true)
     # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
 
     for i in range(len(queryIndex)):
-        queryLabelArr.append(S_index[queryIndex[i]][0])
+        queryLabelArr.append(S_ij[queryIndex[i]][0][2])
 
     queryLabelArr = np.array(queryLabelArr)
     labelArr = np.array(labelArr)
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / args.query_batch
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr_true < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -742,8 +758,7 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
 
         mean_proba_known_classes = proba_out_known_classes.mean(axis=1, keepdims=True)
 
-        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(),
-                                            mean_proba_known_classes.cpu().numpy(), openmax_beta)
+        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
         uncertainty_scores += list(uncertainty)
         # if batch_idx > 10:
         #     break
@@ -758,9 +773,9 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
     known_indices = query_indices[query_labels < args.known_class]
     unknown_indices = query_indices[query_labels >= args.known_class]
 
-    precision = len(known_indices) / args.query_batch
+    precision = len(known_indices) / len(query_indices)
     recall = (len(known_indices) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
 
@@ -884,7 +899,7 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
 
     recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
 
@@ -1083,6 +1098,7 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
         with torch.no_grad():
             _, outputs = model(data)
 
+
         queryIndex += list(np.array(index.cpu().data))
         labelArr += list(np.array(labels.cpu().data))
 
@@ -1103,11 +1119,12 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
     known_indices = query_indices[query_labels < args.known_class]
     unknown_indices = query_indices[query_labels >= args.known_class]
 
-    precision = len(known_indices) / args.query_batch
+    precision = len(known_indices) / len(query_indices)
     recall = (len(known_indices) + Len_labeled_ind_train) / (
-            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return known_indices, unknown_indices, precision, recall
+
 
 def bayesian_generative_active_learning_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
