@@ -59,7 +59,7 @@ $ python AL_center.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strateg
 ## 4. Training our LfOSA approach
 run the code
 ```bash
-$ python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
+$ python NEAT_main.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
 ```
 * **Option** 
 * --datatset: cifar10, cifar100 and TinyImagenet.
