@@ -24,7 +24,7 @@ from center_loss import CenterLoss
 
 from extract_features import CIFAR100_LOAD_ALL
 
-parser = argparse.ArgumentParser("Center Loss Example")
+parser = argparse.ArgumentParser("NEAT")
 # dataset
 parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['Tiny-Imagenet', 'cifar100', 'cifar10'])
 parser.add_argument('-j', '--workers', default=4, type=int,
@@ -33,13 +33,12 @@ parser.add_argument('-j', '--workers', default=4, type=int,
 parser.add_argument('--batch-size', type=int, default=128)
 parser.add_argument('--lr-model', type=float, default=0.01, help="learning rate for model")
 parser.add_argument('--lr-cent', type=float, default=0.5, help="learning rate for center loss")
-parser.add_argument('--weight-cent', type=float, default=1, help="weight for center loss")
 parser.add_argument('--max-epoch', type=int, default=100)
 parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=400)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
-                    choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'test_query_2', 'active_query',
+                    choices=['random', 'uncertainty',
+                             'AV_temperature', 'NEAT_passive', 'NEAT',
                              "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty", "hybrid-BGADL",
                              "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"])
 parser.add_argument('--stepsize', type=int, default=20)
@@ -57,9 +56,6 @@ parser.add_argument('--save-dir', type=str, default='log')
 parser.add_argument('--is-filter', type=bool, default=True)
 parser.add_argument('--is-mini', type=bool, default=True)
 parser.add_argument('--known-class', type=int, default=20)
-parser.add_argument('--known-T', type=float, default=0.5)
-parser.add_argument('--unknown-T', type=float, default=2)
-parser.add_argument('--modelB-T', type=float, default=1)
 parser.add_argument('--init-percent', type=int, default=16)
 
 # active learning
@@ -84,7 +80,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+    if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
                                'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
         ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset, pre_type=args.pre_type)
 
@@ -138,7 +134,7 @@ def main():
     Recall = {}
 
     for query in tqdm(range(args.max_query)):
-        if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+        if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
                                    'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
         # Model initialization
             if args.model == "cnn":
@@ -210,7 +206,7 @@ def main():
 
         # Model training
         for epoch in tqdm(range(args.max_epoch)):
-            if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax',
+            if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax',
                                        'hybrid-Core_set',
                                        'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
                 # Train model B for classifying known classes
@@ -305,7 +301,7 @@ def main():
 
                                                                                     model_A, use_gpu)
 
-        elif args.query_strategy == "test_query":
+        elif args.query_strategy == "NEAT_passive":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query_2(args, model_B, query,
                                                                                               unlabeledloader,
                                                                                               len(labeled_ind_train),
@@ -318,7 +314,7 @@ def main():
                                                                                               index_to_label)
 
 
-        elif args.query_strategy == "active_query":
+        elif args.query_strategy == "NEAT":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.active_query(args, model_B, query,
                                                                                               unlabeledloader,
                                                                                               len(labeled_ind_train),
@@ -353,7 +349,7 @@ def main():
             args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
             Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
             len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
-        if args.query_strategy in ['test_query', 'active_query', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
+        if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
                                    'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
             B_dataset = datasets.create(
                 name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
@@ -438,18 +434,11 @@ def train_A(model, criterion_xent, criterion_cent,
             trainloader, invalidList, use_gpu, num_classes, epoch):
     model.train()
     xent_losses = AverageMeter()
-    cent_losses = AverageMeter()
     losses = AverageMeter()
 
 
-    known_T = args.known_T
-    unknown_T = args.unknown_T
     invalid_class = args.known_class
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
-
-        # Reduce temperature
-        T = torch.tensor([known_T] * labels.shape[0], dtype=float)
-
         '''
         for i in range(len(labels)):
             # Annotate "unknown"
@@ -459,24 +448,23 @@ def train_A(model, criterion_xent, criterion_cent,
         '''
 
         if use_gpu:
-            data, labels, T = data.cuda(), labels.cuda(), T.cuda()
+            data, labels = data.cuda(), labels.cuda()
 
         features, outputs = model(data)
-        outputs = outputs / T.unsqueeze(1)
         loss_xent = criterion_xent(outputs, labels)
         # loss_cent = criterion_cent(features, labels)
         loss_cent = 0.0
-        loss_cent *= args.weight_cent
+        # loss_cent *= args.weight_cent
         loss = loss_xent + loss_cent
         optimizer_model.zero_grad()
         optimizer_centloss.zero_grad()
         loss.backward()
         optimizer_model.step()
         # by doing so, weight_cent would not impact on the learning of centers
-        if args.weight_cent > 0.0:
-            for param in criterion_cent.parameters():
-                param.grad.data *= (1. / args.weight_cent)
-            optimizer_centloss.step()
+        # if args.weight_cent > 0.0:
+        #     for param in criterion_cent.parameters():
+        #         param.grad.data *= (1. / args.weight_cent)
+        #     optimizer_centloss.step()
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))
@@ -490,7 +478,6 @@ def train_B(model, criterion_xent, criterion_cent,
             trainloader, use_gpu, num_classes, epoch):
     model.train()
     xent_losses = AverageMeter()
-    cent_losses = AverageMeter()
     losses = AverageMeter()
 
 
@@ -502,17 +489,17 @@ def train_B(model, criterion_xent, criterion_cent,
         # loss_cent = criterion_cent(features, labels)
         loss_cent = 0.0
 
-        loss_cent *= args.weight_cent
+        # loss_cent *= args.weight_cent
         loss = loss_xent + loss_cent
         optimizer_model.zero_grad()
         optimizer_centloss.zero_grad()
         loss.backward()
         optimizer_model.step()
         # by doing so, weight_cent would not impact on the learning of centers
-        if args.weight_cent > 0.0:
-            for param in criterion_cent.parameters():
-                param.grad.data *= (1. / args.weight_cent)
-            optimizer_centloss.step()
+        # if args.weight_cent > 0.0:
+        #     for param in criterion_cent.parameters():
+        #         param.grad.data *= (1. / args.weight_cent)
+        #     optimizer_centloss.step()
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))

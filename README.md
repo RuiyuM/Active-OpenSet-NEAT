@@ -38,33 +38,39 @@ $ wget http://cs231n.stanford.edu/tiny-imagenet-200.zip
 $ unzip tiny-imagenet-200.zip
 ```
 After you have all the dataset available you also need to run the extract_features.py to extract features using
-CLIP for the dataset you want to use to train.
+CLIP for all dataset if you want to specify certain dataset please change the script.
 ```bash
 $ mkdir features
-$ python extract_features.py --dataset cifar10
+$ python extract_features.py
 ```
 
 ## 3. Training all the active learning strategies mentioned in our paper
 * run the following command in the terminal(example).
 * You have the freedom to adjust the arguments according to your interest in modifying the command, depending on the "Option" provided below.
 ```bash
-$ python NEAT_main.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy NEAT --init-percent 8 --known-class 20 --query-batch 400 --seed 1 --model resnet18 --dataset cifar100
+$ python NEAT_main.py --gpu 1 --k 10 --save-dir log_AL/ --query-strategy NEAT --init-percent 1 --known-class 2 --query-batch 400 --seed 2 --model resnet18 --dataset cifar10
 ```
 * **Option** 
-* --datatset: cifar10, cifar100 and Tiny-Imagenet.
-* In our experiment, we set --init-percent 8 in CIFAR100, TinyImagenet and --init-percent 1 in CIFAR10. 
-* We set --query-batch 400 and --model resnet18.
-* We set --known-class = 2, 20, 40 for CIFAR10, CIFAR100, and TinyImagenet respectively. And we set --seed = 1, 2, 3.
-
+* --datatset: cifar10, cifar100, and Tiny-Imagenet.
+* --known-class: 2, 20, and 40 for cifar10, cifar100, Tiny-Imagenet respectively in our experiments.
+* --init-percent: 1, 8, 8 for cifar10, cifar100, Tiny-Imagenet respectively in our experiments.
+* --query-batch 400 in our experiments
+* --model: 'resnet18', 'resnet34', 'resnet50', and 'vgg16'
+* --query-strategy: 'random', 'uncertainty',
+                             'AV_temperature', 'NEAT_passive', 'NEAT',
+                             "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty", "hybrid-BGADL",
+                             "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"
+* --workers: default 4 in our setup if you only have one gpu please set to 0.
+* --max-epoch: 100 in our experiments.
+* --max-query: 10 in our experiments.
+* --k: 10 number of neighbors you can change this number based on your research requirements.
+* --pre-type: default is clip, and you can introduce your pre-trained model base on your interest.
 
 
 ## 4. Evaluation
 To evaluate the performance of NEAT, we provide a set of plotting python scripts.
 * **Option** 
-* --datatset: cifar10, cifar100 and Tiny-Imagenet.
-* In our experiment, we set --init-percent 8 in CIFAR100, TinyImagenet and --init-percent 1 in CIFAR10. 
-* We set --query-batch 400 and --model resnet18.
-* We set --known-class = 2, 20, 40 for CIFAR10, CIFAR100, and TinyImagenet respectively. And we set --seed = 1, 2, 3.
+* 
 
 ```bash
 $ python plot.py
