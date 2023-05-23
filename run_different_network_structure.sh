@@ -1,8 +1,8 @@
 #! /bin/bash
 
 #methods=("active_query" "test_query")
-
-methods=('test_query' 'uncertainty' "AV_temperature" "active_query" "Core_set" 'certainty' 'OpenMax' 'BGADL' 'random')
+#methods=('test_query' 'uncertainty' "AV_temperature" "active_query" "Core_set" 'certainty' 'OpenMax' 'BGADL' 'random')
+methods=('test_query' 'uncertainty' "AV_temperature" "active_query" "Core_set")
 structures=('resnet34' 'resnet50' 'vgg16')
 
 # shellcheck disable=SC2068
