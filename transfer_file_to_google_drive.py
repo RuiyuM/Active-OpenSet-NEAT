@@ -1,10 +1,12 @@
-import shutil
+import os
 
-# source folder (replace 'source_folder' with the name of your folder)
-source = '/content/resnet_CLIP/log_AL'
+directory = "/content/drive/MyDrive/colab_dataset_NEAT/log_AL"
 
-# destination folder
-destination = '/content/drive/MyDrive/colab_dataset_NEAT'
+# Ensure the directory exists
+if not os.path.exists(directory):
+    os.makedirs(directory)
+    print(f'Directory {directory} created.')
+else:
+    print(f'Directory {directory} already exists.')
 
-# move the folder using shutil.move
-shutil.move(source, destination)
+
