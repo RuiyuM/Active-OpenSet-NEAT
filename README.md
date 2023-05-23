@@ -26,76 +26,46 @@ For CIFAR10 and CIFAR100, we provide a function to automatically download and pr
 * [TinyImagenet](http://cs231n.stanford.edu/tiny-imagenet-200.zip)
 
 ## 2. Get started
-Zip this repo and run the code
 ```bash
 $ cd resnet_CLIP
 ```
+Although We have provided scripts to automatically download CIFAR10 and CIFAR100 dataset but for Tiny-Imagenet
+you are supposed to download yourself utilizing the following command or using the link to download manually.
+```bash
+$ mkdir data
+$ cd data
+$ wget http://cs231n.stanford.edu/tiny-imagenet-200.zip
+$ unzip tiny-imagenet-200.zip
+```
+After you have all the dataset available you also need to run the extract_features.py to extract features using
+CLIP for the dataset you want to use to train.
+```bash
+$ mkdir features
+$ python extract_features.py --dataset cifar10
+```
 
 ## 3. Training all the active learning strategies mentioned in our paper
-run the following command in the terminal 
+* run the following command in the terminal(example).
+* You have the freedom to adjust the arguments according to your interest in modifying the command, depending on the "Option" provided below.
 ```bash
-$ python AL_center.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy uncertainty --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --dataset cifar100
+$ python NEAT_main.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy NEAT --init-percent 8 --known-class 20 --query-batch 400 --seed 1 --model resnet18 --dataset cifar100
 ```
 * **Option** 
-* --datatset: cifar10, cifar100 and TinyImagenet.
+* --datatset: cifar10, cifar100 and Tiny-Imagenet.
 * In our experiment, we set --init-percent 8 in CIFAR100, TinyImagenet and --init-percent 1 in CIFAR10. 
-* We set --query-batch 1500 and --model resnet18 in all our experiments.
-* We set --known-class = 20, 30, 40, 50. And we set --seed = 1, 2, 3, 4.
-* The --query-strategy can be selected from random, uncertainty, AV_based, KMeans, BALD.
+* We set --query-batch 400 and --model resnet18.
+* We set --known-class = 2, 20, 40 for CIFAR10, CIFAR100, and TinyImagenet respectively. And we set --seed = 1, 2, 3.
 
-## 4. Training our LfOSA approach
-run the code
-```bash
-$ python NEAT_main.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 8 --known-class 20 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar100
-```
+
+
+## 4. Evaluation
+To evaluate the performance of NEAT, we provide a set of plotting python scripts.
 * **Option** 
-* --datatset: cifar10, cifar100 and TinyImagenet.
+* --datatset: cifar10, cifar100 and Tiny-Imagenet.
 * In our experiment, we set --init-percent 8 in CIFAR100, TinyImagenet and --init-percent 1 in CIFAR10. 
-* We set --query-batch 1500 and --model resnet18 in all our experiments.
-* We set --known-class = 20, 30, 40, 50. And we set --seed = 1, 2, 3, 4.
-
-
-## 5. Evaluation
-To evaluate the proformance of LfOSA, we provide a script to plot experimental results as shown in `plot.py`, run this command:
+* We set --query-batch 400 and --model resnet18.
+* We set --known-class = 2, 20, 40 for CIFAR10, CIFAR100, and TinyImagenet respectively. And we set --seed = 1, 2, 3.
 
 ```bash
 $ python plot.py
 ```
-
-## 6. Results of CIFAR10 (first row) and CIFAR100 (second row)
-After running process 3, 4, 5, we can obatain the following results.
-### **Selection Recall**
-<div align="center">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known2_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init6_known3_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known4_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known5_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known20_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known30_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known40_recall.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known50_recall.png" alt="train" width="24%">
-</div>
-
-### **Selection Precision**
-<div align="center">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known2_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init6_known3_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known4_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known5_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known20_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known30_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known40_precision.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known50_precision.png" alt="train" width="24%">
-</div>
-
-### **Classification Accuracy**
-<div align="center">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known2_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init6_known3_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known4_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar10_resnet18_init1_known5_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known20_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known30_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known40_accuracy.png" alt="train" width="24%">
-  <img src="gifs/cifar/cifar100_resnet18_init8_known50_accuracy.png" alt="train" width="24%">
-</div>

@@ -4,13 +4,3 @@ Files already downloaded and verified
 openset here!
 Files already downloaded and verified
 Creating model: vgg16
-==> Test
-Model_A | Accuracy (%): 78.1500015258789	 Error rate (%): 21.849998474121094
-Model_B | Accuracy (%): 73.75	 Error rate (%): 26.25
-Query round: 0 | Query Strategy: OpenMax | Query Batch: 400 | Valid Query Nums: 30 | Query Precision: 0.075 | Query Recall: 0.013 | Training Nums: 130 | Unalebled Nums: 49870
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified

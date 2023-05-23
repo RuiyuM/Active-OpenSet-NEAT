@@ -4,3 +4,98 @@ Files already downloaded and verified
 openset here!
 Files already downloaded and verified
 Creating model: vgg16
+==> Test
+Model_A | Accuracy (%): 67.80000305175781	 Error rate (%): 32.19999694824219
+Model_B | Accuracy (%): 79.45000457763672	 Error rate (%): 20.54999542236328
+Query round: 0 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 95 | Query Precision: 0.2375 | Query Recall: 0.0195 | Training Nums: 195 | Unalebled Nums: 49805
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 72.55000305175781	 Error rate (%): 27.449996948242188
+Model_B | Accuracy (%): 81.30000305175781	 Error rate (%): 18.699996948242188QQuery round: 1 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 258 | Query Precision: 0.645 | Query Recall: 0.0453 | Training Nums: 453 | Unalebled Nums: 49547
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verif==> Test
+Model_A | Accuracy (%): 42.55000305175781	 Error rate (%): 57.44999694824219
+Model_B | Accuracy (%): 86.70000457763672	 Error rate (%): 13.299995422363281
+Query round: 2 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 327 | Query Precision: 0.8175 | Query Recall: 0.0977 | Training Nums: 977 | Unalebled Nums: 49023
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 75.60000610351562	 Error rate (%): 24.399993896484375
+Model_B | Accuracy (%): 88.80000305175781	 Error rate (%): 11.199996948242188
+Query round: 3 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 389 | Query Precision: 0.9725 | Query Recall: 0.1366 | Training Nums: 1366 | Unalebled Nums: 48634
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 41.85000228881836	 Error rate (%): 58.14999771118164
+Model_B | Accuracy (%): 89.05000305175781	 Error rate Query round: 4 | Query SQuery round: 4 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 380 | Query Precision: 0.95 | Query Recall: 0.1746 | Training Nums: 1746 | Unalebled Nums: 48254
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already d==> Test
+Model_A | Accu==> Test
+Model_A | Accuracy (%): 42.10000228881836	 Error rate (%): 57.89999771118164
+Model_B | Accuracy (%): 87.4000015258789	 Error rate (%QueQuery round: 5 | QuQuery round: 5 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 385 | Query Precision: 0.9625 | Query Recall: 0.2131 | Training Nums: 2131 | Unalebled Nums: 47869
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already d==> Test
+Model_A | Accu==> Test
+Model_A | Accuracy (%): 42.400001525878906	 Error rate (%): 57.599998474121094
+Model_B | Accuracy (%): 86.80000305175781	 Error rate (%): 13.199996948242188
+Query round: 6 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 378 | Query Precision: 0.945 | Query Recall: 0.2509 | Training Nums: 2509 | Unalebled Nums: 47491
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already==> Test
+Model_A | Accura==> Test
+Model_A | Accuracy (%): 42.400001525878906	 Error rate (%): 57.599998474121094
+Model_B | Accuracy (%): 83.75000762939453	 Error ratQuery round: 7 | Query StQuery round: 7 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 368 | Query Precision: 0.92 | Query Recall: 0.2877 | Training Nums: 2877 | Unalebled Nums: 47123
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already ==> Test
+Model_A | Accur==> Test
+Model_A | Accuracy (%): 44.400001525878906	 Error rate (%): 55.599998474121094
+Model_B | Accuracy (%): 86.35000610351562	 Error rate (%): 13.649993896484375
+Query round: 8 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 361 | Query Precision: 0.9025 | Query Recall: 0.3238 | Training Nums: 3238 | Unalebled Nums: 46762
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files alread==> Test
+Model_A | Accurac==> Test
+Model_A | Accuracy (%): 44.05000305175781	 Error rate (%): 55.94999694824219
+Model_B | Accuracy (%): 86.05000305175781	 Error rate (%): 13.949996948242188
+Query round: 9 | Query Strategy: AV_temperature | Query Batch: 400 | Valid Query Nums: 320 | Query Precision: 0.8 | Query Recall: 0.3558 | Training Nums: 3558 | Unalebled Nums: 46442
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified

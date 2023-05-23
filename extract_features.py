@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from collections import Counter
-
+import argparse
 from torch.utils.data import SubsetRandomSampler
 import pickle 
 import os
@@ -17,6 +17,10 @@ import os
 
 import resnet_image as res_image
 
+parser = argparse.ArgumentParser("NEAT")
+# dataset
+parser.add_argument('-d', '--dataset', type=str, default='cifar10', choices=['Tiny-Imagenet', 'cifar100', 'cifar10'])
+args = parser.parse_args()
 
 
 def set_model_min(pre_type):
@@ -442,18 +446,9 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
     return index_knn
 
 
-if __name__ == "__main__":
 
-    dataset = "Tiny-Imagenet"
+def main():
+    extracted_feature("CLIP", args.dataset)
 
-    #CIFAR100_EXTRACT_ALL(dataset=dataset)
-
-    extracted_feature("CLIP", dataset)
-
-    '''
-    for dataset in ["cifar10", "cifar100", "Tiny-Imagenet"]:
-        print (dataset)
-        for pre_type in ["image18", "image34", "image50"]:
-
-            extracted_feature(pre_type, dataset)
-    '''
+if __name__ == '__main__':
+    main()
