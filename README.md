@@ -70,8 +70,23 @@ $ python NEAT_main.py --gpu 1 --k 10 --save-dir log_AL/ --query-strategy NEAT --
 ## 4. Evaluation
 To evaluate the performance of NEAT, we provide a set of plotting python scripts.
 * **Option** 
-* 
-
+* the following jupyter notebook will plot Accuracy, Precision, and Recall for all the active learning methods mentioned in our paper.
 ```bash
-$ python plot.py
+$ plot_baseline_batch_size_400.ipynb
+```
+* the following python file can plot Accuracy, Precision, and Recall for different number of neighbors.
+```bash
+$ plot_different_k.py
+```
+* the following python file can plot Accuracy, Precision, and Recall for different hybrid methods mention in our paper.
+```bash
+$ plot_hybrid_method.py
+```
+* the following python file can plot Accuracy, Precision, and Recall for different pre-trained models.
+```bash
+$ plot_pretrained_model.py
+```
+* the following python file can plot the Accuracy, Precision, and Recall for all active learning methods with batch size of 600 and 800.
+```bash
+$ plot_batch_600_and_800.py
 ```

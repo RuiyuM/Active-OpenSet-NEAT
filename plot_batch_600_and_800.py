@@ -9,9 +9,9 @@ from matplotlib.ticker import MultipleLocator
 from matplotlib import cm
 
 sampling_methods = ['test_query', 'uncertainty', "AV_temperature", "active_query", "Core_set", 'certainty', 'OpenMax', 'BGADL', 'random', "BADGE_sampling"]
-datasets = {'cifar100': {'init_percent': 8, 'known_class': [20], 'batch': [800]},
-    'cifar10': {'init_percent': 1, 'known_class': [2], 'batch': [800]},
-    'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [800]}}
+datasets = {'cifar100': {'init_percent': 8, 'known_class': [20], 'batch': [600, 800]},
+    'cifar10': {'init_percent': 1, 'known_class': [2], 'batch': [600, 800]},
+    'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [600, 800]}}
 
 def load_pkl_files(dataset_name, known_class, batch_size=None):
     pkl_files = {method: [] for method in sampling_methods}
