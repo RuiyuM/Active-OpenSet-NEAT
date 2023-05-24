@@ -2,7 +2,7 @@
 data/
 log/
 features/
-
+pkl
 # OS files
 .DS_Store
 .AppleDouble
