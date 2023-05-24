@@ -2,7 +2,7 @@
 
 #methods=("active_query" "test_query")
 
-methods=("active_query")
+methods=("NEAT")
 structures=('vgg16')
 
 # shellcheck disable=SC2068
