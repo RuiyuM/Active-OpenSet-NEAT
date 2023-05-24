@@ -3,6 +3,7 @@ data/
 log/
 features/
 pkl/
+.idea/
 # OS files
 .DS_Store
 .AppleDouble
