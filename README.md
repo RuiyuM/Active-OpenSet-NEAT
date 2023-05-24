@@ -90,3 +90,7 @@ $ plot_pretrained_model.py
 ```bash
 $ plot_batch_600_and_800.py
 ```
+* the following python file can plot the T-sne representation of comparison of NEAT and LFOSA.
+```bash
+$ T-sne_plot_NEAT_and_LFOSA.py
+```
