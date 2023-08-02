@@ -13,6 +13,188 @@ import datasets
 from torch.nn.functional import softmax
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances
+from scipy.spatial import distance
+from scipy.optimize import minimize
+# OpenMax calculation
+def compute_openmax_scores(activations, mavs, weibull_models, labels, known_class):
+    openmax_scores = []
+    for activation, label in zip(activations, labels):
+        if label < known_class:  # For known classes, compute openmax score
+            clipped_activation = np.clip(activation - mavs[label], a_min=0, a_max=None)
+            params = weibull_models[label]["params"]
+            w_score = 1 - np.exp(-(clipped_activation ** params[1]))
+            score = w_score / (w_score + (1 - w_score + 1e-7) / known_class)
+        else:  # For unknown classes, score is 0
+            score = 0
+        openmax_scores.append(np.max(score))
+    return openmax_scores
+
+
+
+# Weibull CDF calculation
+def weibull_cdf(x, params):
+    return 1 - np.exp(-((x/params[0])**params[1]))
+
+def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu):
+    model.eval()
+    # Setup
+    classes = tuple(range(args.known_class))  # Known classes
+    features_dict = {c: [] for c in classes}
+
+    for batch_idx, (index, (data, label)) in enumerate(trainloader_B):
+        if use_gpu:
+            data, label = data.cuda(), label.cuda()
+        with torch.no_grad():
+            batch_features, outputs = model(data)
+        for c in classes:
+            mask = (label == c)
+            if mask.any():
+                features_c = batch_features[mask].detach().cpu().numpy()
+                features_dict[c].extend(features_c)
+
+    # Calculate MAVs
+    mavs = {c: np.mean(features, axis=0) for c, features in features_dict.items()}
+
+    # Weibull fitting parameters setup
+    weibull_models = {c: {"distances": [], "params": []} for c in classes}
+
+    # Calculate MAVs
+    for c in classes:
+        mavs[c] = np.mean(features_dict[c], axis=0)
+
+
+
+    # Calculating distances from MAV and fitting Weibull distribution
+    for c in classes:
+        distances = [distance.euclidean(f, mavs[c]) for f in features_dict[c]]
+        weibull_models[c]["distances"] = distances
+
+        # Normalize distances using mean and std, store normalization constants
+        mean_distance = np.mean(distances)
+        std_distance = np.std(distances)
+        distances_normalized = (distances - mean_distance) / std_distance
+
+        weibull_models[c]["mean_distance"] = mean_distance
+        weibull_models[c]["inv_std_distance"] = 1 / std_distance
+
+        # Weibull fitting using MLE
+        def weibull_pdf(x, shape, scale):
+            return (shape / scale) * (x / scale) ** (shape - 1) * np.exp(- (x / scale) ** shape)
+
+        def neg_log_likelihood(params):
+            return -np.sum(np.log(weibull_pdf(distances_normalized, *params)))
+
+        initial_guess = [1, 1]
+        bounds = [(0.1, None), (0.1, None)]
+        result = minimize(neg_log_likelihood, initial_guess, bounds=bounds)
+
+        weibull_models[c]["params"] = result.x
+
+
+    already_selected = []
+    n_obs = Len_unlabeled_ind_train
+    features = []
+    indices = []
+    labels = []
+    openmax_scores = []
+    print(mavs[0].shape)
+    # Extract features
+    for batch_idx, (index, (data, label)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, label = data.cuda(), label.cuda()
+        with torch.no_grad():
+            batch_features, outputs = model(data)
+        features.extend(batch_features.cpu().numpy())
+        indices.extend(index)
+        labels.extend(label.cpu().numpy())
+        print(batch_idx)
+        # Compute openmax scores
+        openmax_scores.extend(compute_openmax_scores(batch_features.cpu().numpy(), mavs, weibull_models, labels, args.known_class))
+
+    features = np.array(features)
+
+    # Pair each score with its corresponding index in the original dataset
+    score_index_pairs = list(zip(openmax_scores, indices))
+
+    # Sort the pairs in descending order of scores
+    sorted_pairs = sorted(score_index_pairs, key=lambda x: -x[0])
+
+    # Separate the sorted scores and their corresponding indices
+    sorted_scores, sorted_indices = zip(*sorted_pairs)
+
+    # Select batch
+    new_batch = list(sorted_indices[:args.query_batch])
+
+    # Get labels for the selected batch
+    query_labels = np.array(labels)[new_batch]
+
+    precision = len(np.where(query_labels < args.known_class)[0]) / len(query_labels)
+    recall = (len(np.where(query_labels < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labels) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    # Separate the selected indices into two lists based on the label
+    selected_indices = np.array(indices)[new_batch]
+    selected_known = selected_indices[np.where(query_labels < args.known_class)[0]]
+    selected_unknown = selected_indices[np.where(query_labels >= args.known_class)[0]]
+
+    return selected_known, selected_unknown, precision, recall
+
+def new_core_set(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu):
+    model.eval()
+    min_distances = None
+    already_selected = []
+    n_obs = Len_unlabeled_ind_train
+    features = []
+    indices = []
+    labels = []
+
+    # Extract features
+    for batch_idx, (index, (data, label)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, label = data.cuda(), label.cuda()
+        with torch.no_grad():
+            batch_features, outputs = model(data)
+        features.extend(batch_features.cpu().numpy())
+        indices.extend(index)
+        labels.extend(label.cpu().numpy())
+
+    features = np.array(features)
+
+    # Select batch
+    new_batch = []
+    for _ in range(args.query_batch):
+        if not already_selected:
+            # Initialize centers with a randomly selected datapoint
+            ind = np.random.choice(np.arange(n_obs))
+        else:
+            ind = np.argmax(min_distances)
+            assert ind not in already_selected
+
+        # Update min_distances for all examples given new cluster center.
+        dist = pairwise_distances(features, features[ind].reshape(1, -1))
+        if min_distances is None:
+            min_distances = dist
+        else:
+            min_distances = np.minimum(min_distances, dist)
+
+        new_batch.append(ind)
+        already_selected.append(ind)
+
+    # Get labels for the selected batch
+    query_labels = np.array(labels)[new_batch]
+
+    # Calculate precision and recall
+    precision = len(np.where(query_labels < args.known_class)[0]) / len(query_labels)
+    recall = (len(np.where(query_labels < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labels) < args.known_class)[0]) + Len_labeled_ind_train)
+    
+    # Separate the selected indices into two lists based on the label
+    selected_indices = np.array(indices)[new_batch]
+    selected_known = selected_indices[np.where(query_labels < args.known_class)[0]]
+    selected_unknown = selected_indices[np.where(query_labels >= args.known_class)[0]]
+
+    return selected_known, selected_unknown, precision, recall
 
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
