@@ -16,6 +16,8 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances
 from scipy.spatial import distance
 from scipy.optimize import minimize
+
+
 # OpenMax calculation
 def compute_openmax_scores(activations, mavs, weibull_models, labels, known_class):
     openmax_scores = []
@@ -31,10 +33,10 @@ def compute_openmax_scores(activations, mavs, weibull_models, labels, known_clas
     return openmax_scores
 
 
-
 # Weibull CDF calculation
 def weibull_cdf(x, params):
-    return 1 - np.exp(-((x/params[0])**params[1]))
+    return 1 - np.exp(-((x / params[0]) ** params[1]))
+
 
 def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu):
     model.eval()
@@ -63,8 +65,6 @@ def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Le
     for c in classes:
         mavs[c] = np.mean(features_dict[c], axis=0)
 
-
-
     # Calculating distances from MAV and fitting Weibull distribution
     for c in classes:
         distances = [distance.euclidean(f, mavs[c]) for f in features_dict[c]]
@@ -91,7 +91,6 @@ def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Le
 
         weibull_models[c]["params"] = result.x
 
-
     already_selected = []
     n_obs = Len_unlabeled_ind_train
     features = []
@@ -110,12 +109,13 @@ def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Le
         labels.extend(label.cpu().numpy())
         print(batch_idx)
         # Compute openmax scores
-        openmax_scores.extend(compute_openmax_scores(batch_features.cpu().numpy(), mavs, weibull_models, labels, args.known_class))
+        openmax_scores.extend(
+            compute_openmax_scores(batch_features.cpu().numpy(), mavs, weibull_models, labels, args.known_class))
 
     features = np.array(features)
-
+    list_numbers = list(range(Len_unlabeled_ind_train))
     # Pair each score with its corresponding index in the original dataset
-    score_index_pairs = list(zip(openmax_scores, indices))
+    score_index_pairs = list(zip(openmax_scores, list_numbers))
 
     # Sort the pairs in descending order of scores
     sorted_pairs = sorted(score_index_pairs, key=lambda x: -x[0])
@@ -139,6 +139,7 @@ def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Le
     selected_unknown = selected_indices[np.where(query_labels >= args.known_class)[0]]
 
     return selected_known, selected_unknown, precision, recall
+
 
 def new_core_set(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu):
     model.eval()
@@ -188,7 +189,7 @@ def new_core_set(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind
     precision = len(np.where(query_labels < args.known_class)[0]) / len(query_labels)
     recall = (len(np.where(query_labels < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(np.array(labels) < args.known_class)[0]) + Len_labeled_ind_train)
-    
+
     # Separate the selected indices into two lists based on the label
     selected_indices = np.array(indices)[new_batch]
     selected_known = selected_indices[np.where(query_labels < args.known_class)[0]]
@@ -253,6 +254,7 @@ def uncertainty_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, mo
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
+
 def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
     queryIndex = []
@@ -282,6 +284,7 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+
 
 # unlabeledloader is int 800
 def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
@@ -351,7 +354,6 @@ def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model,
             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
-
 
 
 def active_learning(index_knn, queryIndex, S_index):
@@ -782,8 +784,9 @@ def init_centers(X, K):
         cent += 1
     return indsAll
 
-def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
-                                                                            invalidList, model, use_gpu):
+
+def badge_sampling(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
+                   invalidList, model, use_gpu):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -854,8 +857,9 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
+
 def badge_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
-                   invalidList, model, use_gpu, S_index, labelArr_true):
+                          invalidList, model, use_gpu, S_index, labelArr_true):
     model.eval()
     embDim = 512
     nLab = args.known_class
@@ -940,7 +944,8 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
 
         mean_proba_known_classes = proba_out_known_classes.mean(axis=1, keepdims=True)
 
-        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
+        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(),
+                                            mean_proba_known_classes.cpu().numpy(), openmax_beta)
         uncertainty_scores += list(uncertainty)
         # if batch_idx > 10:
         #     break
@@ -961,7 +966,9 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
 
     return known_indices, unknown_indices, precision, recall
 
-def openmax_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true, openmax_beta=0.5):
+
+def openmax_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true,
+                            openmax_beta=0.5):
     model.eval()
     queryIndex = []
     labelArr = []
@@ -1084,6 +1091,7 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
             len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
     return final_chosen_index, invalid_index, precision, recall
+
 
 def core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
     model.eval()
@@ -1253,15 +1261,16 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
 
     if args.query_strategy == "hybrid-BGADL":
         return bayesian_generative_active_learning_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu,
-                                                   labelArr)
+                                                          labelArr)
     if args.query_strategy == "hybrid-OpenMax":
         return openmax_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr,
-                                openmax_beta=0.5)
+                                       openmax_beta=0.5)
     if args.query_strategy == "hybrid-Core_set":
         return core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
     if args.query_strategy == "hybrid-BADGE_sampling":
-        return badge_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, labeled_ind_train,
-                              invalidList, model, use_gpu, S_index, labelArr)
+        return badge_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train,
+                                     labeled_ind_train,
+                                     invalidList, model, use_gpu, S_index, labelArr)
     if args.query_strategy == "hybrid-uncertainty":
         return uncertainty_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
 
@@ -1279,7 +1288,6 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
             data = data.repeat(1, 3, 1, 1)
         with torch.no_grad():
             _, outputs = model(data)
-
 
         queryIndex += list(np.array(index.cpu().data))
         labelArr += list(np.array(labels.cpu().data))
@@ -1308,7 +1316,8 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
     return known_indices, unknown_indices, precision, recall
 
 
-def bayesian_generative_active_learning_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr_true):
+def bayesian_generative_active_learning_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu,
+                                               labelArr_true):
     model.eval()
     queryIndex = []
     labelArr = []

@@ -27,7 +27,7 @@ from extract_features import CIFAR100_LOAD_ALL
 parser = argparse.ArgumentParser("NEAT")
 # dataset
 parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['Tiny-Imagenet', 'cifar100', 'cifar10'])
-parser.add_argument('-j', '--workers', default=4, type=int,
+parser.add_argument('-j', '--workers', default=0, type=int,
                     help="number of data loading workers (default: 4)")
 # optimization
 parser.add_argument('--batch-size', type=int, default=128)
@@ -43,6 +43,10 @@ parser.add_argument('--query-strategy', type=str, default='AV_based2',
                              "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
+parser.add_argument('--weight-cent', type=float, default=1, help="weight for center loss")
+parser.add_argument('--known-T', type=float, default=0.5)
+parser.add_argument('--unknown-T', type=float, default=2)
+parser.add_argument('--modelB-T', type=float, default=1)
 # model
 parser.add_argument('--model', type=str, default='resnet18', choices=['resnet18', 'resnet34', 'resnet50', 'vgg16'])
 # misc
@@ -274,14 +278,16 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.bayesian_generative_active_learning(args, unlabeledloader,
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
         elif args.query_strategy == "OpenMax":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.openmax_sampling(args, unlabeledloader,
-                                                                                                  len(labeled_ind_train),
-                                                                                                  model_A, use_gpu,
-                                                                                                  openmax_beta=0.5)
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.new_open_max(args, unlabeledloader, trainloader_B,
+                                                                                                 len(labeled_ind_train),
+                                                                                            len(unlabeled_ind_train),
+                                                                                                 model_A, use_gpu)
 
         elif args.query_strategy == "Core_set":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.core_set(args, unlabeledloader,
-                                                                                                  len(labeled_ind_train), model_A, use_gpu)
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.new_core_set(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train),
+                                                                                              len(unlabeled_ind_train),
+                                                                                              model_A, use_gpu)
 
         elif args.query_strategy == "certainty":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.certainty_sampling(args, unlabeledloader,
@@ -386,7 +392,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    file_name = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    file_name = "./log_8_15/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
@@ -406,7 +412,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    selected_index = "./log_8_15/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
@@ -528,18 +534,6 @@ def test(model, testloader, use_gpu, num_classes, epoch):
     err = 100. - acc
     return acc, err
 
-
-
-# class CustomCIFAR100Dataset(Dataset):
-#     def __init__(self, root='./data/', train=True, download=True, transform=None):
-#         self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
-#
-#     def __getitem__(self, index):
-#         data_point, label = self.cifar100_dataset[index]
-#         return index, (data_point, label)
-#
-#     def __len__(self):
-#         return len(self.cifar100_dataset)
 
 if __name__ == '__main__':
     main()
