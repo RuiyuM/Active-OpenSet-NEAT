@@ -39,7 +39,7 @@ parser.add_argument('--query-batch', type=int, default=400)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty',
                              'AV_temperature', 'NEAT_passive', 'NEAT',
-                             "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty", "hybrid-BGADL",
+                             "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty", "hybrid-BGADL", "hybrid_AV_temperature",
                              "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
@@ -85,7 +85,7 @@ def main():
     use_gpu = torch.cuda.is_available()
 
     if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
-                               'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
+                               'hybrid-BADGE_sampling', 'hybrid-uncertainty', "hybrid_AV_temperature"]:
         ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset, pre_type=args.pre_type)
 
     sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
@@ -139,7 +139,7 @@ def main():
 
     for query in tqdm(range(args.max_query)):
         if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
-                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
+                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty', "hybrid_AV_temperature"]:
         # Model initialization
             if args.model == "cnn":
                 model = models.create(name=args.model, num_classes=dataset.num_classes)
@@ -212,7 +212,7 @@ def main():
         for epoch in tqdm(range(args.max_epoch)):
             if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax',
                                        'hybrid-Core_set',
-                                       'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
+                                       'hybrid-BADGE_sampling', 'hybrid-uncertainty', "hybrid_AV_temperature"]:
                 # Train model B for classifying known classes
                 train_B(model_B, criterion_xent,
                         optimizer_model_B,
@@ -334,7 +334,7 @@ def main():
                                                                                               index_to_label)
 
 
-        elif args.query_strategy in ["hybrid-BGADL", "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty"]:
+        elif args.query_strategy in ["hybrid-BGADL", "hybrid-OpenMax", "hybrid-Core_set", "hybrid-BADGE_sampling", "hybrid-uncertainty", "hybrid_AV_temperature"]:
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.passive_and_implement_other_baseline(
                 args, model_B, query,
                 unlabeledloader,
@@ -356,7 +356,7 @@ def main():
             Precision[query]) + " | Query Recall: " + str(Recall[query]) + " | Training Nums: " + str(
             len(labeled_ind_train)) + " | Unalebled Nums: " + str(len(unlabeled_ind_train)))
         if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
-                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty']:
+                                   'hybrid-BADGE_sampling', 'hybrid-uncertainty', "hybrid_AV_temperature"]:
             B_dataset = datasets.create(
                 name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
                 batch_size=args.batch_size, use_gpu=use_gpu,
@@ -392,7 +392,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    file_name = "./log_8_15/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    file_name = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
@@ -412,7 +412,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    selected_index = "./log_8_15/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(

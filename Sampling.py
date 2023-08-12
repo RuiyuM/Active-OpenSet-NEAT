@@ -140,7 +140,9 @@ def new_open_max(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Le
 
     return selected_known, selected_unknown, precision, recall
 
-def new_open_max_hybrid(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu, labelarray_true):
+
+def new_open_max_hybrid(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, Len_unlabeled_ind_train, model,
+                        use_gpu, labelarray_true):
     model.eval()
     # Setup
     classes = tuple(range(args.known_class))  # Known classes
@@ -241,6 +243,8 @@ def new_open_max_hybrid(args, unlabeledloader, trainloader_B, Len_labeled_ind_tr
     selected_unknown = selected_indices[np.where(query_labels >= args.known_class)[0]]
 
     return selected_known, selected_unknown, precision, recall
+
+
 def new_core_set(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu):
     model.eval()
     min_distances = None
@@ -297,7 +301,9 @@ def new_core_set(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind
 
     return selected_known, selected_unknown, precision, recall
 
-def new_core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu, labelarray_true):
+
+def new_core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, Len_unlabeled_ind_train, model, use_gpu,
+                        labelarray_true):
     model.eval()
     min_distances = None
     already_selected = []
@@ -352,6 +358,7 @@ def new_core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, Len_unlabe
     selected_unknown = selected_indices[np.where(query_labels >= args.known_class)[0]]
 
     return selected_known, selected_unknown, precision, recall
+
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
@@ -507,6 +514,75 @@ def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model,
     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+
+
+def hybrid_AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelarray_true):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertaintyArr = []
+    S_ij = {}
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        _, outputs = model(data)
+        # 当前的index 128 个 进入queryIndex array
+        queryIndex += index
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i]
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
+            if tmp_class not in S_ij:
+                S_ij[tmp_class] = []
+            S_ij[tmp_class].append([tmp_value, tmp_index, tmp_label])
+    # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
+
+    # fit a two-component GMM for each class
+    tmp_data = []
+    for tmp_class in S_ij:
+        S_ij[tmp_class] = np.array(S_ij[tmp_class])
+        activation_value = S_ij[tmp_class][:, 0]
+        if len(activation_value) < 2:
+            continue
+        gmm = GaussianMixture(n_components=2, max_iter=10, tol=1e-2, reg_covar=5e-4)
+        gmm.fit(np.array(activation_value).reshape(-1, 1))
+        prob = gmm.predict_proba(np.array(activation_value).reshape(-1, 1))
+        # 得到为known类别的概率
+        prob = prob[:, gmm.means_.argmax()]
+        # 如果为unknown类别直接为0
+        if tmp_class == args.known_class:
+            prob = [0] * len(prob)
+            prob = np.array(prob)
+
+        if len(tmp_data) == 0:
+            # np.hstack 就是说把stack水平堆起来
+            tmp_data = np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))
+        else:
+            # np。vstack 就是把stack竖直堆起来
+            tmp_data = np.vstack((tmp_data, np.hstack((prob.reshape(-1, 1), S_ij[tmp_class]))))
+
+    tmp_data = tmp_data[np.argsort(tmp_data[:, 0])]
+    tmp_data = tmp_data.T
+
+    # 取前1500个index
+    queryIndex = tmp_data[2][-args.query_batch:].astype(int)
+    labelArr = tmp_data[3].astype(int)
+
+    queryLabelArr = tmp_data[3][-args.query_batch:]
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelarray_true) < args.known_class)[0]) + Len_labeled_ind_train)
     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
@@ -1323,7 +1399,8 @@ def core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu
 
 def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Len_labeled_ind_train,
                                          len_unlabeled_ind_train, use_gpu, labeled_ind_train, invalidList,
-                                         unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label, trainloader_B):
+                                         unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label,
+                                         trainloader_B):
     index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
                                                   ordered_feature, ordered_label)
 
@@ -1418,15 +1495,24 @@ def passive_and_implement_other_baseline(args, model, query, unlabeledloader, Le
         return bayesian_generative_active_learning_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu,
                                                           labelArr)
     if args.query_strategy == "hybrid-OpenMax":
-        return new_open_max_hybrid(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, len_unlabeled_ind_train, model, use_gpu, labelArr)
+        return new_open_max_hybrid(args, unlabeledloader, trainloader_B, Len_labeled_ind_train, len_unlabeled_ind_train,
+                                   model, use_gpu, labelArr)
     if args.query_strategy == "hybrid-Core_set":
-        return new_core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, model, use_gpu, labelArr)
+        return new_core_set_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train, model,
+                                   use_gpu, labelArr)
     if args.query_strategy == "hybrid-BADGE_sampling":
         return badge_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, len_unlabeled_ind_train,
                                      labeled_ind_train,
                                      invalidList, model, use_gpu, S_index, labelArr)
     if args.query_strategy == "hybrid-uncertainty":
         return uncertainty_sampling_hybrid(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labelArr)
+
+    if args.query_strategy == "hybrid_AV_temperature":
+        return hybrid_AV_sampling_temperature(args,
+                                              unlabeledloader,
+                                              Len_labeled_ind_train,
+                                              model,
+                                              use_gpu, labelArr)
 
 
 def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
