@@ -13,7 +13,7 @@ import torch.nn as nn
 from torch.optim import lr_scheduler
 import torch.backends.cudnn as cudnn
 from tqdm import tqdm
-from resnet import resnet18, resnet34, resnet50, vgg16
+from resnet import resnet18, resnet34, resnet50
 import Sampling
 import datasets
 import models
@@ -154,9 +154,7 @@ def main():
                 # model_A = resnet50(num_classes=dataset.num_classes + 1)
                 model_B = resnet50(num_classes=dataset.num_classes)
 
-            elif args.model == 'vgg16':
-                # model_A = vgg16(num_classes=dataset.num_classes + 1)
-                model_B = vgg16(num_classes=dataset.num_classes)
+
 
             if use_gpu:
                 # model_A = nn.DataParallel(model_A).cuda()
@@ -187,9 +185,7 @@ def main():
                 model_A = resnet50(num_classes=dataset.num_classes + 1)
                 model_B = resnet50(num_classes=dataset.num_classes)
 
-            elif args.model == 'vgg16':
-                model_A = vgg16(num_classes=dataset.num_classes + 1)
-                model_B = vgg16(num_classes=dataset.num_classes)
+
 
             if use_gpu:
                 model_A = nn.DataParallel(model_A).cuda()
@@ -231,12 +227,12 @@ def main():
 
             else:
                 train_A(model_A, criterion_xent,
-                        optimizer_model_A,
-                        trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
+            optimizer_model_A,
+            trainloader_A, invalidList, use_gpu)
                 # Train model B for classifying known classes
                 train_B(model_B, criterion_xent,
                         optimizer_model_B,
-                        trainloader_B, use_gpu, dataset.num_classes, epoch)
+                        trainloader_B, use_gpu)
 
                 if args.stepsize > 0:
                     scheduler_A.step()
@@ -258,9 +254,10 @@ def main():
         queryIndex = []
 
         if args.query_strategy == "random":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.random_sampling(args, unlabeledloader,
-                                                                                                 len(labeled_ind_train),
-                                                                                                 model_A, use_gpu)
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
+                                                                                                      unlabeledloader,
+                                                                                                      len(labeled_ind_train),
+                                                                                                      model_A, use_gpu)
         elif args.query_strategy == "uncertainty":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.uncertainty_sampling(args,
                                                                                                       unlabeledloader,
@@ -437,11 +434,12 @@ def calculate_precision_recall():
 
 def train_A(model, criterion_xent,
             optimizer_model,
-            trainloader, invalidList, use_gpu, num_classes, epoch):
+            trainloader, invalidList, use_gpu):
     model.train()
     xent_losses = AverageMeter()
     cent_losses = AverageMeter()
     losses = AverageMeter()
+
 
 
     known_T = args.known_T
@@ -466,58 +464,66 @@ def train_A(model, criterion_xent,
         features, outputs = model(data)
         outputs = outputs / T.unsqueeze(1)
         loss_xent = criterion_xent(outputs, labels)
-        # loss_cent = criterion_cent(features, labels)
-        loss_cent = 0.0
-        loss_cent *= args.weight_cent
-        loss = loss_xent + loss_cent
+
+
+        loss = loss_xent
         optimizer_model.zero_grad()
-        # optimizer_centloss.zero_grad()
+
         loss.backward()
         optimizer_model.step()
-        # by doing so, weight_cent would not impact on the learning of centers
-        # if args.weight_cent > 0.0:
-        #     for param in criterion_cent.parameters():
-        #         param.grad.data *= (1. / args.weight_cent)
-        #     optimizer_centloss.step()
+
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))
-        # cent_losses.update(loss_cent.item(), labels.size(0))
+
+
+
 
 
 
 
 def train_B(model, criterion_xent,
             optimizer_model,
-            trainloader, use_gpu, num_classes, epoch):
+            trainloader, use_gpu):
     model.train()
     xent_losses = AverageMeter()
+    cent_losses = AverageMeter()
     losses = AverageMeter()
+
 
 
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+
+
+
         features, outputs = model(data)
         loss_xent = criterion_xent(outputs, labels)
         # loss_cent = criterion_cent(features, labels)
         loss_cent = 0.0
 
-        # loss_cent *= args.weight_cent
+        loss_cent *= args.weight_cent
         loss = loss_xent + loss_cent
         optimizer_model.zero_grad()
-        # optimizer_centloss.zero_grad()
+
         loss.backward()
         optimizer_model.step()
         # by doing so, weight_cent would not impact on the learning of centers
-        # if args.weight_cent > 0.0:
-        #     for param in criterion_cent.parameters():
-        #         param.grad.data *= (1. / args.weight_cent)
-        #     optimizer_centloss.step()
+
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))
         # cent_losses.update(loss_cent.item(), labels.size(0))
+
+
+
+        # if (batch_idx + 1) % args.print_freq == 0:
+        #     print("Batch {}/{}\t Loss {:.6f} ({:.6f}) XentLoss {:.6f} ({:.6f}) CenterLoss {:.6f} ({:.6f})" \
+        #           .format(batch_idx + 1, len(trainloader), losses.val, losses.avg, xent_losses.val, xent_losses.avg,
+        #                   cent_losses.val, cent_losses.avg))
+
+
 
 
 

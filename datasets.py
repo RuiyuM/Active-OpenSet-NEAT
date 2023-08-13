@@ -16,23 +16,22 @@ init_percent = -1
 
 
 class CustomCIFAR100Dataset_train(Dataset):
-    #cifar100_dataset = None
-    #targets = None
+    # cifar100_dataset = None
+    # targets = None
 
-    #@classmethod
-    #def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
+    # @classmethod
+    # def load_dataset(cls, root="./data/cifar100", train=True, download=True, transform=None):
     #    cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
     #    cls.targets = cls.cifar100_dataset.targets
-    
+
     def __init__(self, root="./data/cifar100", train=True, download=True, transform=None, invalidList=None):
-        #if CustomCIFAR100Dataset_train.cifar100_dataset is None:
+        # if CustomCIFAR100Dataset_train.cifar100_dataset is None:
         #    raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
 
         self.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
         self.targets = self.cifar100_dataset.targets
 
         if invalidList is not None:
-
             targets = np.array(self.cifar100_dataset.targets)
             targets[targets >= known_class] = known_class
             self.cifar100_dataset.targets = targets.tolist()
@@ -44,9 +43,11 @@ class CustomCIFAR100Dataset_train(Dataset):
     def __len__(self):
         return len(self.cifar100_dataset)
 
+
 class CustomCIFAR100Dataset_test(Dataset):
     cifar100_dataset = None
     targets = None
+
     @classmethod
     def load_dataset(cls, root="./data/cifar100", train=False, download=True, transform=None):
         cls.cifar100_dataset = datasets.CIFAR100(root, train=train, download=download, transform=transform)
@@ -62,6 +63,7 @@ class CustomCIFAR100Dataset_test(Dataset):
 
     def __len__(self):
         return len(CustomCIFAR100Dataset_test.cifar100_dataset)
+
 
 class MNIST(object):
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
@@ -170,12 +172,12 @@ class CIFAR100(object):
         if invalidList is not None:
             labeled_ind_train = labeled_ind_train + invalidList
 
-        #CustomCIFAR100Dataset_train.load_dataset(transform=transform_train)
+        # CustomCIFAR100Dataset_train.load_dataset(transform=transform_train)
         # trainset = torchvision.datasets.CIFAR100("./data/cifar100", train=True, download=True,
         #                                          transform=transform_train)
 
         trainset = CustomCIFAR100Dataset_train(transform=transform_train, invalidList=invalidList)
-
+        self.trainset = trainset
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
@@ -190,14 +192,12 @@ class CIFAR100(object):
 
         if is_filter:
             print("openset here!")
-            
 
             trainloader = torch.utils.data.DataLoader(
                 trainset, batch_size=batch_size, shuffle=False,
                 num_workers=num_workers, pin_memory=pin_memory,
                 sampler=SubsetRandomSampler(labeled_ind_train),
             )
-
 
             unlabeledloader = torch.utils.data.DataLoader(
                 trainset, batch_size=batch_size, shuffle=False,
@@ -253,14 +253,12 @@ class CIFAR100(object):
             else:
                 unlabeled_ind.append(i)
 
-        print ("Shuffle")
+        print("Shuffle")
         # 随机选
         random.shuffle(filter_ind)
         labeled_ind = filter_ind[:len(filter_ind) * init_percent // 100]
         unlabeled_ind = unlabeled_ind + filter_ind[len(filter_ind) * init_percent // 100:]
         return labeled_ind, unlabeled_ind
-
-
 
 
 class CustomCIFAR10Dataset_train(Dataset):
@@ -313,10 +311,6 @@ class CustomCIFAR10Dataset_test(Dataset):
         return len(CustomCIFAR10Dataset_test.cifar10_dataset)
 
 
-
-
-
-
 class CIFAR10(object):
 
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
@@ -340,9 +334,9 @@ class CIFAR10(object):
         if invalidList is not None:
             labeled_ind_train = labeled_ind_train + invalidList
 
-        #trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
+        # trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
         trainset = CustomCIFAR10Dataset_train(transform=transform_train, invalidList=invalidList)
-
+        self.trainset = trainset
 
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
@@ -373,8 +367,8 @@ class CIFAR10(object):
                 num_workers=num_workers, pin_memory=pin_memory,
             )
 
-        #testset = torchvision.datasets.CIFAR10("./data/cifar10", train=False, download=True, transform=transform_test)
-        
+        # testset = torchvision.datasets.CIFAR10("./data/cifar10", train=False, download=True, transform=transform_test)
+
         CustomCIFAR10Dataset_test.load_dataset(transform=transform_test)
         testset = CustomCIFAR10Dataset_test()
 
@@ -423,13 +417,43 @@ class CIFAR10(object):
         return labeled_ind, unlabeled_ind
 
 
+def load_tiny_imagenet_train(root):
+    target = []
+    class_id_mapping = {}
+    id_to_class = {}
+
+    # Load the wnids.txt file containing class ids
+    with open(os.path.join(root, 'wnids.txt'), 'r') as f:
+        class_ids = [line.strip() for line in f.readlines()]
+
+    # Create a mapping of class ids to label numbers (0-199)
+    root = './data/tiny-imagenet-200'
+    # index_to_label = parse_val_annotations_index(root)
+    image_to_label = parse_val_annotations(root)
+    label_to_index = {label: index for index, label in enumerate(sorted(set(image_to_label.values())))}
+    # Iterate over the train folder to get the images and their labels
+    for class_id, label in label_to_index.items():
+        class_folder = os.path.join(root, 'train', class_id)
+        image_files = glob.glob(os.path.join(class_folder, 'images', '*.JPEG'))
+
+        for image_file in image_files:
+            # Open the image to check if it's a valid image
+            try:
+                img = Image.open(image_file)
+                img.verify()  # Verify if it's a valid image
+                target.append(label)
+            except Exception as e:
+                print(f"Invalid image: {image_file} - {e}")
+
+    return target
+
 
 class CustomTinyImageNetDataset_train(Dataset):
-    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
+    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True, target_train=None, transform=None,
+                 invalidList=None):
         self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
                                                           transform=transform)
         self.targets = target_train
-
 
         if invalidList is not None:
             targets = np.array(self.targets)
@@ -445,7 +469,6 @@ class CustomTinyImageNetDataset_train(Dataset):
 
     def __len__(self):
         return len(self.tiny_imagenet_dataset)
-
 
 
 class CustomTinyImageNetDataset_test(Dataset):
@@ -489,6 +512,7 @@ class CustomTinyImageNetDataset_test(Dataset):
     def __len__(self):
         return len(CustomTinyImageNetDataset_test.tiny_imagenet_dataset)
 
+
 def parse_val_annotations(root):
     annotation_file = os.path.join(root, "val", "val_annotations.txt")
     image_to_label = {}
@@ -499,14 +523,12 @@ def parse_val_annotations(root):
     return image_to_label
 
 
-
 def get_image_label(index, dataset):
     if index < 0 or index >= len(dataset):
         raise ValueError("Invalid index: must be between 0 and {} (inclusive).".format(len(dataset) - 1))
 
     _, (_, label) = dataset[index]
     return label
-
 
 
 class TinyImageNet(object):
@@ -525,10 +547,12 @@ class TinyImageNet(object):
         if invalidList is not None:
             labeled_ind_train = labeled_ind_train + invalidList
 
+        trainset = CustomTinyImageNetDataset_train(transform=transform, invalidList=invalidList, target_train=target_train)
 
-        trainset = CustomTinyImageNetDataset_train(transform=transform, target_train=target_train)
+        self.trainset = trainset
 
         if unlabeled_ind_train is None and labeled_ind_train is None:
+
             if is_mini:
                 labeled_ind_train, unlabeled_ind_train = self.filter_known_unknown_10percent(trainset)
                 self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train
@@ -603,7 +627,6 @@ class TinyImageNet(object):
         return labeled_ind, unlabeled_ind
 
 
-
 __factory = {
     'Tiny-Imagenet': TinyImageNet,
     'cifar100': CIFAR100,
@@ -619,18 +642,19 @@ def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, 
     random.seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
-    
+
     with open('target_train.pkl', 'rb') as f:
         target_train = pickle.load(f)
 
-
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
-    
+
     if name == 'Tiny-Imagenet':
-        
-        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, target_train , unlabeled_ind_train, labeled_ind_train,
-                           invalidList)
+
+        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, target_train, unlabeled_ind_train,
+                               labeled_ind_train,
+                               invalidList)
     else:
 
-        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train, invalidList)
+        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train,
+                               labeled_ind_train, invalidList)
