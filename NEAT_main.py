@@ -30,10 +30,10 @@ parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['T
 parser.add_argument('-j', '--workers', default=0, type=int,
                     help="number of data loading workers (default: 4)")
 # optimization
-parser.add_argument('--batch-size', type=int, default=64)
+parser.add_argument('--batch-size', type=int, default=128)
 parser.add_argument('--lr-model', type=float, default=0.01, help="learning rate for model")
 parser.add_argument('--lr-cent', type=float, default=0.5, help="learning rate for center loss")
-parser.add_argument('--max-epoch', type=int, default=10)
+parser.add_argument('--max-epoch', type=int, default=100)
 parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=400)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
@@ -212,7 +212,7 @@ def main():
                 # Train model B for classifying known classes
                 train_B(model_B, criterion_xent,
                         optimizer_model_B,
-                        trainloader_B, use_gpu, dataset.num_classes, epoch)
+                        trainloader_B, use_gpu)
 
                 if args.stepsize > 0:
                     # scheduler_A.step()
@@ -389,7 +389,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    file_name = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    file_name = "./log_8_15/temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
@@ -403,13 +403,13 @@ def main():
 
     #############################################################################################################
     '''
-    selected_index = "./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
 
-    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(
+    selected_index = "./log_8_15/temperature_" + args.model + "_" + args.dataset + "_known" + str(
         args.known_class) + "_init" + str(
         args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
         args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
