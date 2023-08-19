@@ -192,8 +192,7 @@ def main():
                 model_B = nn.DataParallel(model_B).cuda()
 
             criterion_xent = nn.CrossEntropyLoss()
-            # criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
-            # criterion_cent_special = CenterLoss(num_classes=dataset.num_classes + 1, feat_dim=2, use_gpu=use_gpu)
+
             optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04,
                                                 momentum=0.9)
             optimizer_model_B = torch.optim.SGD(model_B.parameters(), lr=args.lr_model, weight_decay=5e-04,
