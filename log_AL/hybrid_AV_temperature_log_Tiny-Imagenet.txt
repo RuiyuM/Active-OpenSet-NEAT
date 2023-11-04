@@ -1,0 +1,156 @@
+Currently using GPU: 0
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: resnet18
+==> Test
+Model_B | Accuracy (%): 29.150001525878906	 Error rate (%): 70.8499984741211
+tensor([[1456,  751, 1507,  ...,  413, 1349, 1513],
+        [ 518,  919, 1456,  ...,  811, 1070,   40],
+        [1252,  599, 1206,  ...,  737,  246, 1081],
+        ...,
+        [  18, 1416,  422,  ..., 1013,  161, 1058],
+        [1347,  832,  531,  ...,  168, 1015,  957],
+        [1340, 1070,  824,  ..., 1412,  464,  671]], device='cuda:0')
+detected_unknown:  0.0
+
+
+openset here!
+Query round: 0 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 73 | Query Precision: 0.1825 | Query Recall: 0.08365 | Training Nums: 1673 | Unalebled Nums: 98327
+openset here!
+==> Test
+Model_B | Accuracy (%): 29.250001907348633	 Error rate (%): 70.75
+tensor([[ 290,  442, 1121,  ...,  239,  601,  392],
+        [ 226, 1077,  832,  ..., 1132,  652,  493],
+        [ 667,  172, 1503,  ...,  410,  326, 1123],
+        ...,
+        [ 664,  602, 1372,  ...,  198, 1175, 1827],
+        [1988,  588,  388,  ...,  769,  602,  705],
+        [ 602,  649,  389,  ..., 1928, 1827,  235]], device='cuda:0')
+detected_unknown:  33173.0
+
+
+openset here!
+Query round: 1 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 275 | Query Precision: 0.6875 | Query Recall: 0.0974 | Training Nums: 1948 | Unalebled Nums: 98052
+openset here!
+==> Test
+Mo==> Test
+Model_B | Accuracy (%): 31.900001525878906	 Error rate (%): 68.0999984741211
+tensor([[ 963, 1696, 1027,  ..., 2244,  133, 1608],
+        [ 711, 1401, 1240,  ...,  327,  586, 1105],
+        [ 406,  543,  783,  ...,  593,  961, 1495],
+        ...,
+        [ 904,  411, 1948,  ..., 1099,  327,  120],
+        [ 766, 1363, 1950,  ..., 1322, 1993,  528],
+        [1993,  242, 2006,  ...,  644, 1583,  262]], device='cuda:0')
+detected_unknown:  37412.0
+
+
+openset here!
+Query round: 2 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 321 | Query Precision: 0.8025 | Query Recall: 0.11255 | Training Nums: 2251 | Unalebled Nums: 97749
+==> Test
+Model_B | Accuracy (%): 35.0	 Error rate (%): 65.0
+tensor([[ 290, 1917,  442,  ..., 2727,  123, 1100],
+        [2047,  226, 1077,  ...,  521,  423, 1736],
+        [2119,  667, 2196,  ..., 2264, 1503, 2201],
+        ...,
+        [2672,  664, 2176,  ..., 2527, 2586, 2604],
+        [2054, 2587,  588,  ...,  334, 1277, 2782],
+        [ 602,  649, 2036,  ..., 1175, 2587, 2618]], device='cuda:0')
+detected_unknown:  41976.0
+
+
+openset here!
+Query round: 3 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 352 | Query Precision: 0.88 | Query Recall: 0.1312 | Training Nums: 2624 | Unalebled Nums: 97376
+openset here!
+==> Test
+Model_B | Accuracy (%): 37.70000076293945	 Error rate (%): 62.29999923706055
+tensor([[ 290, 1917,  442,  ...,    3, 3079,  123],
+        [2047,  226, 1077,  ...,  521, 3171,  423],
+        [2483, 2119,  667,  ...,  172, 2464, 2475],
+        ...,
+        [3024,  664, 2176,  ..., 2879, 2938, 2956],
+        [3164, 2054, 2939,  ..., 1393,  334, 1277],
+        [ 602,  649, 3164,  ...,  159, 1175, 2939]], device='cuda:0')
+detected_unknown:  41000.0
+
+
+openset here!
+Query round: 4 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 345 | Query Precision: 0.8625 | Query Recall: 0.14845 | Training Nums: 2969 | Unalebled Nums: 97031
+openset here!
+==> Test
+Model_B | Accuracy (%): 40.35000228881836	 Error rate (%): 59.64999771118164
+tensor([[ 290, 1917,  442,  ...,  869,    3, 3424],
+        [2047,  226, 1077,  ...,  521, 3516,  423],
+        [2483, 2119, 2915,  ..., 2007, 2478,  172],
+        ...,
+        [3369,  664, 2176,  ..., 3224, 3283, 3301],
+        [3509, 2054, 3284,  ..., 1393,  334, 1277],
+        [ 602,  649, 3509,  ...,  159, 1175, 3284]], device='cuda:0')
+detected_unknown:  41501.0
+
+
+openset here!
+Query round: 5 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 363 | Query Precision: 0.9075 | Query Recall: 0.1666 | Training Nums: 3332 | Unalebled Nums: 96668
+openset here!
+==> Test
+Model_B | Accuracy (%): 37.900001525878906	 Error rate (%): 62.099998474121094
+tensor([[ 290, 1917,  442,  ...,  869,    3, 3787],
+        [2047,  226, 1077,  ...,  521, 3879,  423],
+        [2483, 2119, 3006,  ..., 2836, 2747, 2007],
+        ...,
+        [3259, 3732,  664,  ..., 1372, 3011, 3827],
+        [3872, 2054, 3647,  ..., 1393,  334, 1277],
+        [ 602,  649, 3872,  ...,  159, 1175, 3647]], device='cuda:0')
+detected_unknown:  41431.0
+
+
+openset here!
+Query round: 6 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 357 | Query Precision: 0.8925 | Query Recall: 0.18445 | Training Nums: 3689 | Unalebled Nums: 96311
+openset here!
+==> Test
+Model_B | Accuracy (%): 41.45000076293945	 Error rate (%): 58.54999923706055
+tensor([[ 290, 1917,  442,  ...,  869,    3, 4144],
+        [2047,  226, 1077,  ...,  521, 4236,  423],
+        [2483, 3505, 2119,  ..., 3152, 3433, 2836],
+        ...,
+        [3259, 4089,  664,  ..., 1372, 3011, 3567],
+        [4229, 3376, 2054,  ...,  388, 1393,  334],
+        [ 602,  649, 4229,  ...,  159, 1175, 4004]], device='cuda:0')
+detected_unknown:  41653.0
+
+
+openset here!
+Query round: 7 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 357 | Query Precision: 0.8925 | Query Recall: 0.2023 | Training Nums: 4046 | Unalebled Nums: 95954
+openset here!
+==> Test
+Model_B | Accuracy (%): 45.500003814697266	 Error rate (%): 54.499996185302734
+tensor([[ 290, 1917,  442,  ...,  869,    3, 4501],
+        [2047,  226, 1077,  ...,  521, 4593, 3777],
+        [2483, 3505, 2119,  ..., 2196, 3152, 3433],
+        ...,
+        [3259, 4446,  664,  ..., 1372, 4772, 3011],
+        [4586, 3376, 2054,  ...,  388, 1393,  334],
+        [ 602,  649, 4586,  ...,  159, 1175, 4361]], device='cuda:0')
+detected_unknown:  42396.0
+
+
+openset here!
+Query round: 8 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 369 | Query Precision: 0.9225 | Query Recall: 0.22075 | Training Nums: 4415 | Unalebled Nums: 95585
+openset here!
+==> Test
+Model_B | Accuracy (%): 46.000003814697266	 Error rate (%): 53.999996185302734
+tensor([[ 290, 1917,  442,  ...,  869,    3, 4870],
+        [2047,  226, 1077,  ..., 4820,  521, 4962],
+        [2483, 3505, 2119,  ...,  667, 2196, 3152],
+        ...,
+        [3259, 4815,  664,  ..., 1372, 5141, 3011],
+        [4955, 3376, 2054,  ...,  388, 1393,  334],
+        [ 602,  649, 4955,  ...,  159, 1175, 4730]], device='cuda:0')
+detected_unknown:  42005.0
+
+
+openset here!
+Query round: 9 | Query Strategy: hybrid_AV_temperature | Query Batch: 400 | Valid Query Nums: 357 | Query Precision: 0.8925 | Query Recall: 0.2386 | Training Nums: 4772 | Unalebled Nums: 95228
+openset here!
+Finished. Total elapsed time (h:m:s): 2:44:56
+ elapsed time (h:m:s): 2:43:56

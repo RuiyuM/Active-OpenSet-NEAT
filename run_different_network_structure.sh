@@ -2,15 +2,15 @@
 
 #methods=("active_query" "test_query")
 
-methods=("NEAT")
-structures=('vgg16')
+methods=("Core_set" "OpenMax")
+structures=('resnet18')
 
 # shellcheck disable=SC2068
 for method in ${methods[@]};
 do
     for structure in ${structures[@]};
     do
-        for j in 400
+        for j in 400 600 800
         do
             for i in 10
             do

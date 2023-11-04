@@ -1,8 +1,63 @@
-Currently using GPU: 0
+Currently using GPU: 1
 Creating dataset: Tiny-Imagenet
 openset here!
-Creating model: vgg16
+Creating model: resnet18
 ==> Test
-Model_A | Accuracy (%): 20.850000381469727	 Error rate (%): 79.1500015258789
-Model_B | Accuracy (%): 20.250001907348633	 Error rate (%): 79.75
-00305175781
+Model_A | Accuracy (%): 27.400001525878906	 Error rate (%): 72.5999984741211
+Model_B | Accuracy (%): 29.950000762939453	 Error rate (%): 70.05000305175781
+Query round: 0 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 193 | Query Precision: 0.24125 | Query Recall: 0.08965 | Training Nums: 1793 | Unalebled Nums: 98207
+openset here!
+==> Test
+Mo==>==> Test
+Model_A | Accuracy (%): 28.500001907348633	 Error rate (%): 71.5
+Model_B | Accuracy (%): 24.000001907348633	 Error rate (%): 76.0
+Query round: 1 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 246 | Query Precision: 0.3075 | Query Recall: 0.10195 | Training Nums: 2039 | Unalebled Nums: 97961
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 31.10000228881836	 Error rate (%): 68.89999389648438
+Model_B | Accuracy (%): 33.05000305175781	 Error rate (%): 66.94999694824219
+Query round: 2 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 269 | Query Precision: 0.33625 | Query Recall: 0.1154 | Training Nums: 2308 | Unalebled Nums: 97692
+openset here!
+openset her==>==> Test
+Model_A | Accuracy (%): 30.05000114440918	 Error rate (%): 69.94999694824219
+Model_B | Accuracy (%): 29.950000762939453	 Error rate (%): 70.05000305175781
+Query round: 3 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 270 | Query Precision: 0.3375 | Query Recall: 0.1289 | Training Nums: 2578 | Unalebled Nums: 97422
+openset her==> Test
+Model_A | Accuracy (%): 30.35000228881836	 Error rate (%): 69.64999389648438
+Model_B | Accuracy (%): 38.85000228881836	 Error rate (%): 61.14999771118164
+Query round: 4 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 247 | Query Precision: 0.30875 | Query Recall: 0.1409 | Training Nums: 2818 | Unalebled Nums: 97182
+openset here!
+openset here!
+==>==> Test
+Model_A | Accuracy (%): 28.55000114440918	 Error rate (%): 71.44999694824219
+Model_B | Accuracy (%): 39.5	 Error rate (%): 60.5
+Query round: 5 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 275 | Query Precision: 0.34375 | Query Recall: 0.15685 | Training Nums: 3137 | Unalebled Nums: 96863
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 31.700000762939453	 Error rate (%): 68.30000305175781
+Model_B | Accuracy (%): 41.70000076293945	 Error rate (%): 58.29999923706055
+Query round: 6 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 269 | Query Precision: 0.33625 | Query Recall: 0.1703 | Training Nums: 3406 | Unalebled Nums: 96594
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 30.900001525878906	 Error rate (%): 69.0999984741211
+Model_B | Accuracy (%): 43.000003814697266	 Error rate (%): 56.999996185302734
+Query round: 7 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 235 | Query Precision: 0.29375 | Query Recall: 0.18205 | Training Nums: 3641 | Unalebled Nums: 96359
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 34.10000228881836	 Error rate (%): 65.89999389648438
+Model_B | Accuracy (%): 44.20000076293945	 Error rate (%): 55.79999923706055
+Query round: 8 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 259 | Query Precision: 0.32375 | Query Recall: 0.195 | Training Nums: 3900 | Unalebled Nums: 96100
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 33.30000305175781	 Error rate (%): 66.69999694824219
+Model_B | Accuracy (%): 45.500003814697266	 Error rate (%): 54.499996185302734
+Query round: 9 | Query Strategy: Core_set | Query Batch: 800 | Valid Query Nums: 242 | Query Precision: 0.3025 | Query Recall: 0.2071 | Training Nums: 4142 | Unalebled Nums: 95858
+openset here!
+openset here!
+Finished. Total elapsed time (h:m:s): 4:55:40
+ed time (h:m:s): 4:54:23
