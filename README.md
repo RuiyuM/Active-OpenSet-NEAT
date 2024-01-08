@@ -27,9 +27,9 @@ For CIFAR10 and CIFAR100, we provide a function to automatically download and pr
 
 ## 2. Get started
 ```bash
-$ cd resnet_CLIP
+$ cd Active-OpenSet-NEAT
 ```
-Although We have provided scripts to automatically download CIFAR10 and CIFAR100 dataset but for Tiny-Imagenet
+Although We have provided scripts to automatically download CIFAR10 and CIFAR100 dataset but for Tiny-Imagenet or Imagenet
 you are supposed to download yourself utilizing the following command or using the link to download manually.
 ```bash
 $ mkdir data
@@ -77,10 +77,6 @@ $ plot_baseline_batch_size_400.ipynb
 * the following python file can plot Accuracy, Precision, and Recall for different number of neighbors.
 ```bash
 $ plot_different_k.py
-```
-* the following python file can plot Accuracy, Precision, and Recall for different hybrid methods mention in our paper.
-```bash
-$ plot_hybrid_method.py
 ```
 * the following python file can plot Accuracy, Precision, and Recall for different pre-trained models.
 ```bash

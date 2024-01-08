@@ -1,8 +1,0 @@
-Currently using GPU: 2
-Creating dataset: Tiny-Imagenet
-openset here!
-Creating model: vgg16
-==> Test
-Model_A | Accuracy (%): 21.500001907348633	 Error rate (%): 78.5
-Model_B | Accuracy (%): 22.150001525878906	 Error rate (%): 77.8499984741211
-99694824219

@@ -1,6 +1,0 @@
-Currently using GPU: 3
-Creating dataset: cifar10
-Files already downloaded and verified
-openset here!
-Files already downloaded and verified
-Creating model: vgg16
