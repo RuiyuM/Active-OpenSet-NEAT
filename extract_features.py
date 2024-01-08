@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
@@ -13,6 +15,7 @@ from collections import Counter
 from torch.utils.data import SubsetRandomSampler
 import pickle
 import os
+import time
 
 import resnet_image as res_image
 
@@ -87,6 +90,38 @@ class CustomCIFAR100Dataset_train(Dataset):
 
     def __len__(self):
         return len(CustomCIFAR100Dataset_train.cifar100_dataset)
+
+class ImageNetDatasetWithIndex(datasets.ImageFolder):
+    def __getitem__(self, index):
+        # Get the original tuple of (image, label) from the ImageFolder class
+        image, label = super(ImageNetDatasetWithIndex, self).__getitem__(index)
+        # Return a tuple of (index, (image, label))
+        return index, (image, label)
+
+class Top100ImageNetDataset(datasets.ImageFolder):
+    def __init__(self, root, top_100_classes, transform=None):
+        super().__init__(root, transform=transform)
+        # Filter out all but the top 100 classes
+        self.samples = [(s, l) for (s, l) in self.samples if self.classes[l] in top_100_classes]
+        self.imgs = self.samples  # torchvision 0.8.0 compatibility
+
+        # Create a mapping for the top 100 classes to labels in the range 0-99
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(top_100_classes)}
+        # Update the labels for the filtered samples
+        self.samples = [(s, self.class_to_idx[self.classes[l]]) for (s, l) in self.samples]
+        self.samples = sorted(self.samples, key=lambda item: item[1])
+        self.imgs = self.samples  # Update imgs as well
+        self.targets = [idx for _, idx in self.samples]
+        # print(self.targets)
+
+    def __getitem__(self, index):
+        # Get the original tuple of (image, label) from the ImageFolder class
+        image, label = super(Top100ImageNetDataset, self).__getitem__(index)
+        # Return a tuple of (index, (image, label))
+        return index, (image, label)
+
+    def __len__(self):
+        return len(self.samples)
 
 
 class CustomTinyImageNetDataset_train(Dataset):
@@ -222,10 +257,10 @@ def CIFAR100_EXTRACT_ALL(pre_type, dataset, model, preprocess):
         torch.save(index_to_label, save_folder + '/cifar100_index_to_label.pt')
 
 
-def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
+def ImageNet_EXTRACT_ALL(pre_type, model, preprocess, dataset):
     model.eval()
-
-    crop = transforms.RandomCrop(64, padding=4, padding_mode='reflect')
+    start_time = time.time()
+    crop = transforms.RandomResizedCrop(224)
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     if pre_type == "CLIP":
@@ -240,9 +275,33 @@ def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
                                               transforms.ToTensor(),
                                               normalize])
 
-    train_data = CustomTinyImageNetDataset_train(transform=preprocess_rand)
+    if dataset == "Tiny-Imagenet":
+        train_data = CustomTinyImageNetDataset_train(transform=preprocess_rand)
+    elif dataset == "Imagenet":
+        datapath = os.path.join('./data/ILSVRC2014', 'train')
+        all_classes = sorted([d for d in os.listdir(datapath) if os.path.isdir(os.path.join(datapath, d))])
+        random.shuffle(all_classes)
+        top_100_classes = all_classes[:30]
 
-    batch_size = 256
+        # Path to the file where you want to save the class names
+        save_path = 'top_100_classes.pkl'
+
+        # Check if the file exists
+        if os.path.exists(save_path):
+            # Load the class names from the file
+            with open(save_path, 'rb') as f:
+                top_100_classes = pickle.load(f)
+            print("Loaded top 100 classes from local file.")
+        else:
+            # Assuming top_100_classes is defined and you need to save it
+            # Write the class names to the file using pickle
+            with open(save_path, 'wb') as f:
+                pickle.dump(top_100_classes, f)
+            print("Saved top 100 classes to local file.")
+
+        train_data = Top100ImageNetDataset(root=datapath,top_100_classes=top_100_classes, transform=preprocess_rand)
+
+    batch_size = 1024
     print('Data Loader')
     data_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -252,7 +311,6 @@ def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
     all_labels = []
 
     sel_idx = []
-
     for batch_idx, (index, (data, labels)) in enumerate(data_loader):
         print(batch_idx)
         data = data.to(device)
@@ -273,9 +331,9 @@ def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
             sel_idx.append(index)
             all_labels.append(labels)
 
-    final_feat = torch.concat(features).to(device)
-    sel_idx = torch.concat(sel_idx).to(device)
-    labels = torch.concat(all_labels).to(device)
+    final_feat = torch.cat(features, dim=0).to(device)
+    sel_idx = torch.cat(sel_idx, dim=0).to(device)
+    labels = torch.cat(all_labels, dim=0).to(device)
 
     ###########################################################
     feature_sel_idx = sel_idx.unsqueeze(1).repeat(1, final_feat.size()[1]).to(device)
@@ -290,24 +348,26 @@ def ImageNet_EXTRACT_ALL(pre_type, model, preprocess):
     for idx, index in enumerate(sel_idx):
         index_to_label[index] = labels[idx]
 
-    save_folder = "./features/" + pre_type
+    save_folder = "./features/" + "clip"
 
     isExist = os.path.exists(save_folder)
     if not isExist:
         # Create a new directory because it does not exist
         os.makedirs(save_folder)
-
-    torch.save(ordered_feature, save_folder + '/Tiny-Imagenet_features.pt')
-    torch.save(ordered_label, save_folder + '/Tiny-Imagenet_labels.pt')
-    torch.save(index_to_label, save_folder + '/Tiny-Imagenet_index_to_label.pt')
+    end_time = time.time()
+    epoch_duration = end_time - start_time
+    print(f'extract_time: {epoch_duration}')
+    torch.save(ordered_feature, save_folder + '/Imagenet_features.pt')
+    torch.save(ordered_label, save_folder + '/Imagenet_labels.pt')
+    torch.save(index_to_label, save_folder + '/Imagenet_index_to_label.pt')
 
 
 def extracted_feature(pre_type, dataset):
     model, preprocess = set_model_min(pre_type)
 
-    if dataset == "Tiny-Imagenet":
+    if dataset == "Tiny-Imagenet" or dataset == "Imagenet":
 
-        ImageNet_EXTRACT_ALL(pre_type, model, preprocess)
+        ImageNet_EXTRACT_ALL(pre_type, model, preprocess, dataset)
 
     else:
 
@@ -336,6 +396,12 @@ def CIFAR100_LOAD_ALL(dataset="cifar100", pre_type="clip"):
         index_to_label = torch.load(save_folder + '/cifar100_index_to_label.pt')
         ordered_feature = torch.load(save_folder + '/cifar100_features.pt')
         ordered_label = torch.load(save_folder + '/cifar100_labels.pt')
+
+    elif dataset == "Imagenet":
+
+        index_to_label = torch.load(save_folder + '/Imagenet_index_to_label.pt')
+        ordered_feature = torch.load(save_folder + '/Imagenet_features.pt')
+        ordered_label = torch.load(save_folder + '/Imagenet_labels.pt')
 
     print("finish loading " + dataset)
 
@@ -393,17 +459,20 @@ def CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_index, unlabeled_index, args, orde
 
 
 if __name__ == "__main__":
-    for dataset in ["cifar10", "cifar100", "Tiny-Imagenet"]:
+    # if you want to extract all the datasets' features at once you can uncomment the below code
+    # if you only interested in certain dataset you can change the dataset name below
+    # pre_trained model can be selected at the following commented code(image18 means resnet18 pretrained on Imagenet)
+    for dataset in ["Tiny-Imagenet"]:
         print(dataset)
         extracted_feature("CLIP", dataset)
-    # CIFAR100_EXTRACT_ALL(dataset=dataset)
+
 
 
 
     '''
-    for dataset in ["cifar10", "cifar100", "Tiny-Imagenet"]:
+    for dataset in ["cifar10", "cifar100", "Tiny-Imagenet", "Imagenet"]:
         print (dataset)
-        for pre_type in ["image18", "image34", "image50"]:
+        for pre_type in ["image18", "image34", "image50", "CLIP"]:
 
             extracted_feature(pre_type, dataset)
     '''

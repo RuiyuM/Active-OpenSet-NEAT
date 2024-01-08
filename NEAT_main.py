@@ -21,19 +21,21 @@ import torchvision.models as torch_models
 import pickle
 from utils import AverageMeter, Logger
 from center_loss import CenterLoss
+import timm
+from timm.models.vision_transformer import VisionTransformer
 
 from extract_features import CIFAR100_LOAD_ALL
 
 parser = argparse.ArgumentParser("NEAT")
 # dataset
-parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['Tiny-Imagenet', 'cifar100', 'cifar10'])
+parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['Tiny-Imagenet', 'cifar100', 'cifar10', 'Imagenet'])
 parser.add_argument('-j', '--workers', default=0, type=int,
                     help="number of data loading workers (default: 4)")
 # optimization
-parser.add_argument('--batch-size', type=int, default=128)
+parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--lr-model', type=float, default=0.01, help="learning rate for model")
 parser.add_argument('--lr-cent', type=float, default=0.5, help="learning rate for center loss")
-parser.add_argument('--max-epoch', type=int, default=100)
+parser.add_argument('--max-epoch', type=int, default=50)
 parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=400)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
@@ -48,7 +50,7 @@ parser.add_argument('--known-T', type=float, default=0.5)
 parser.add_argument('--unknown-T', type=float, default=2)
 parser.add_argument('--modelB-T', type=float, default=1)
 # model
-parser.add_argument('--model', type=str, default='resnet18', choices=['resnet18', 'resnet34', 'resnet50', 'vgg16'])
+parser.add_argument('--model', type=str, default='resnet18', choices=['resnet18', 'resnet34', 'resnet50', 'vgg16', 'vit_small_patch16_224'])
 # misc
 parser.add_argument('--eval-freq', type=int, default=100)
 parser.add_argument('--print-freq', type=int, default=50)
@@ -77,6 +79,24 @@ parser.add_argument('--pre-type', type=str, default='clip')
 args = parser.parse_args()
 
 
+def make_tome_class(transformer_class):
+    class ToMeVisionTransformer(transformer_class):
+        """
+        Modifications:
+        - Initialize r, token size, and token sources.
+        - For MAE: make global average pooling proportional to token size
+        """
+
+        def forward(self, x):
+            features = self.forward_features(x)
+            cls_token = features[:, 0, :]
+            x = self.forward_head(features)
+            return cls_token, x
+
+
+
+    return ToMeVisionTransformer
+
 def main():
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -87,7 +107,10 @@ def main():
     if args.query_strategy in ['NEAT_passive', 'NEAT', 'hybrid-BGADL', 'hybrid-OpenMax', 'hybrid-Core_set',
                                'hybrid-BADGE_sampling', 'hybrid-uncertainty', "hybrid_AV_temperature"]:
         ordered_feature, ordered_label, index_to_label = CIFAR100_LOAD_ALL(dataset=args.dataset, pre_type=args.pre_type)
-
+    # print(index_to_label)
+    # print('#################')
+    # print(ordered_label)
+    # exit()
     sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
 
     if use_gpu:
@@ -153,7 +176,12 @@ def main():
             elif args.model == "resnet50":
                 # model_A = resnet50(num_classes=dataset.num_classes + 1)
                 model_B = resnet50(num_classes=dataset.num_classes)
+            elif args.model == 'vit_small_patch16_224':
+                # model = CustomViT('vit_small_patch16_224', pretrained=False, num_classes=1000)
+                model_B = timm.create_model('vit_small_patch16_224', pretrained=False, num_classes=dataset.num_classes)
+                ToMeVisionTransformer = make_tome_class(model_B.__class__)
 
+                model_B.__class__ = ToMeVisionTransformer
 
 
             if use_gpu:
@@ -184,7 +212,16 @@ def main():
             elif args.model == "resnet50":
                 model_A = resnet50(num_classes=dataset.num_classes + 1)
                 model_B = resnet50(num_classes=dataset.num_classes)
+            elif args.model == 'vit_small_patch16_224':
+                model_A = timm.create_model('vit_small_patch16_224', pretrained=False,
+                                            num_classes=dataset.num_classes + 1)
+                ToMeVisionTransformer = make_tome_class(model_A.__class__)
 
+                model_A.__class__ = ToMeVisionTransformer
+                model_B = timm.create_model('vit_small_patch16_224', pretrained=False, num_classes=dataset.num_classes)
+                x_ToMeVisionTransformer = make_tome_class(model_B.__class__)
+
+                model_B.__class__ = x_ToMeVisionTransformer
 
 
             if use_gpu:
@@ -340,7 +377,8 @@ def main():
                 index_to_label, trainloader_B)
 
         per_round.append(list(queryIndex) + list(invalidIndex))
-
+        print(f'queryIndex: {queryIndex}')
+        print(f'invalidIndex: {invalidIndex}')
         # Update labeled, unlabeled and invalid set
         unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
 
@@ -446,7 +484,6 @@ def train_A(model, criterion_xent,
     unknown_T = args.unknown_T
     invalid_class = args.known_class
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
-
         # Reduce temperature
         T = torch.tensor([known_T] * labels.shape[0], dtype=float)
 
@@ -487,7 +524,7 @@ def train_B(model, criterion_xent,
             trainloader, use_gpu):
     model.train()
     xent_losses = AverageMeter()
-    cent_losses = AverageMeter()
+
     losses = AverageMeter()
 
 
@@ -514,14 +551,7 @@ def train_B(model, criterion_xent,
 
         losses.update(loss.item(), labels.size(0))
         xent_losses.update(loss_xent.item(), labels.size(0))
-        # cent_losses.update(loss_cent.item(), labels.size(0))
 
-
-
-        # if (batch_idx + 1) % args.print_freq == 0:
-        #     print("Batch {}/{}\t Loss {:.6f} ({:.6f}) XentLoss {:.6f} ({:.6f}) CenterLoss {:.6f} ({:.6f})" \
-        #           .format(batch_idx + 1, len(trainloader), losses.val, losses.avg, xent_losses.val, xent_losses.avg,
-        #                   cent_losses.val, cent_losses.avg))
 
 
 
